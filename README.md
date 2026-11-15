@@ -24,6 +24,13 @@ ESLint+Prettier da far litigare), TypeScript in `strict` con `noUncheckedIndexed
 `.editorconfig`, `.gitattributes` con LF. Biome non tocca `.agents/`, `.hermes/` e `openspec/`:
 sono file generati dalla CLI OpenSpec e riformattarli crea solo rumore nei diff.
 
+### Hook pre-commit
+
+`.githooks/pre-commit` esegue `tsc --noEmit` sull'intero progetto e `biome check --staged`
+sui soli file in stage (veloce anche quando il repo cresce). Nessuna dipendenza extra: un
+`prepare` in `package.json` attiva l'hook con `git config core.hooksPath .githooks` a ogni
+`npm install`. Bypass consapevole, quando serve: `git commit --no-verify`.
+
 ## Provarlo sul telefono
 
 I sensori (accelerometro) funzionano solo in **contesto sicuro**: `http://192.168.x.x:5173`
