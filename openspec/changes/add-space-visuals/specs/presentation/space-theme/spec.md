@@ -84,3 +84,31 @@ Ogni asset grafico esterno SHALL essere accompagnato nel repository dal file di 
 
 - **WHEN** si controlla il repository senza rete
 - **THEN** è possibile ricostruire da dove viene ogni immagine e con quale licenza
+
+### Requirement: Il giocatore sta nella parte bassa dello schermo
+
+L'astronave SHALL essere posizionata sotto il centro dello schermo, con più spazio visibile davanti a sé che dietro, così che l'utente veda il campo di asteroidi che sta per attraversare. La posizione verticale sullo schermo SHALL restare stabile per tutta la partita.
+
+#### Scenario: Posizione all'avvio della partita
+
+- **WHEN** la partita inizia
+- **THEN** l'astronave appare nella parte bassa dello schermo e non al centro
+
+#### Scenario: Posizione stabile mentre si sale
+
+- **WHEN** l'astronave sale per un tratto lungo
+- **THEN** resta nella stessa posizione verticale sullo schermo e scorre il mondo sotto di lei
+
+### Requirement: I pulsanti del menu sono a tema
+
+I pulsanti SHALL usare la palette dello spazio (fondo scuro, bordo luminoso, testo chiaro) e SHALL distinguere visivamente lo stato normale da quello premuto e da quello disabilitato, mantenendo il contrasto del testo su ognuno. Il bordo MUST restare visibile sopra lo sfondo stellato.
+
+#### Scenario: Pulsante su sfondo stellato
+
+- **WHEN** il menu mostra i pulsanti sopra il campo stellato
+- **THEN** il bordo dei pulsanti è distinguibile dallo sfondo e il testo resta leggibile
+
+#### Scenario: Stato premuto e disabilitato
+
+- **WHEN** l'utente preme un pulsante o un pulsante è disabilitato
+- **THEN** l'aspetto cambia in modo riconoscibile e il testo resta leggibile

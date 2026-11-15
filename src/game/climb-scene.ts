@@ -7,6 +7,7 @@ import {
   OBSTACLE_RADIUS,
   PIXELS_PER_POINT,
   PLAYER_HITBOX_WIDTH,
+  PLAYER_SCREEN_FRACTION,
   SPAWN_GAP_PX,
   WORLD_HEIGHT,
   WORLD_WIDTH,
@@ -49,8 +50,9 @@ export class ClimbScene extends ex.Scene {
     this.player.pos.y = 0;
     this.add(this.player);
 
-    // Vertical only: horizontal movement must not drag the world along.
-    this.camera.strategy.lockToActorAxis(this.player, ex.Axis.Y);
+    // The camera is placed by hand instead of a strategy: the ship must sit low on screen,
+    // not in the middle, and the offset has to stay constant while the world scrolls.
+    this.alignCamera();
 
     this.pool = new ObstaclePool(this, OBSTACLE_POOL_SIZE);
     this.inputRouter = new InputRouter(engine, session.tilt);
@@ -96,9 +98,16 @@ export class ClimbScene extends ex.Scene {
   }
 
   override onPostUpdate(): void {
+    this.alignCamera();
     if (this.running) {
       this.player.pos.x = this.clampX(this.player.pos.x);
     }
+  }
+
+  /** Keeps the ship in the lower part of the screen: the camera sits above it. */
+  private alignCamera(): void {
+    this.camera.pos.x = WORLD_WIDTH / 2;
+    this.camera.pos.y = this.player.pos.y - WORLD_HEIGHT * (PLAYER_SCREEN_FRACTION - 0.5);
   }
 
   private startRun(): void {
@@ -150,7 +159,7 @@ export class ClimbScene extends ex.Scene {
 
   /** Keeps asteroids waiting above the viewport, one SPAWN_GAP apart. */
   private spawnAhead(): void {
-    const topEdge = this.player.pos.y - WORLD_HEIGHT / 2;
+    const topEdge = this.player.pos.y - WORLD_HEIGHT * PLAYER_SCREEN_FRACTION;
     while (this.nextSpawnY > topEdge - SPAWN_GAP_PX) {
       this.pool.acquire(this.randomObstacleX(), this.nextSpawnY);
       this.nextSpawnY -= SPAWN_GAP_PX;
@@ -165,7 +174,7 @@ export class ClimbScene extends ex.Scene {
   }
 
   private cameraBottom(): number {
-    return this.player.pos.y + WORLD_HEIGHT / 2 + SPAWN_GAP_PX;
+    return this.player.pos.y + WORLD_HEIGHT * (1 - PLAYER_SCREEN_FRACTION) + SPAWN_GAP_PX;
   }
 
   private clampX(x: number): number {

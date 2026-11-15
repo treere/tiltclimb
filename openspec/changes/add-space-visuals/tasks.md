@@ -40,6 +40,12 @@
 - [ ] 7.2 Controllare la leggibilità in partita (nave distinguibile dagli asteroidi, HUD leggibile sullo sfondo stellato); verifica: giudizio a occhio su schermo piccolo
 - [x] 7.3 Aggiornare `README.md` (aspetto, crediti) ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
 
+## 8. Ritocchi chiesti dopo la prova
+
+- [ ] 8.1 Spostare l'astronave nella parte bassa dello schermo, con la camera che la segue a un'altezza fissa; verifica: in partita la nave sta sotto il centro e la posizione resta stabile salendo
+- [ ] 8.2 Ridisegnare i pulsanti in palette spaziale (fondo scuro, bordo luminoso) con stati normale, premuto e disabilitato; verifica: i bordi si distinguono dallo sfondo stellato e il testo resta leggibile in tutti gli stati
+- [ ] 8.3 Giro di prova su telefono: menu con pulsanti a tema, partita con nave bassa, morte e ritorno al menu; verifica: nessun elemento tagliato e nessun salto di posizione
+
 ## Workflow follow-up
 
 - Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec

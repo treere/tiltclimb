@@ -44,6 +44,12 @@ export const PLAYER_HITBOX_HEIGHT = 34;
 export const OBSTACLE_VISUAL_WIDTH = 90;
 export const OBSTACLE_RADIUS = 33;
 
+/**
+ * Where the ship sits on screen, 0 = top, 1 = bottom. Below the centre on purpose: the user
+ * must see the asteroid field it is flying into, not the empty space behind it.
+ */
+export const PLAYER_SCREEN_FRACTION = 0.72;
+
 /** World pixels per score point. */
 export const PIXELS_PER_POINT = 20;
 
