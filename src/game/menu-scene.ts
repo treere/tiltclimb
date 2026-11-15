@@ -53,7 +53,7 @@ export class MenuScene extends ex.Scene {
   private increaseButton!: Button;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
   private curtain!: ex.ScreenElement;
-  private curtainLeft = 0;
+  private curtainStartedAt = 0;
   private sensorPromptInFlight = false;
 
   override onInitialize(engine: ex.Engine): void {
@@ -211,7 +211,10 @@ export class MenuScene extends ex.Scene {
   }
 
   override onActivate(_context: SceneContext): void {
-    this.curtainLeft = CURTAIN_MS;
+    // Wall clock, not the game clock: the fade must take 320 ms of real time even when the
+    // device runs the fixed 60 Hz step slowly, otherwise on a slow phone the menu stays
+    // half-covered by the curtain for seconds.
+    this.curtainStartedAt = performance.now();
     this.curtain.graphics.opacity = 1;
     audio.syncMusic('menu');
     this.refreshResult();
@@ -226,7 +229,7 @@ export class MenuScene extends ex.Scene {
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
     this.starfield.update(elapsed);
-    this.updateCurtain(elapsed);
+    this.updateCurtain();
 
     if (session.sensorPromptDone) {
       session.tilt.tick();
@@ -236,12 +239,9 @@ export class MenuScene extends ex.Scene {
     this.refreshReadout(elapsed);
   }
 
-  private updateCurtain(elapsed: number): void {
-    if (this.curtainLeft <= 0) {
-      return;
-    }
-    this.curtainLeft = Math.max(0, this.curtainLeft - elapsed);
-    this.curtain.graphics.opacity = this.curtainLeft / CURTAIN_MS;
+  private updateCurtain(): void {
+    const elapsed = performance.now() - this.curtainStartedAt;
+    this.curtain.graphics.opacity = Math.max(0, 1 - elapsed / CURTAIN_MS);
   }
 
   private refreshReadout(elapsed: number): void {
