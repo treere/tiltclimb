@@ -2,71 +2,71 @@
 
 ## Purpose
 
-Trasforma l'inclinazione del telefono in un comando di sterzata continuo e prevedibile, e garantisce che il gioco resti giocabile anche quando il sensore non c'è o il permesso viene negato.
+Turns the phone's tilt into a continuous and predictable steering command, and guarantees that the game stays playable even when the sensor is missing or the permission is denied.
 
 ## ADDED Requirements
 
-### Requirement: Sterzata proporzionale al tilt
+### Requirement: Steering proportional to the tilt
 
-Con i sensori attivi, il sistema SHALL tradurre l'inclinazione sinistra/destra del dispositivo in una velocità orizzontale del giocatore, proporzionale all'angolo inclinato e con segno corrispondente alla direzione. L'inclinazione a destra SHALL muovere il giocatore a destra e quella a sinistra a sinistra, su schermo in orientamento verticale.
+With the sensors active, the system SHALL translate the left/right tilt of the device into a horizontal speed of the player, proportional to the angle tilted and with a sign matching the direction. Tilting right SHALL move the player to the right and tilting left to the left, on a screen in vertical orientation.
 
-#### Scenario: Inclinazione verso destra
+#### Scenario: Tilting to the right
 
-- **WHEN** il telefono è inclinato verso destra oltre la dead zone
-- **THEN** il giocatore si muove verso destra, tanto più veloce quanto maggiore è l'angolo
+- **WHEN** the phone is tilted to the right beyond the dead zone
+- **THEN** the player moves to the right, the faster the greater the angle
 
-#### Scenario: Telefono in piano
+#### Scenario: Phone flat
 
-- **WHEN** il telefono è tenuto nell'inclinazione neutra
-- **THEN** il giocatore non si muove in orizzontale da solo
+- **WHEN** the phone is held at the neutral tilt
+- **THEN** the player does not move horizontally on its own
 
-### Requirement: Calibrazione dello zero al primo tocco
+### Requirement: Zero calibration on the first touch
 
-Il sistema SHALL assumere come inclinazione neutra quella del dispositivo al momento in cui l'utente avvia la partita, e MUST sottrarre questo valore a tutte le letture successive, così che il giocatore non derivi a causa di come il telefono viene impugnato.
+The system SHALL take as neutral tilt the one of the device at the moment the user starts the run, and MUST subtract this value from all subsequent readings, so that the player does not drift because of how the phone is held.
 
-#### Scenario: Zero catturato all'avvio
+#### Scenario: Zero captured at start
 
-- **WHEN** l'utente avvia la partita con il telefono inclinato di 12 gradi
-- **THEN** quella posizione vale zero e il giocatore resta fermo finché l'inclinazione non cambia
+- **WHEN** the user starts the run with the phone tilted by 12 degrees
+- **THEN** that position counts as zero and the player stays still until the tilt changes
 
-#### Scenario: Ricalibrazione fra una partita e l'altra
+#### Scenario: Recalibration between runs
 
-- **WHEN** l'utente riavvia la partita con il telefono in una posizione diversa
-- **THEN** il nuovo zero è la posizione assunta al riavvio
+- **WHEN** the user restarts the run with the phone in a different position
+- **THEN** the new zero is the position assumed at the restart
 
-### Requirement: Smorzamento e dead zone
+### Requirement: Damping and dead zone
 
-Il sistema SHALL filtrare le letture del sensore per ridurre il tremolio e SHALL ignorare le inclinazioni inferiori a una soglia minima, così che il giocatore non vibri quando il telefono è quasi fermo. Il movimento SHALL risultare fluido e non a scatti alla frequenza di aggiornamento disponibile sul dispositivo.
+The system SHALL filter the sensor readings to reduce jitter and SHALL ignore tilts below a minimum threshold, so that the player does not vibrate when the phone is almost still. The movement SHALL be smooth and not jerky at the refresh rate available on the device.
 
-#### Scenario: Tremolio da mano ferma
+#### Scenario: Jitter from a still hand
 
-- **WHEN** il telefono è fermo ma il sensore oscilla di pochi decimi di grado
-- **THEN** il giocatore resta immobile
+- **WHEN** the phone is still but the sensor oscillates by a few tenths of a degree
+- **THEN** the player stays still
 
-#### Scenario: Frequenza di aggiornamento bassa
+#### Scenario: Low refresh rate
 
-- **WHEN** il dispositivo emette eventi di orientamento meno di 30 volte al secondo
-- **THEN** il movimento del giocatore resta continuo, senza salti visibili
+- **WHEN** the device emits orientation events fewer than 30 times per second
+- **THEN** the player's movement stays continuous, without visible jumps
 
-### Requirement: Fallback senza sensori
+### Requirement: Fallback without sensors
 
-Quando il sensore non è disponibile, il permesso è negato o l'utente gioca da desktop, il sistema SHALL rendere il gioco pienamente controllabile con la tastiera (frecce sinistra/destra) e con il trascinamento orizzontale del dito o del mouse. Il gioco MUST NOT bloccarsi in attesa di un permesso.
+When the sensor is unavailable, the permission is denied or the user plays from a desktop, the system SHALL make the game fully controllable with the keyboard (left/right arrows) and with horizontal dragging of the finger or mouse. The game MUST NOT freeze waiting for a permission.
 
-#### Scenario: Permesso negato
+#### Scenario: Permission denied
 
-- **WHEN** l'utente rifiuta il permesso di accesso ai sensori
-- **THEN** la partita parte comunque e risponde ai comandi di fallback
+- **WHEN** the user refuses the sensor access permission
+- **THEN** the run starts anyway and responds to the fallback controls
 
-#### Scenario: Partita da desktop
+#### Scenario: Run from desktop
 
-- **WHEN** la pagina viene aperta su un computer senza accelerometro
-- **THEN** le frecce orizzontali muovono il giocatore e nessun messaggio di errore blocca l'avvio
+- **WHEN** the page is opened on a computer without an accelerometer
+- **THEN** the horizontal arrows move the player and no error message blocks the start
 
-### Requirement: Richiesta permessi dentro un gesto utente
+### Requirement: Permission request inside a user gesture
 
-Su piattaforme che richiedono un consenso esplicito per i sensori, il sistema SHALL chiedere il permesso solo in risposta a un'azione dell'utente e SHALL gestire l'esito negativo senza interrompere il gioco.
+On platforms that require explicit consent for the sensors, the system SHALL ask for the permission only in response to a user action and SHALL handle the negative outcome without interrupting the game.
 
-#### Scenario: Primo tocco su Android o iOS
+#### Scenario: First touch on Android or iOS
 
-- **WHEN** l'utente tocca per iniziare la partita
-- **THEN** la richiesta di permesso avviene dentro quel tocco e l'esito viene registrato prima di iniziare lo scorrimento
+- **WHEN** the user touches to start the run
+- **THEN** the permission request happens inside that touch and the outcome is recorded before the scrolling starts

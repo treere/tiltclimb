@@ -16,7 +16,7 @@ const source = readFileSync(join(root, 'src/ui/button.ts'), 'utf8');
 function palette(name) {
   const match = new RegExp(`const ${name} = '(#[0-9a-fA-F]{6})';`).exec(source);
   if (!match) {
-    throw new Error(`colore ${name} non trovato in src/ui/button.ts`);
+    throw new Error(`colour ${name} not found in src/ui/button.ts`);
   }
   return match[1];
 }
@@ -46,33 +46,33 @@ const EDGE_MIN = 3;
 
 const checks = [
   {
-    label: 'testo su fondo normale',
+    label: 'text on normal fill',
     fg: palette('TEXT_COLOR'),
     bg: palette('FILL_IDLE'),
     min: TEXT_MIN,
   },
   {
-    label: 'testo su fondo hover',
+    label: 'text on hover fill',
     fg: palette('TEXT_HOVER'),
     bg: palette('FILL_HOVER'),
     min: TEXT_MIN,
   },
   {
-    label: 'testo su fondo premuto',
+    label: 'text on pressed fill',
     fg: palette('TEXT_HOVER'),
     bg: palette('FILL_PRESSED'),
     min: TEXT_MIN,
   },
   {
-    label: 'testo disabilitato',
+    label: 'disabled text',
     fg: palette('TEXT_DISABLED'),
     bg: palette('FILL_DISABLED'),
     min: TEXT_MIN,
   },
-  { label: 'bordo normale', fg: palette('EDGE_IDLE'), bg: palette('FILL_IDLE'), min: EDGE_MIN },
-  { label: 'bordo hover', fg: palette('EDGE_HOVER'), bg: palette('FILL_HOVER'), min: EDGE_MIN },
+  { label: 'normal border', fg: palette('EDGE_IDLE'), bg: palette('FILL_IDLE'), min: EDGE_MIN },
+  { label: 'hover border', fg: palette('EDGE_HOVER'), bg: palette('FILL_HOVER'), min: EDGE_MIN },
   {
-    label: 'bordo premuto',
+    label: 'pressed border',
     fg: palette('EDGE_PRESSED'),
     bg: palette('FILL_PRESSED'),
     min: EDGE_MIN,
@@ -88,13 +88,13 @@ for (const check of checks) {
   }
   const status = ok ? 'ok  ' : 'FAIL';
   console.log(
-    `${status} ${check.label}: ${ratio.toFixed(2)}:1 (minimo ${check.min}:1) ${check.fg} su ${check.bg}`,
+    `${status} ${check.label}: ${ratio.toFixed(2)}:1 (min ${check.min}:1) ${check.fg} on ${check.bg}`,
   );
 }
 
 if (failed > 0) {
-  console.error(`\n${failed} controlli di contrasto falliti`);
+  console.error(`\n${failed} contrast checks failed`);
   process.exit(1);
 }
 
-console.log(`\ncontrasto: ${checks.length} controlli superati`);
+console.log(`\ncontrast: ${checks.length} checks passed`);

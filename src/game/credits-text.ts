@@ -5,17 +5,17 @@
 
 /** Four lines: who the hero is and why the ship keeps climbing. */
 export const STORY: string[] = [
-  'Il salto è andato storto. Il pilota si è svegliato solo, in un campo di asteroidi, ' +
-    'con la strumentazione che dice una cosa sola: la squadra è passata di qui.',
-  'La rotta è segnata dai relitti, e i relitti sono pieni di navi che non vogliono farti passare.',
-  'I motori reggono, il carburante no. L’unico modo per raggiungerli è salire, e salire in fretta.',
+  'The jump went wrong. The pilot woke up alone, in an asteroid field, ' +
+    'with the instruments saying one thing only: the squad came through here.',
+  'The route is marked by wrecks, and the wrecks are full of ships that do not want to let you through.',
+  'The engines hold, the fuel does not. The only way to reach them is to climb, and climb fast.',
 ];
 
 export type CreditLine = { label: string; value: string };
 
 export const CREDITS: CreditLine[] = [
-  { label: 'Ideazione, game design e direzione', value: 'Andrea Tomasi' },
-  { label: 'Grafica', value: 'Kenney — Space Shooter Redux (CC0 1.0)' },
-  { label: 'Motore', value: 'Excalibur 1.0' },
-  { label: 'Codice', value: 'TypeScript + Vite' },
+  { label: 'Concept, game design and direction', value: 'Andrea Tomasi' },
+  { label: 'Art', value: 'Kenney — Space Shooter Redux (CC0 1.0)' },
+  { label: 'Engine', value: 'Excalibur 1.0' },
+  { label: 'Code', value: 'TypeScript + Vite' },
 ];

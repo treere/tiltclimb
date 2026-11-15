@@ -1,37 +1,37 @@
 schema: spec-driven
 
 context: |
-  Tiltclimb è un gioco 2D per browser: scroll verticale infinito (il giocatore sale),
-  si sterza inclinando il telefono a sinistra/destra. Deve girare su Android Chrome
-  da telefono e su desktop con tastiera; nessuna app nativa, nessun account, nessun backend.
-  Stack fisso: Excalibur 1.0.1, TypeScript, Vite 8. Nessuna dipendenza UI aggiuntiva.
-  L'input tilt usa le API del browser (deviceorientation, gamma) perché Excalibur non
-  ha supporto ai sensori; serve sempre un fallback senza sensori (tastiera su desktop,
-  drag sul touch).
-  Il giocatore è Andrea: tech lead, leggere italiano discorsivo, niente documenti non
-  richiesti. Gli artefatti OpenSpec sono in italiano; identificatori, commenti e chiavi
-  nel codice sono in inglese.
-  Anteprima su telefono solo via quick tunnel cloudflared (HTTPS obbligatorio per i sensori),
-  quindi il dev server deve accettare host .trycloudflare.com e HMR su wss:443.
-  Nessun asset grafico esterno nella prima iterazione: forme disegnate via codice.
+  Tiltclimb is a 2D browser game: endless vertical scrolling (the player climbs),
+  you steer by tilting the phone left/right. It must run on Android Chrome
+  on a phone and on desktop with the keyboard; no native app, no account, no backend.
+  Fixed stack: Excalibur 1.0.1, TypeScript, Vite 8. No additional UI dependencies.
+  The tilt input uses the browser APIs (deviceorientation, gamma) because Excalibur has
+  no sensor support; a fallback without sensors is always required (keyboard on desktop,
+  drag on touch).
+  The player is Andrea: tech lead, light conversational tone, no unrequested documents.
+  OpenSpec artifacts are in English; identifiers, comments and keys in the code are in
+  English.
+  Phone preview only through a cloudflared quick tunnel (HTTPS mandatory for the sensors),
+  so the dev server must accept .trycloudflare.com hosts and HMR on wss:443.
+  No external graphic asset in the first iteration: shapes drawn in code.
 
 rules:
   proposal:
-    - Scrivere in italiano, max 400 parole
-    - Dichiarare sempre cosa è fuori scope
+    - Write in English, max 400 words
+    - Always state what is out of scope
   design:
-    - Documentare le costanti di gioco (gravità, velocità di salita, sensibilità tilt, dead zone) con i valori iniziali
-    - Spiegare la matematica del tilt (gamma, calibrazione dello zero, smoothing) e il perché del fallback
+    - Document the game constants (gravity, climb speed, tilt sensitivity, dead zone) with their initial values
+    - Explain the tilt math (gamma, zero calibration, smoothing) and why the fallback exists
   tasks:
-    - Ogni task deve avere una verifica eseguibile (npm run check, o prova sul telefono)
-    - Task da massimo 30 minuti l'uno
-    - Il gate standard di ogni task è `npm run check`: typecheck + Biome (lint e format) + build
+    - Every task must have an executable check (npm run check, or a test on the phone)
+    - Tasks of at most 30 minutes each
+    - The standard gate for every task is `npm run check`: typecheck + Biome (lint and format) + build
 
 operations:
   apply:
     guidance:
-      - Mantieni il gioco giocabile dopo ogni task, non solo alla fine
-      - Verifica con npm run build prima di dichiarare un task chiuso
+      - Keep the game playable after every task, not only at the end
+      - Verify with npm run build before declaring a task closed
   archive:
     guidance:
-      - Sincronizza gli delta spec prima di archiviare
+      - Sync the spec deltas before archiving

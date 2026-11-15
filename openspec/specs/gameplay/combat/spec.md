@@ -1,159 +1,159 @@
 # gameplay/combat Specification
 
 ## Purpose
-Definisce lo scontro: l'eroe spara dal tasto in basso, navi nemiche scendono zigzagando e sparano verso il basso, e le regole dicono cosa si colpisce e cosa no — comprese le immunità degli asteroidi.
+Defines the fight: the hero fires from the button at the bottom, enemy ships descend zigzagging and shoot downward, and the rules state what gets hit and what does not — including asteroid immunities.
 
 ## Requirements
 
-### Requirement: Fuoco dell'eroe a colpo singolo
+### Requirement: Single-shot hero fire
 
-L'eroe SHALL poter sparare premendo un pulsante posto nella parte bassa dello schermo, e ogni tocco SHALL produrre esattamente un colpo, senza raffica automatica. Il colpo SHALL partire dall'astronave e viaggiare verso l'alto. Il pulsante SHALL restare raggiungibile dal pollice senza coprire l'astronave né gli asteroidi in arrivo.
+The hero SHALL be able to fire by pressing a button placed in the lower part of the screen, and every tap SHALL produce exactly one shot, with no automatic burst. The shot SHALL start from the ship and travel upward. The button SHALL stay reachable by the thumb without covering the ship or the incoming asteroids.
 
-#### Scenario: Un tocco, un colpo
+#### Scenario: One tap, one shot
 
-- **WHEN** l'utente tocca il pulsante di fuoco una volta
-- **THEN** parte un solo colpo, indipendentemente da quanto a lungo tiene premuto
+- **WHEN** the user taps the fire button once
+- **THEN** a single shot is fired, regardless of how long the button is held down
 
-#### Scenario: Tocchi ripetuti
+#### Scenario: Repeated taps
 
-- **WHEN** l'utente tocca il pulsante più volte in rapida successione
-- **THEN** parte un colpo per ogni tocco riconosciuto, senza raffica automatica
+- **WHEN** the user taps the button several times in quick succession
+- **THEN** one shot is fired for every recognized tap, with no automatic burst
 
-#### Scenario: Il colpo viaggia verso l'alto
+#### Scenario: The shot travels upward
 
-- **WHEN** un colpo viene sparato
-- **THEN** si muove verso l'alto e scompare quando esce dallo schermo
+- **WHEN** a shot is fired
+- **THEN** it moves upward and disappears when it leaves the screen
 
-### Requirement: Fuoco nemico verso il basso
+### Requirement: Enemy fire downward
 
-Ogni nave nemica SHALL sparare proiettili diretti verso il basso a intervalli regolari e a velocità inferiore a quella dei colpi dell'eroe, con uno schema che dipende dal proprio archetipo: colpo singolo, raffica ravvicinata o ventaglio di colpi obliqui. I proiettili nemici SHALL sparire quando escono dallo schermo.
+Every enemy ship SHALL fire downward-directed projectiles at regular intervals and at a lower speed than the hero's shots, with a pattern that depends on its archetype: single shot, tight burst or fan of oblique shots. Enemy projectiles SHALL disappear when they leave the screen.
 
-#### Scenario: Raffica nemica
+#### Scenario: Enemy burst
 
-- **WHEN** una nave nemica resta sullo schermo per il tempo previsto
-- **THEN** spara secondo lo schema del suo archetipo e continua a farlo a intervalli regolari
+- **WHEN** an enemy ship stays on screen for the expected time
+- **THEN** it fires according to its archetype pattern and keeps doing so at regular intervals
 
-#### Scenario: Raffica del picchiatore
+#### Scenario: Diver burst
 
-- **WHEN** un picchiatore apre il fuoco
-- **THEN** spara due colpi in rapida successione, non uno solo
+- **WHEN** a diver opens fire
+- **THEN** it fires two shots in quick succession, not just one
 
-#### Scenario: Ventaglio del cacciatore
+#### Scenario: Hunter fan
 
-- **WHEN** un cacciatore apre il fuoco
-- **THEN** spara tre colpi diretti verso il basso, di cui i laterali inclinati
+- **WHEN** a hunter opens fire
+- **THEN** it fires three downward shots, with the side ones slanted
 
-#### Scenario: Sequenza della torretta
+#### Scenario: Turret sequence
 
-- **WHEN** la torretta apre il fuoco
-- **THEN** spara quattro colpi in sequenza rapida e poi resta a lungo senza sparare
+- **WHEN** the turret opens fire
+- **THEN** it fires four shots in quick sequence and then stays silent for a long time
 
-#### Scenario: Proiettile che esce dallo schermo
+#### Scenario: Projectile leaving the screen
 
-- **WHEN** un proiettile nemico supera il bordo inferiore o laterale della vista
-- **THEN** viene rimosso dal gioco
+- **WHEN** an enemy projectile crosses the bottom or side edge of the view
+- **THEN** it is removed from the game
 
-### Requirement: Regole di collisione del combattimento
+### Requirement: Combat collision rules
 
-Un colpo dell'eroe che colpisce una nave nemica SHALL distruggerla, perché le navi nemiche resistono a un solo colpo. Il contatto fra l'eroe e una nave nemica o un proiettile nemico SHALL terminare la partita, come il contatto con un asteroide. I colpi dell'eroe MUST attraversare gli asteroidi senza consumarsi, e le navi nemiche MUST attraversare gli asteroidi senza subire conseguenze.
+A hero shot that hits an enemy ship SHALL destroy it, because enemy ships withstand a single shot. Contact between the hero and an enemy ship or an enemy projectile SHALL end the run, as does contact with an asteroid. Hero shots MUST pass through asteroids without being consumed, and enemy ships MUST pass through asteroids without taking damage.
 
-#### Scenario: Nave nemica abbattuta
+#### Scenario: Enemy ship shot down
 
-- **WHEN** un colpo dell'eroe raggiunge una nave nemica
-- **THEN** la nave scompare e il colpo viene consumato
+- **WHEN** a hero shot reaches an enemy ship
+- **THEN** the ship disappears and the shot is consumed
 
-#### Scenario: Eroe colpito da un proiettile
+#### Scenario: Hero hit by a projectile
 
-- **WHEN** un proiettile nemico tocca l'eroe
-- **THEN** la partita termina
+- **WHEN** an enemy projectile touches the hero
+- **THEN** the run ends
 
-#### Scenario: Eroe colpito da una nave
+#### Scenario: Hero hit by a ship
 
-- **WHEN** una nave nemica tocca l'eroe
-- **THEN** la partita termina
+- **WHEN** an enemy ship touches the hero
+- **THEN** the run ends
 
-#### Scenario: Asteroide immune ai colpi
+#### Scenario: Asteroid immune to shots
 
-- **WHEN** un colpo dell'eroe attraversa un asteroide
-- **THEN** il colpo continua la sua corsa e l'asteroide resta intatto
+- **WHEN** a hero shot passes through an asteroid
+- **THEN** the shot keeps travelling and the asteroid stays intact
 
-#### Scenario: Nave nemica sopra un asteroide
+#### Scenario: Enemy ship over an asteroid
 
-- **WHEN** una nave nemica attraversa la posizione di un asteroide
-- **THEN** nessuna delle due viene distrutta e la nave prosegue la sua traiettoria
+- **WHEN** an enemy ship crosses the position of an asteroid
+- **THEN** neither of them is destroyed and the ship continues on its trajectory
 
-### Requirement: Punteggio per abbattimento
+### Requirement: Score for shoot-downs
 
-Ogni nave nemica abbattuta SHALL assegnare punti al punteggio della partita corrente, e il numero di abbattimenti SHALL essere riportato nel riepilogo mostrato dal menu a fine partita.
+Every enemy ship shot down SHALL award points to the current run's score, and the number of shoot-downs SHALL be reported in the summary shown by the menu at the end of the run.
 
-#### Scenario: Punti per un abbattimento
+#### Scenario: Points for a shoot-down
 
-- **WHEN** l'eroe abbatte una nave nemica
-- **THEN** il punteggio aumenta del valore previsto per un abbattimento
+- **WHEN** the hero shoots down an enemy ship
+- **THEN** the score increases by the value expected for a shoot-down
 
-#### Scenario: Riepilogo con gli abbattimenti
+#### Scenario: Summary with shoot-downs
 
-- **WHEN** la partita finisce
-- **THEN** il menu mostra il punteggio ottenuto e il numero di navi abbattute
+- **WHEN** the run ends
+- **THEN** the menu shows the score achieved and the number of ships shot down
 
-### Requirement: Archetipi nemici con movimento proprio
+### Requirement: Enemy archetypes with their own movement
 
-Il sistema SHALL avere quattro tipi di nave nemica, ognuno con sprite distinto e movimento proprio: pattuglia che ondeggia scendendo, picchiatore che scende in diagonale verso il lato opposto, cacciatore che segue l'eroe in orizzontale, torretta che staziona a mezza altezza. Ogni tipo MUST restare dentro i bordi del mondo.
+The system SHALL have four enemy ship types, each with a distinct sprite and its own movement: a patrol that oscillates while descending, a diver that descends diagonally towards the opposite side, a hunter that follows the hero horizontally, a turret that stations at mid height. Each type MUST stay inside the world bounds.
 
-#### Scenario: Pattuglia
+#### Scenario: Patrol
 
-- **WHEN** una pattuglia attraversa lo schermo
-- **THEN** scende lentamente oscillando in orizzontale
+- **WHEN** a patrol crosses the screen
+- **THEN** it descends slowly, oscillating horizontally
 
-#### Scenario: Picchiatore
+#### Scenario: Diver
 
-- **WHEN** un picchiatore entra in scena
-- **THEN** scende più velocemente delle altre e si sposta verso il lato opposto a quello di ingresso
+- **WHEN** a diver enters the scene
+- **THEN** it descends faster than the others and moves towards the side opposite to the one it entered from
 
-#### Scenario: Cacciatore
+#### Scenario: Hunter
 
-- **WHEN** un cacciatore è sullo schermo
-- **THEN** la sua posizione orizzontale si avvicina a quella dell'eroe, senza superarla con scatti
+- **WHEN** a hunter is on screen
+- **THEN** its horizontal position approaches the hero's, without overtaking it in jumps
 
-#### Scenario: Torretta
+#### Scenario: Turret
 
-- **WHEN** una torretta entra in scena
-- **THEN** scende fino a circa metà altezza e poi resta lì, oscillando piano
+- **WHEN** a turret enters the scene
+- **THEN** it descends to about half height and then stays there, oscillating slowly
 
-### Requirement: Comparsa progressiva dei nemici più difficili
+### Requirement: Progressive appearance of the harder enemies
 
-I tipi più difficili SHALL sbloccarsi in base all'altezza raggiunta nella partita, e un tipo MUST NOT comparire prima della propria soglia. Il limite di navi nemiche contemporanee SHALL essere due nella fase iniziale e tre da quando è disponibile il cacciatore.
+The harder types SHALL unlock based on the height reached in the run, and a type MUST NOT appear before its own threshold. The limit of simultaneous enemy ships SHALL be two in the early phase and three from the moment the hunter is available.
 
-#### Scenario: Inizio partita
+#### Scenario: Start of the run
 
-- **WHEN** la partita è appena iniziata e l'altezza è bassa
-- **THEN** compaiono solo pattuglie
+- **WHEN** the run has just started and the height is low
+- **THEN** only patrols appear
 
-#### Scenario: Sblocco oltre la soglia
+#### Scenario: Unlock past the threshold
 
-- **WHEN** l'altezza supera la soglia di un tipo
-- **THEN** quel tipo può comparire, mentre i tipi con soglia più alta restano esclusi
+- **WHEN** the height exceeds the threshold of a type
+- **THEN** that type can appear, while the types with a higher threshold stay excluded
 
-#### Scenario: Limite che cresce
+#### Scenario: Limit that grows
 
-- **WHEN** il cacciatore è sbloccato
-- **THEN** possono essere presenti fino a tre navi nemiche contemporaneamente
+- **WHEN** the hunter is unlocked
+- **THEN** up to three enemy ships can be present at the same time
 
-### Requirement: Punteggio per tipo di nemico
+### Requirement: Score by enemy type
 
-Ogni tipo di nave nemica SHALL assegnare un valore di punti diverso in base alla difficoltà: pattuglia 25, picchiatore 35, cacciatore 45, torretta 60.
+Every enemy ship type SHALL award a different point value based on difficulty: patrol 25, diver 35, hunter 45, turret 60.
 
-#### Scenario: Pattuglia abbattuta
+#### Scenario: Patrol shot down
 
-- **WHEN** l'eroe abbatte una pattuglia
-- **THEN** il punteggio aumenta di 25
+- **WHEN** the hero shoots down a patrol
+- **THEN** the score increases by 25
 
-#### Scenario: Torretta abbattuta
+#### Scenario: Turret shot down
 
-- **WHEN** l'eroe abbatte una torretta
-- **THEN** il punteggio aumenta di 60
+- **WHEN** the hero shoots down a turret
+- **THEN** the score increases by 60
 
-#### Scenario: Riepilogo degli abbattimenti
+#### Scenario: Summary of shoot-downs
 
-- **WHEN** la partita termina
-- **THEN** il riepilogo conta tutte le navi abbattute, indipendentemente dal tipo
+- **WHEN** the run ends
+- **THEN** the summary counts all the ships shot down, regardless of type

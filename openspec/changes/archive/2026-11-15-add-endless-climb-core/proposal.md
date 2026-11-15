@@ -2,31 +2,31 @@
 
 ## Why
 
-Vogliamo un giochino 2D giocabile su PC e su telefono dal browser, che sfrutti il telefono come controller: si sale in verticale all'infinito e si sterza inclinando il dispositivo. È il primo gioco del progetto, e serve un nucleo giocabile in fretta per capire se il controllo tilt è divertente o solo fastidioso: finché non lo si prova in mano, ogni altra scelta (grafica, livelli, punteggi) è prematura.
+We want a small 2D game playable on PC and on a phone from the browser, using the phone as a controller: you climb vertically forever and you steer by tilting the device. It is the first game of the project, and a playable core is needed quickly to understand whether the tilt control is fun or just annoying: until you try it in your hand, every other choice (graphics, levels, scores) is premature.
 
 ## What Changes
 
-- Nuova scena di gioco con mondo a scroll verticale infinito: il giocatore sale automaticamente, la camera lo segue solo sull'asse Y, gli ostacoli vengono generati sopra lo schermo e riciclati sotto tramite pool.
-- Nuovo input tilt: `deviceorientation` → `gamma` con calibrazione dello zero al primo tocco, filtro di smoothing e dead zone centrale.
-- Fallback obbligatorio senza sensori: frecce/AD su desktop, trascinamento orizzontale sul touch (permesso negato o dispositivo senza accelerometro).
-- Collisione con gli ostacoli che chiude la partita, punteggio basato sull'altezza raggiunta, riavvio immediato.
-- Layout mobile-first: portrait bloccato, canvas a tutto schermo con `contentArea`/`unsafeArea` rispettati, primo tocco che chiede i permessi sensore e `enterFullscreen()`.
-- Fuori scope: grafica e audio (solo forme disegnate via codice), livelli o difficoltà progressiva curata, persistenza del record (per ora in memoria), PWA installabile, deploy su hosting statico, leaderboard, qualsiasi backend.
+- New game scene with an infinite vertical scrolling world: the player climbs automatically, the camera follows only on the Y axis, obstacles are generated above the screen and recycled below through a pool.
+- New tilt input: `deviceorientation` → `gamma` with zero calibration on the first touch, smoothing filter and central dead zone.
+- Mandatory fallback without sensors: arrows/AD on desktop, horizontal drag on touch (permission denied or device without accelerometer).
+- Collision with obstacles that ends the run, score based on the height reached, immediate restart.
+- Mobile-first layout: locked portrait, full-screen canvas with `contentArea`/`unsafeArea` respected, first touch asking for the sensor permissions and calling `enterFullscreen()`.
+- Out of scope: graphics and audio (only shapes drawn in code), levels or curated progressive difficulty, best score persistence (in memory for now), installable PWA, static hosting deploy, leaderboard, any backend.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `gameplay/endless-climb`: mondo a scroll verticale infinito con camera a un asse, generazione e riciclo degli ostacoli, collisione, punteggio per altezza e ciclo partita (gioca → muori → riparti).
-- `input/tilt-control`: traduzione del tilt in movimento orizzontale con calibrazione, smoothing e dead zone, più fallback tastiera e drag quando il sensore non è disponibile.
+- `gameplay/endless-climb`: infinite vertical scrolling world with a single-axis camera, obstacle generation and recycling, collision, score by height and run cycle (play → die → restart).
+- `input/tilt-control`: translation of the tilt into horizontal movement with calibration, smoothing and dead zone, plus keyboard and drag fallback when the sensor is not available.
 
 ### Modified Capabilities
 
-Nessuna: il progetto non ha ancora specifiche.
+None: the project has no specs yet.
 
 ## Impact
 
-- Codice: `src/` (nuovi moduli `game/`, `input/`), `index.html`, `vite.config.ts`.
-- Dipendenze: nessuna nuova; Excalibur 1.0.1, TypeScript e Vite sono già installati.
-- Piattaforme: Android Chrome (target primario) e desktop Chrome/Firefox; iOS non testato, ma il percorso permessi è lo stesso.
-- Anteprima: quick tunnel cloudflared, quindi HTTPS obbligatorio per i sensori e HMR già configurato su `wss:443`.
+- Code: `src/` (new `game/`, `input/` modules), `index.html`, `vite.config.ts`.
+- Dependencies: none new; Excalibur 1.0.1, TypeScript and Vite are already installed.
+- Platforms: Android Chrome (primary target) and desktop Chrome/Firefox; iOS not tested, but the permission path is the same.
+- Preview: quick cloudflared tunnel, so HTTPS is mandatory for the sensors and HMR is already configured on `wss:443`.

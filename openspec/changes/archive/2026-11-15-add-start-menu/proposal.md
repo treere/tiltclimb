@@ -2,31 +2,31 @@
 
 ## Why
 
-Oggi la partita parte al primo tocco e la calibrazione avviene in silenzio: chi tiene il telefono inclinato scopre che il personaggio scappa di lato solo quando ha già perso, e non ha modo di capire se il problema è il sensore, il permesso o la taratura. Serve una schermata che mostri il sensore prima di giocare, permetta di fissare lo zero e dia un punto di ritorno sensato dopo la morte, invece di far ripartire tutto con un tocco alla cieca.
+Today the run starts on the first touch and calibration happens silently: whoever holds the phone tilted discovers that the character slides sideways only after they have already lost, and has no way to understand whether the problem is the sensor, the permission or the setup. A screen is needed that shows the sensor before playing, allows fixing the zero and gives a sensible return point after death, instead of restarting everything with a blind touch.
 
 ## What Changes
 
-- Nuovo menu iniziale, primo stato dell'app: titolo, lettura **live** della calibrazione (inclinazione relativa in gradi e barra che si muove inclinando il telefono), pulsanti **Calibra** e **Inizia gioco**.
-- **Calibra** fissa lo zero all'inclinazione corrente e mostra una conferma visibile, così si capisce che è stato applicato.
-- Il **permesso sensori** viene chiesto dal menu, dentro il tocco che avvia l'azione, non più al primo tocco in partita.
-- Se il permesso è negato o l'accelerometro manca, il menu mostra un **avviso chiaro** e lascia **Inizia** abilitato: si gioca col fallback tastiera/drag.
-- A fine partita si torna al menu, che mostra **punteggio appena fatto** e **migliore della sessione**.
-- **BREAKING** (comportamento): spariscono l'avvio "tocca per iniziare" e il riavvio "tocca per riprovare"; il ciclo diventa menu → partita → menu.
-- Fuori scope: pausa a partita in corso e ritorno al menu da lì, persistenza del record fra sessioni, impostazioni (difficoltà, audio, sensibilità), nuove schermate oltre menu e partita, grafica e audio, modifica della fisica di gioco, tuning delle costanti di sterzata.
+- New initial menu, first state of the app: title, **live** reading of the calibration (relative tilt in degrees and a bar that moves as you tilt the phone), buttons **Calibrate** and **Start game**.
+- **Calibrate** fixes the zero at the current tilt and shows a visible confirmation, so it is clear that it was applied.
+- The **sensor permission** is requested by the menu, inside the touch that starts the action, no longer on the first touch during the run.
+- If the permission is denied or the accelerometer is missing, the menu shows a **clear warning** and leaves **Start** enabled: you play with the keyboard/drag fallback.
+- At the end of the run you return to the menu, which shows the **score just made** and the **session best**.
+- **BREAKING** (behavior): the "touch to start" boot and the "touch to retry" restart disappear; the cycle becomes menu → run → menu.
+- Out of scope: pause during a run and return to the menu from there, best score persistence across sessions, settings (difficulty, audio, sensitivity), new screens beyond menu and run, graphics and audio, changes to the game physics, tuning of the steering constants.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `ui/start-menu`: schermata di avvio con calibrazione visibile del sensore, comando di calibrazione, avvio partita, avviso quando i sensori non sono disponibili e riepilogo del risultato al ritorno dalla partita.
+- `ui/start-menu`: start screen with visible sensor calibration, calibration command, run start, warning when the sensors are unavailable and summary of the result on return from the run.
 
 ### Modified Capabilities
 
-- `input/tilt-control`: la calibrazione dello zero e la richiesta del permesso si spostano dal primo tocco in partita al menu; l'avvio della partita non ricalibra più implicitamente.
-- `gameplay/endless-climb`: la fine partita non riavvia più con un tocco ma riporta al menu, e lo stato di gioco acquisisce lo stato iniziale di menu.
+- `input/tilt-control`: the zero calibration and the permission request move from the first touch during the run to the menu; the run start no longer recalibrates implicitly.
+- `gameplay/endless-climb`: the end of the run no longer restarts with a touch but returns to the menu, and the game state gains the initial menu state.
 
 ## Impact
 
-- Codice: nuova scena menu (`src/game/menu-scene.ts`), `src/game/climb-scene.ts` ridotta al solo gioco, stato di sessione condiviso (punteggio appena fatto, migliore), `src/main.ts` per la scena iniziale, `src/game/constants.ts` per colori e misure dei pulsanti.
-- Dipendenze: nessuna nuova. I pulsanti sono `ScreenElement` + `Rectangle`/`Text` già usati per l'HUD.
-- Test manuale: percorso menu → calibra → inizia → muori → menu, da telefono via tunnel HTTPS (i sensori richiedono contesto sicuro).
+- Code: new menu scene (`src/game/menu-scene.ts`), `src/game/climb-scene.ts` reduced to the game only, shared session state (score just made, best), `src/main.ts` for the initial scene, `src/game/constants.ts` for button colors and sizes.
+- Dependencies: none new. The buttons are `ScreenElement` + `Rectangle`/`Text` already used for the HUD.
+- Manual test: path menu → calibrate → start → die → menu, from a phone via HTTPS tunnel (the sensors require a secure context).

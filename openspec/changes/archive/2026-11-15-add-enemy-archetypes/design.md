@@ -2,71 +2,71 @@
 
 ## Context
 
-Vedi `proposal.md` per il perché. Oggi `Enemy` è una sola classe con onda sinusoidale fissa e `wantsToFire()` che restituisce un booleano: il tipo non esiste, lo sprite è scelto a caso fra cinque rossi, e il colpo è sempre verticale. Il pool è da 4 elementi con massimo 2 vivi, il punteggio per abbattimento è una costante (`KILL_POINTS = 25`) usata sia dal `combat-math` sia dall'HUD.
+See `proposal.md` for the why. Today `Enemy` is a single class with a fixed sine wave and `wantsToFire()` returning a boolean: the type does not exist, the sprite is chosen at random among five red ones, and the shot is always vertical. The pool has 4 elements with a maximum of 2 alive, the kill score is a constant (`KILL_POINTS = 25`) used both by `combat-math` and by the HUD.
 
-Nel pack già nel repo ci sono 20 navi (`enemy{Red,Blue,Green,Black}1…5`, ~82-104×84) e 4 UFO (91×91). **Nessuna nave si distingue per forma in modo affidabile a colpo d'occhio**: le forme 1-5 cambiano silhouette, i colori sono quattro. Uso quindi forma + colore insieme come firma dell'archetipo.
+The pack already in the repo contains 20 ships (`enemy{Red,Blue,Green,Black}1…5`, ~82-104×84) and 4 UFOs (91×91). **No ship is reliably distinguishable by shape at a glance**: shapes 1-5 change silhouette, colors are four. So shape + color together are used as the archetype signature.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- quattro comportamenti leggibili e distinguibili a occhio, senza introdurre un motore di script;
-- difficoltà che cresce con l'altezza, misurabile e tarabile da una tabella sola;
-- pool e collisioni invariate: nessuna allocazione durante la partita.
+- four behaviors that are readable and distinguishable by eye, without introducing a script engine;
+- difficulty that grows with height, measurable and tunable from a single table;
+- pool and collisions unchanged: no allocation during the run.
 
 **Non-Goals:**
 
-- boss, formazioni, coordinamento fra navi;
-- nuovi tipi oltre i quattro;
-- modifiche a eroe, tilt, asteroidi, menu;
-- IA adattiva: le soglie sono fisse.
+- bosses, formations, coordination between ships;
+- new types beyond the four;
+- changes to hero, tilt, asteroids, menu;
+- adaptive AI: thresholds are fixed.
 
 ## Decisions
 
-### 1. Un tipo come dato, non una classe per archetipo
+### 1. A type as data, not a class per archetype
 
-`src/game/enemy-archetypes.ts` espone una tabella `ARCHETYPES: Record<EnemyKind, Archetype>` con tutto ciò che distingue un tipo: sprite, punti, soglia di sblocco, parametri di movimento e schema di fuoco. `Enemy` resta una classe sola che legge la tabella e applica il comportamento con uno `switch` su `kind`.
+`src/game/enemy-archetypes.ts` exposes a table `ARCHETYPES: Record<EnemyKind, Archetype>` with everything that distinguishes a type: sprite, points, unlock threshold, movement parameters and fire pattern. `Enemy` stays a single class that reads the table and applies the behavior with a `switch` on `kind`.
 
-Alternativa scartata: una sottoclasse per archetipo. Quattro file per quattro comportamenti di venti righe ciascuno, e ogni nuovo tipo richiederebbe una classe più un ramo di istanziazione; con la tabella aggiungere un tipo è una voce in più.
+Rejected alternative: a subclass per archetype. Four files for four behaviors of twenty lines each, and every new type would require a class plus an instantiation branch; with the table, adding a type is one more entry.
 
-### 2. I quattro archetipi
+### 2. The four archetypes
 
-| Tipo | Sprite | Movimento | Fuoco | Sblocco | Punti |
+| Type | Sprite | Movement | Fire | Unlock | Points |
 | --- | --- | --- | --- | --- | --- |
-| `patrol` | `enemyRed1` (93×84) | onda, ampiezza 110, ω 1.8, discesa 120 px/s | 1 colpo ogni 2200 ms, 320 px/s | 0 px | 25 |
-| `diver` | `enemyBlue4` (82×84) | discesa 260 px/s, deriva orizzontale 120 px/s verso il lato opposto all'ingresso | raffica di 2 colpi (200 ms fra i due) ogni 2600 ms, 340 px/s | 2500 px | 35 |
-| `hunter` | `enemyGreen2` (104×84) | inseguimento orizzontale con velocità massima 150 px/s, discesa 100 px/s | ventaglio di 3 colpi a -18°/0°/+18° ogni 2400 ms, 300 px/s | 6000 px | 45 |
-| `ufo` | `ufoYellow` (91×91) | scende fino a metà altezza, poi oscilla piano senza scendere | raffica di 4 colpi (200 ms) ogni 5000 ms, 260 px/s | 10000 px | 60 |
+| `patrol` | `enemyRed1` (93×84) | wave, amplitude 110, ω 1.8, descent 120 px/s | 1 shot every 2200 ms, 320 px/s | 0 px | 25 |
+| `diver` | `enemyBlue4` (82×84) | descent 260 px/s, horizontal drift 120 px/s towards the side opposite the entry | burst of 2 shots (200 ms between the two) every 2600 ms, 340 px/s | 2500 px | 35 |
+| `hunter` | `enemyGreen2` (104×84) | horizontal chase with maximum speed 150 px/s, descent 100 px/s | fan of 3 shots at -18°/0°/+18° every 2400 ms, 300 px/s | 6000 px | 45 |
+| `ufo` | `ufoYellow` (91×91) | descends to mid height, then oscillates slowly without descending | burst of 4 shots (200 ms) every 5000 ms, 260 px/s | 10000 px | 60 |
 
-Le soglie sono in pixel di altezza, non in punti: l'utente ha scelto questa metrica, e ha il vantaggio di non dipendere dagli abbattimenti (chi non spara non resta indietro). A 190 px/s significano circa 13, 32 e 53 secondi di salita.
+The thresholds are in height pixels, not points: the user chose this metric, and it has the advantage of not depending on kills (those who do not shoot do not fall behind). At 190 px/s they mean about 13, 32 and 53 seconds of climbing.
 
-### 3. Limite dinamico
+### 3. Dynamic limit
 
-`ENEMY_MAX_ALIVE` diventa una funzione dell'altezza: 2 finché il cacciatore non è sbloccato, 3 dopo. Il pool resta da 4, quindi il limite può solo salire fino a 3 senza crescere la memoria.
+`ENEMY_MAX_ALIVE` becomes a function of height: 2 until the hunter is unlocked, 3 after. The pool stays at 4, so the limit can only rise up to 3 without growing memory.
 
-### 4. Proiettili con angolo
+### 4. Projectiles with an angle
 
-`Projectile.launch(faction, x, y, angleRadians = 0)` ruota la velocità di base. Lo sprite non ruota (i laser Kenney sono già inclinabili con l'attore, ma ruotare il singolo colpo di 18° lo rende più difficile da leggere): resta verticale, e solo la traiettoria è obliqua. `isOutside` controlla anche l'asse X, altrimenti un colpo obliquo resta "dentro" per sempre viaggiando di lato.
+`Projectile.launch(faction, x, y, angleRadians = 0)` rotates the base velocity. The sprite does not rotate (Kenney lasers are already tiltable with the actor, but rotating the single shot by 18° makes it harder to read): it stays vertical, and only the trajectory is oblique. `isOutside` also checks the X axis, otherwise an oblique shot stays "inside" forever while travelling sideways.
 
-Il ventaglio del cacciatore usa ±18° (±0.31 rad) perché a 300 px/s produce circa 93 px/s di deriva laterale: si vede, si schiva, e non esce dallo schermo in mezzo secondo.
+The hunter's fan uses ±18° (±0.31 rad) because at 300 px/s it produces about 93 px/s of lateral drift: it is visible, it can be dodged, and it does not leave the screen in half a second.
 
-### 5. Punteggio per tipo
+### 5. Score per type
 
-`Archetype.points` sostituisce la costante unica. `climbScore()` mantiene la firma ma riceve i punti accumulati invece di `kills × KILL_POINTS`: la scena somma `points` a ogni abbattimento in `this.killPoints`, e il totale resta monotono come prima.
+`Archetype.points` replaces the single constant. `climbScore()` keeps its signature but receives the accumulated points instead of `kills × KILL_POINTS`: the scene adds `points` on every kill in `this.killPoints`, and the total stays monotonic as before.
 
-### 6. Tabella come unica fonte di taratura
+### 6. Table as the single tuning source
 
-Tutti i numeri della tabella stanno in `constants.ts` (o nella tabella stessa, che importa le costanti): cambiare la difficoltà significa cambiare una riga, non cercare valori sparsi. Le soglie sono le prime cose da toccare se il gioco risulta troppo lento a diventare interessante.
+All the numbers of the table live in `constants.ts` (or in the table itself, which imports the constants): changing the difficulty means changing one row, not hunting for scattered values. The thresholds are the first thing to touch if the game turns out too slow to become interesting.
 
 ## Risks / Trade-offs
 
-- **Cacciatore troppo aggressivo**: insegue proprio dove si sterza. Mitigazione: velocità massima 150 px/s contro i 300 dell'eroe, quindi si scappa lateralmente; se in mano risulta ingiusto si abbassa a 110.
-- **Ventaglio che intrappola**: tre colpi obliqui possono chiudere lo spazio. Mitigazione: apertura ±18°, frequenza 2400 ms, e raffica singola per volta.
-- **Torretta che staziona**: se resta troppo in alto è irraggiungibile dai colpi dell'eroe. Mitigazione: si ferma a metà altezza, ben dentro la portata, e la sua oscillazione è lenta.
-- **Pressione a 3 nemici**: con un UFO e un cacciatore insieme lo schermo può diventare illeggibile. Mitigazione: limite 3 solo dopo 6000 px, e la frequenza di spawn resta 3500 ms.
-- **Pool da 4** con limite 3 lascia un solo elemento di margine: se in futuro il limite sale a 4, il pool va alzato insieme. È scritto qui per non scoprirlo a runtime.
-- **Punteggio per tipo** rende il valore degli abbattimenti disomogeneo: è voluto, ma va comunicato nel README perché il numero che sale non è più "25 fissi".
+- **Hunter too aggressive**: it chases exactly where you steer. Mitigation: maximum speed 150 px/s against the hero's 300, so you can escape laterally; if in hand it feels unfair it is lowered to 110.
+- **Fan that traps**: three oblique shots can close the space. Mitigation: ±18° opening, 2400 ms rate, and a single burst at a time.
+- **Turret that stations**: if it stays too high it is out of reach of the hero's shots. Mitigation: it stops at mid height, well within range, and its oscillation is slow.
+- **Pressure at 3 enemies**: with a UFO and a hunter together the screen can become unreadable. Mitigation: limit 3 only after 6000 px, and the spawn rate stays 3500 ms.
+- **Pool of 4** with limit 3 leaves only one element of margin: if in the future the limit rises to 4, the pool must be raised together. It is written here so it is not discovered at runtime.
+- **Score per type** makes the value of kills uneven: it is intended, but it must be communicated in the README because the number that goes up is no longer "25 fixed".
 
 ## Migration Plan
 
-Nessuna migrazione dati. `KILL_POINTS` sparisce in favore di `Archetype.points`; il riepilogo nel menu resta basato sul conteggio, non sui punti. Rollback: revert del commit di apply.
+No data migration. `KILL_POINTS` disappears in favor of `Archetype.points`; the menu summary stays based on the count, not on the points. Rollback: revert of the apply commit.

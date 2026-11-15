@@ -2,45 +2,45 @@
 
 ## MODIFIED Requirements
 
-### Requirement: Collisione e fine partita
+### Requirement: Collision and end of run
 
-Il contatto tra il giocatore e un ostacolo SHALL terminare la partita. Dopo la fine, il mondo SHALL fermarsi e MUST NOT continuare a generare ostacoli, navi nemiche o proiettili finché la partita non viene riavviata.
+Contact between the player and an obstacle SHALL end the run. After the end, the world SHALL stop and MUST NOT keep generating obstacles, enemy ships or projectiles until the run is restarted.
 
-#### Scenario: Impatto contro un ostacolo
+#### Scenario: Impact against an obstacle
 
-- **WHEN** il giocatore tocca un ostacolo
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an obstacle
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Impatto contro un proiettile nemico
+#### Scenario: Impact against an enemy projectile
 
-- **WHEN** il giocatore tocca un proiettile nemico
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an enemy projectile
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Impatto contro una nave nemica
+#### Scenario: Impact against an enemy ship
 
-- **WHEN** il giocatore tocca una nave nemica
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an enemy ship
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Nessuna generazione dopo la fine
+#### Scenario: No generation after the end
 
-- **WHEN** la partita è terminata e l'utente non ha ancora riavviato
-- **THEN** non vengono creati né riciclati ostacoli, navi nemiche o proiettili
+- **WHEN** the run has ended and the user has not restarted yet
+- **THEN** no obstacles, enemy ships or projectiles are created or recycled
 
-### Requirement: Punteggio per altezza
+### Requirement: Score by height
 
-Il punteggio SHALL essere la somma dei punti per l'altezza massima raggiunta nella partita corrente e dei punti guadagnati abbattendo navi nemiche, e SHALL essere visibile durante il gioco. Il valore SHALL restare in memoria per la sessione e MUST NOT essere salvato in modo persistente in questa iterazione.
+The score SHALL be the sum of the points for the maximum height reached in the current run and of the points earned by destroying enemy ships, and SHALL be visible during play. The value SHALL remain in memory for the session and MUST NOT be saved persistently in this iteration.
 
-#### Scenario: Il punteggio cresce salendo
+#### Scenario: The score grows while climbing
 
-- **WHEN** il giocatore sale e supera la propria altezza massima precedente
-- **THEN** il punteggio mostrato aumenta in modo monotono
+- **WHEN** the player climbs and exceeds their previous maximum height
+- **THEN** the displayed score increases monotonically
 
-#### Scenario: Il punteggio cresce abbattendo
+#### Scenario: The score grows by destroying
 
-- **WHEN** il giocatore abbatte una nave nemica
-- **THEN** il punteggio mostrato aumenta dello stesso valore previsto dalla spec del combattimento
+- **WHEN** the player destroys an enemy ship
+- **THEN** the displayed score increases by the same value expected from the combat spec
 
-#### Scenario: Riavvio azzera il punteggio
+#### Scenario: Restart resets the score
 
-- **WHEN** l'utente riavvia la partita dopo una sconfitta
-- **THEN** il punteggio riparte da zero, l'altezza massima viene reimpostata e gli abbattimenti tornano a zero
+- **WHEN** the user restarts the run after a defeat
+- **THEN** the score starts again from zero, the maximum height is reset and the kills go back to zero

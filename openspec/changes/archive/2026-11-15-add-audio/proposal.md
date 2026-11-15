@@ -2,30 +2,30 @@
 
 ## Why
 
-Il gioco è muto: uno sparo senza suono è un'animazione, un'esplosione senza bottto è un rettangolo che sparisce. L'audio è ciò che rende leggibile a orecchio quello che succede fuori dallo schermo (un nemico che spara in alto) e che segnala il risultato di una partita senza doverlo leggere. Inoltre i quattro archetipi nemici oggi si distinguono solo per forma e movimento: un timbro proprio per ciascuno li rende riconoscibili anche quando sono fuori campo.
+The game is silent: a shot without sound is an animation, an explosion without a bang is a rectangle that disappears. Audio is what makes audible what happens off screen (an enemy firing upwards) and what reports the outcome of a run without having to read it. On top of that, the four enemy archetypes today differ only in shape and movement: a timbre of its own for each one makes them recognizable even when they are off screen.
 
 ## What Changes
 
-- **Musica**: due tracce, una per il menu e una per la partita, in loop. Cambio di traccia al cambio scena, con dissolvenza breve.
-- **Effetti**: sparo dell'eroe, sparo di **ogni** archetipo nemico (quattro timbri diversi), esplosione quando un nemico viene abbattuto (**diversa per tipo**), impatto/morte dell'eroe.
-- **Collisioni animate**: le esplosioni sono animazioni a frame, non sparizioni. Una piccola per i nemici, una grande per l'eroe; gli asteroidi restano immuni ai colpi e non esplodono.
-- **Fine partita**: un suono quando si perde, e un **suono diverso se si è superato il proprio record** di sessione.
-- **Silenziamento**: un interruttore audio nel menu (icona piccola, non un pulsante in più), con lo stato ricordato fra le sessioni; senza di esso un gioco con musica è inutilizzabile su un telefono in pubblico.
-- **Licenze**: solo materiale CC0, con provenienza e licenza documentate accanto ai file, come già fatto per la grafica.
-- Fuori scope: voci, doppiaggio, musica adattiva che cambia con la difficoltà, effetti spaziali (panning per posizione), audio per gli asteroidi, mixer con volumi separati, suoni per i pulsanti del menu.
+- **Music**: two tracks, one for the menu and one for the run, looping. Track switch on scene change, with a short fade.
+- **Effects**: hero shot, shot of **every** enemy archetype (four different timbres), explosion when an enemy is destroyed (**different per type**), hero hit/death.
+- **Animated collisions**: explosions are frame animations, not disappearances. A small one for enemies, a large one for the hero; asteroids stay immune to shots and do not explode.
+- **End of run**: a sound when you lose, and a **different sound if you have beaten your own** session best score.
+- **Muting**: an audio switch in the menu (small icon, not an extra button), with the state remembered across sessions; without it a game with music is unusable on a phone in public.
+- **Licenses**: CC0 material only, with provenance and license documented next to the files, as already done for the graphics.
+- Out of scope: voices, voice-over, adaptive music that changes with difficulty, spatial effects (panning by position), audio for asteroids, mixer with separate volumes, sounds for the menu buttons.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `presentation/audio`: musica di menu e di partita, effetti legati agli eventi di gioco, timbri distinti per archetipo, suono di sconfitta e suono di record, interruttore di silenziamento e regola che nulla suona prima di un gesto dell'utente.
+- `presentation/audio`: menu and run music, effects tied to game events, distinct timbres per archetype, defeat sound and best-score sound, mute switch and the rule that nothing plays before a user gesture.
 
 ### Modified Capabilities
 
-- `presentation/space-theme`: le collisioni non sono più sparizioni silenziose ma animazioni a frame; la regola su provenienza e licenza degli asset si estende esplicitamente anche all'audio, non solo alla grafica.
+- `presentation/space-theme`: collisions are no longer silent disappearances but frame animations; the rule on asset provenance and license extends explicitly to audio as well, not just graphics.
 
 ## Impact
 
-- Asset: si aggiungono circa 20 file audio (effetti brevi, tagliati dal pacchetto CC0 di Juhani Junkala), 2 tracce musicali CC0 ricodificate a dimensione da telefono, e i frame di 1–2 fogli di esplosione CC0 ridimensionati (gli originali sono 4096×4096, inutilizzabili così).
-- Codice: nuovo `src/audio/audio.ts` (bus, volumi, mute, unlock al primo gesto), `src/audio/sfx.ts` (mappa evento → suono, per archetipo), `src/game/explosion.ts` (pool di animazioni), ritocchi a menu, partita, session, loader e `README`.
-- Rischio principale: i browser bloccano l'audio finché non c'è un gesto dell'utente. La musica deve partire al primo tocco, non al caricamento, e non deve produrre errori se il permesso audio viene rifiutato.
+- Assets: about 20 audio files are added (short effects, cut from Juhani Junkala's CC0 package), 2 CC0 music tracks re-encoded to phone-friendly size, and the frames of 1–2 CC0 explosion sheets resized (the originals are 4096×4096, unusable as they are).
+- Code: new `src/audio/audio.ts` (bus, volumes, mute, unlock on first gesture), `src/audio/sfx.ts` (event → sound map, per archetype), `src/game/explosion.ts` (animation pool), tweaks to menu, run, session, loader and `README`.
+- Main risk: browsers block audio until there is a user gesture. Music must start on the first touch, not on load, and must not produce errors if audio permission is refused.

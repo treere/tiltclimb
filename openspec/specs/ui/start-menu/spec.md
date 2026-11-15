@@ -1,124 +1,124 @@
 # ui/start-menu Specification
 
 ## Purpose
-È la prima schermata del gioco: mostra come risponde il sensore, permette di fissare l'inclinazione neutra e di far partire la partita, e accoglie il giocatore al ritorno con il risultato dell'ultima salita.
+It is the first screen of the game: it shows how the sensor responds, lets you set the neutral tilt and start the run, and welcomes the player back with the result of the last climb.
 
 ## Requirements
 
-### Requirement: Menu come primo stato dell'applicazione
+### Requirement: Menu as the first state of the application
 
-All'apertura della pagina il sistema SHALL mostrare il menu, con il titolo del gioco, la lettura della calibrazione e i comandi **Calibra**, **Inizia gioco** e **CREDITI**. La partita MUST NOT iniziare senza un comando esplicito dell'utente. Il menu MUST essere utilizzabile sia da telefono sia da desktop, e i tre comandi MUST restare visibili senza sovrapporsi fra loro né all'illustrazione dell'astronave.
+When the page opens the system SHALL show the menu, with the game title, the calibration reading and the **Calibrate**, **Start game** and **CREDITS** commands. The run MUST NOT start without an explicit user command. The menu MUST be usable both from a phone and from a desktop, and the three commands MUST stay visible without overlapping each other or the spaceship illustration.
 
-#### Scenario: Apertura della pagina
+#### Scenario: Opening the page
 
-- **WHEN** l'utente apre il gioco su telefono o desktop
-- **THEN** vede il menu con tutti e tre i comandi e la partita non è iniziata
+- **WHEN** the user opens the game on a phone or desktop
+- **THEN** they see the menu with all three commands and the run has not started
 
-#### Scenario: Nessun avvio implicito
+#### Scenario: No implicit start
 
-- **WHEN** l'utente tocca lo schermo in un punto qualsiasi fuori dai comandi
-- **THEN** la partita non parte
+- **WHEN** the user taps the screen anywhere outside the commands
+- **THEN** the run does not start
 
-#### Scenario: Tre comandi visibili
+#### Scenario: Three visible commands
 
-- **WHEN** il menu è mostrato su uno schermo piccolo
-- **THEN** Calibra, Inizia gioco e CREDITI sono tutti visibili e distinti
+- **WHEN** the menu is shown on a small screen
+- **THEN** Calibrate, Start game and CREDITS are all visible and distinct
 
-### Requirement: Lettura live della calibrazione nel menu
+### Requirement: Live calibration reading in the menu
 
-Il menu SHALL mostrare in tempo reale l'inclinazione sinistra/destra rilevata, espressa come scostamento rispetto allo zero corrente, aggiornandosi mentre l'utente muove il dispositivo. La lettura SHALL essere comprensibile senza conoscere i valori grezzi del sensore.
+The menu SHALL show in real time the detected left/right tilt, expressed as a deviation from the current zero, updating while the user moves the device. The reading SHALL be understandable without knowing the sensor's raw values.
 
-#### Scenario: Il valore segue l'inclinazione
+#### Scenario: The value follows the tilt
 
-- **WHEN** l'utente inclina il telefono a destra di una decina di gradi
-- **THEN** la lettura nel menu si sposta verso destra e mostra un valore positivo coerente
+- **WHEN** the user tilts the phone to the right by about ten degrees
+- **THEN** the reading in the menu moves to the right and shows a consistent positive value
 
-#### Scenario: Lettura ferma a telefono fermo
+#### Scenario: Reading still with a still phone
 
-- **WHEN** l'utente tiene il telefono immobile nell'inclinazione neutra
-- **THEN** la lettura resta vicina allo zero, senza oscillare in modo visibile
+- **WHEN** the user holds the phone motionless at the neutral tilt
+- **THEN** the reading stays close to zero, without visible oscillation
 
-### Requirement: Comando di calibrazione con conferma visibile
+### Requirement: Calibration command with visible confirmation
 
-Il comando **Calibra** SHALL fissare come zero l'inclinazione corrente del dispositivo e MUST mostrare una conferma visibile che l'operazione è avvenuta. Dopo la calibrazione la lettura SHALL ripartire da zero nell'inclinazione in cui è stato premuto il comando.
+The **Calibrate** command SHALL set the device's current tilt as zero and MUST show a visible confirmation that the operation happened. After the calibration the reading SHALL start again from zero at the tilt in which the command was pressed.
 
-#### Scenario: Calibrazione applicata
+#### Scenario: Calibration applied
 
-- **WHEN** l'utente inclina il telefono e preme **Calibra**
-- **THEN** compare una conferma visibile e la lettura torna a zero in quella posizione
+- **WHEN** the user tilts the phone and presses **Calibrate**
+- **THEN** a visible confirmation appears and the reading goes back to zero at that position
 
-#### Scenario: Calibrazione senza sensore
+#### Scenario: Calibration without a sensor
 
-- **WHEN** il sensore non è disponibile e l'utente preme **Calibra**
-- **THEN** il sistema spiega che non c'è nulla da calibrare e non mostra una falsa conferma
+- **WHEN** the sensor is unavailable and the user presses **Calibrate**
+- **THEN** the system explains that there is nothing to calibrate and does not show a false confirmation
 
-### Requirement: Avvio della partita dal menu
+### Requirement: Starting the run from the menu
 
-Il comando **Inizia gioco** SHALL avviare una nuova partita dallo stato iniziale, azzerando punteggio e posizione, e SHALL essere disponibile anche quando i sensori non funzionano.
+The **Start game** command SHALL start a new run from the initial state, resetting score and position, and SHALL be available even when the sensors do not work.
 
-#### Scenario: Avvio dal menu
+#### Scenario: Start from the menu
 
-- **WHEN** l'utente preme **Inizia gioco**
-- **THEN** si passa alla partita con punteggio a zero e giocatore nella posizione iniziale
+- **WHEN** the user presses **Start game**
+- **THEN** the game moves to the run with the score at zero and the player in the initial position
 
-#### Scenario: Avvio senza sensori
+#### Scenario: Start without sensors
 
-- **WHEN** il permesso è negato o l'accelerometro manca e l'utente preme **Inizia gioco**
-- **THEN** la partita parte e risponde ai comandi di fallback
+- **WHEN** the permission is denied or the accelerometer is missing and the user presses **Start game**
+- **THEN** the run starts and responds to the fallback controls
 
-### Requirement: Ritorno al menu con riepilogo del risultato
+### Requirement: Return to the menu with a summary of the result
 
-Alla fine di una partita il sistema SHALL tornare al menu invece di far ripartire il gioco, e il menu SHALL mostrare il punteggio appena ottenuto e il migliore della sessione corrente. Il migliore SHALL aggiornarsi solo quando il punteggio appena fatto lo supera.
+At the end of a run the system SHALL return to the menu instead of restarting the game, and the menu SHALL show the score just achieved and the current session's best score. The best score SHALL update only when the score just achieved beats it.
 
-#### Scenario: Ritorno dopo la sconfitta
+#### Scenario: Return after the defeat
 
-- **WHEN** il giocatore muore dopo aver totalizzato 42 punti
-- **THEN** torna al menu, che mostra 42 come punteggio appena fatto
+- **WHEN** the player dies after scoring 42 points
+- **THEN** they return to the menu, which shows 42 as the score just achieved
 
-#### Scenario: Migliore aggiornato
+#### Scenario: Best score updated
 
-- **WHEN** il punteggio appena fatto supera il migliore della sessione
-- **THEN** il migliore mostrato diventa quello appena fatto
+- **WHEN** the score just achieved beats the session's best score
+- **THEN** the displayed best score becomes the one just achieved
 
-#### Scenario: Migliore non peggiora
+#### Scenario: Best score does not get worse
 
-- **WHEN** il punteggio appena fatto è inferiore al migliore della sessione
-- **THEN** il migliore mostrato resta invariato
+- **WHEN** the score just achieved is lower than the session's best score
+- **THEN** the displayed best score stays unchanged
 
-### Requirement: Avviso quando i sensori non sono disponibili
+### Requirement: Warning when the sensors are unavailable
 
-Quando il permesso viene negato, il sensore è assente o non arrivano dati entro il tempo previsto, il menu SHALL mostrare un avviso esplicito che spiega che si gioca con tastiera o trascinamento. L'avviso MUST NOT impedire l'avvio della partita.
+When the permission is denied, the sensor is absent or no data arrives within the expected time, the menu SHALL show an explicit warning explaining that you play with the keyboard or dragging. The warning MUST NOT prevent starting the run.
 
-#### Scenario: Permesso negato
+#### Scenario: Permission denied
 
-- **WHEN** l'utente rifiuta il permesso di accesso ai sensori nel menu
-- **THEN** compare un avviso nel menu e **Inizia gioco** resta utilizzabile
+- **WHEN** the user refuses the sensor access permission in the menu
+- **THEN** a warning appears in the menu and **Start game** stays usable
 
-#### Scenario: Nessun dato dal sensore
+#### Scenario: No data from the sensor
 
-- **WHEN** il dispositivo dichiara di avere il sensore ma non arrivano eventi
-- **THEN** dopo il tempo previsto il menu mostra l'avviso di sensore non disponibile
+- **WHEN** the device claims to have the sensor but no events arrive
+- **THEN** after the expected time the menu shows the sensor-unavailable warning
 
-### Requirement: Controllo della sensibilità nel menu
+### Requirement: Steering sensitivity control in the menu
 
-Il menu SHALL mostrare un controllo per la sensibilità dello sterzo, con il livello corrente visibile e i gradi di inclinazione corrispondenti al fondo scala. Il controllo MUST essere utilizzabile con un tocco, senza trascinamenti di precisione, e MUST applicare la scelta immediatamente.
+The menu SHALL show a control for the steering sensitivity, with the current level visible and the tilt degrees corresponding to full scale. The control MUST be usable with one tap, without precision dragging, and MUST apply the choice immediately.
 
-#### Scenario: Lettura del livello
+#### Scenario: Reading the level
 
-- **WHEN** il menu è visibile
-- **THEN** si legge a quale livello di sensibilità è impostato il gioco e quanti gradi servono per il fondo scala
+- **WHEN** the menu is visible
+- **THEN** you can read which sensitivity level the game is set to and how many degrees are needed for full scale
 
-#### Scenario: Aumento della sensibilità
+#### Scenario: Increasing the sensitivity
 
-- **WHEN** si tocca il comando per aumentare la sensibilità
-- **THEN** il livello sale di uno, il valore mostrato si aggiorna e la scelta viene salvata
+- **WHEN** the command to increase the sensitivity is tapped
+- **THEN** the level goes up by one, the displayed value updates and the choice is saved
 
-#### Scenario: Limiti del controllo
+#### Scenario: Limits of the control
 
-- **WHEN** si è già al livello massimo o minimo
-- **THEN** il comando corrispondente risulta disattivato e non è possibile uscire dall'intervallo
+- **WHEN** the maximum or minimum level has already been reached
+- **THEN** the corresponding command is disabled and it is not possible to leave the range
 
-#### Scenario: Il controllo non copre il gioco
+#### Scenario: The control does not cover the game
 
-- **WHEN** il menu è visibile su uno schermo piccolo
-- **THEN** il controllo non si sovrappone ai pulsanti di calibrazione e di avvio
+- **WHEN** the menu is visible on a small screen
+- **THEN** the control does not overlap the calibration and start buttons

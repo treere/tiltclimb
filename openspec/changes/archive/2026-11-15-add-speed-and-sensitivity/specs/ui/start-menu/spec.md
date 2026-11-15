@@ -2,26 +2,26 @@
 
 ## ADDED Requirements
 
-### Requirement: Controllo della sensibilità nel menu
+### Requirement: Sensitivity control in the menu
 
-Il menu SHALL mostrare un controllo per la sensibilità dello sterzo, con il livello corrente visibile e i gradi di inclinazione corrispondenti al fondo scala. Il controllo MUST essere utilizzabile con un tocco, senza trascinamenti di precisione, e MUST applicare la scelta immediatamente.
+The menu SHALL show a control for the steering sensitivity, with the current level visible and the tilt degrees corresponding to full scale. The control MUST be usable with a single touch, without precision dragging, and MUST apply the choice immediately.
 
-#### Scenario: Lettura del livello
+#### Scenario: Reading the level
 
-- **WHEN** il menu è visibile
-- **THEN** si legge a quale livello di sensibilità è impostato il gioco e quanti gradi servono per il fondo scala
+- **WHEN** the menu is visible
+- **THEN** it is readable at which sensitivity level the game is set and how many degrees are needed for full scale
 
-#### Scenario: Aumento della sensibilità
+#### Scenario: Increasing sensitivity
 
-- **WHEN** si tocca il comando per aumentare la sensibilità
-- **THEN** il livello sale di uno, il valore mostrato si aggiorna e la scelta viene salvata
+- **WHEN** the command to increase sensitivity is touched
+- **THEN** the level rises by one, the displayed value updates and the choice is saved
 
-#### Scenario: Limiti del controllo
+#### Scenario: Limits of the control
 
-- **WHEN** si è già al livello massimo o minimo
-- **THEN** il comando corrispondente risulta disattivato e non è possibile uscire dall'intervallo
+- **WHEN** the maximum or minimum level is already selected
+- **THEN** the corresponding command is disabled and it is not possible to leave the range
 
-#### Scenario: Il controllo non copre il gioco
+#### Scenario: The control does not cover the game
 
-- **WHEN** il menu è visibile su uno schermo piccolo
-- **THEN** il controllo non si sovrappone ai pulsanti di calibrazione e di avvio
+- **WHEN** the menu is visible on a small screen
+- **THEN** the control does not overlap the calibration and start buttons

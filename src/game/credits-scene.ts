@@ -36,7 +36,7 @@ export class CreditsScene extends ex.Scene {
     this.add(ship);
 
     new UiText(this, { x: centerX, y: at(0.2), size: 56, color: TITLE, weight: 700 }).setText(
-      'CREDITI',
+      'CREDITS',
     );
 
     const wrap = Math.min(width - 80, 620);
@@ -65,7 +65,7 @@ export class CreditsScene extends ex.Scene {
       y: at(0.88),
       width: 300,
       height: 92,
-      label: 'INDIETRO',
+      label: 'BACK',
       onPress: () => {
         void this.engine.goToScene('menu');
       },

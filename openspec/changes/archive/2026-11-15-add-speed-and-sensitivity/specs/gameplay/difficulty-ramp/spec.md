@@ -2,39 +2,39 @@
 
 ## Purpose
 
-Rende la partita più tesa man mano che si sale, senza che il mondo si sfasi.
+Makes the run more tense as you climb, without the world falling out of step.
 
 ## ADDED Requirements
 
-### Requirement: Velocità di salita progressiva
+### Requirement: Progressive climb speed
 
-La velocità di salita SHALL partire dal valore iniziale e crescere in funzione dei pixel scalati, fino a un tetto massimo. La crescita MUST essere deterministica rispetto all'altezza e MUST NOT dipendere dal tempo trascorso o dal frame rate.
+The climb speed SHALL start from the initial value and grow as a function of the pixels scrolled, up to a maximum cap. The growth MUST be deterministic with respect to height and MUST NOT depend on elapsed time or on the frame rate.
 
-#### Scenario: Inizio partita
+#### Scenario: Run start
 
-- **WHEN** la partita comincia
-- **THEN** la salita procede alla velocità iniziale
+- **WHEN** the run begins
+- **THEN** the climb proceeds at the initial speed
 
-#### Scenario: Salita prolungata
+#### Scenario: Prolonged climb
 
-- **WHEN** il giocatore supera diverse migliaia di pixel di altezza
-- **THEN** la salita accelera in modo continuo, senza scatti visibili
+- **WHEN** the player passes several thousand pixels of height
+- **THEN** the climb accelerates continuously, without visible jumps
 
-#### Scenario: Tetto raggiunto
+#### Scenario: Cap reached
 
-- **WHEN** l'altezza supera la soglia del tetto
-- **THEN** la velocità resta costante a quel valore e non cresce ulteriormente
+- **WHEN** the height passes the cap threshold
+- **THEN** the speed stays constant at that value and does not grow any further
 
-### Requirement: Scorrimento coerente con la velocità corrente
+### Requirement: Scrolling consistent with the current speed
 
-Parallasse, ostacoli e navi nemiche SHALL usare la velocità di salita corrente, così che il movimento relativo del mondo resti coerente quando il gioco accelera. La distanza fra un ostacolo e il successivo MUST restare quella prevista, espressa in pixel di salita.
+Parallax, obstacles and enemy ships SHALL use the current climb speed, so that the relative movement of the world stays consistent when the game accelerates. The distance between one obstacle and the next MUST stay the expected one, expressed in climb pixels.
 
-#### Scenario: Accelerazione
+#### Scenario: Acceleration
 
-- **WHEN** la velocità di salita aumenta durante la partita
-- **THEN** sfondo, ostacoli e nemici accelerano insieme, senza che gli ostacoli si avvicinino o si allontanino fra loro
+- **WHEN** the climb speed increases during the run
+- **THEN** background, obstacles and enemies accelerate together, without the obstacles moving closer to or farther from each other
 
-#### Scenario: Nemico in discesa
+#### Scenario: Enemy descending
 
-- **WHEN** una nave nemica scende mentre il gioco è più veloce
-- **THEN** la sua discesa relativa resta quella dell'archetipo, senza diventare più lenta o più rapida in proporzione
+- **WHEN** an enemy ship descends while the game is faster
+- **THEN** its relative descent stays the archetype's, without becoming slower or faster in proportion

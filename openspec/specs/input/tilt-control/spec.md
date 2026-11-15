@@ -1,110 +1,110 @@
 # input/tilt-control Specification
 
 ## Purpose
-Trasforma l'inclinazione del telefono in un comando di sterzata continuo e prevedibile, e garantisce che il gioco resti giocabile anche quando il sensore non c'è o il permesso viene negato.
+Turns the phone's tilt into a continuous, predictable steering command, and guarantees that the game stays playable even when the sensor is missing or the permission is denied.
 
 ## Requirements
 
-### Requirement: Sterzata proporzionale al tilt
+### Requirement: Steering proportional to tilt
 
-Con i sensori attivi, il sistema SHALL tradurre l'inclinazione sinistra/destra del dispositivo in una velocità orizzontale del giocatore, proporzionale all'angolo inclinato e con segno corrispondente alla direzione. L'inclinazione a destra SHALL muovere il giocatore a destra e quella a sinistra a sinistra, su schermo in orientamento verticale. La proporzionalità MUST usare l'inclinazione di fondo scala scelta come sensibilità, che di default è più reattiva di quella delle versioni precedenti.
+With the sensors active, the system SHALL translate the device's left/right tilt into a horizontal speed for the player, proportional to the tilt angle and with a sign matching the direction. Tilting right SHALL move the player to the right and tilting left to the left, on a screen in portrait orientation. The proportionality MUST use the full-scale tilt chosen as sensitivity, which by default is more responsive than the one in previous versions.
 
-#### Scenario: Inclinazione verso destra
+#### Scenario: Tilting to the right
 
-- **WHEN** il telefono è inclinato verso destra oltre la dead zone
-- **THEN** il giocatore si muove verso destra, tanto più veloce quanto maggiore è l'angolo
+- **WHEN** the phone is tilted to the right beyond the dead zone
+- **THEN** the player moves to the right, faster the greater the angle
 
-#### Scenario: Telefono in piano
+#### Scenario: Phone flat
 
-- **WHEN** il telefono è tenuto nell'inclinazione neutra
-- **THEN** il giocatore non si muove in orizzontale da solo
+- **WHEN** the phone is held at the neutral tilt
+- **THEN** the player does not move horizontally on its own
 
-#### Scenario: Default più reattivo
+#### Scenario: More responsive default
 
-- **WHEN** il gioco viene avviato senza impostazioni salvate
-- **THEN** la nave raggiunge il fondo scala a un'inclinazione inferiore a quella delle versioni precedenti
+- **WHEN** the game is started without saved settings
+- **THEN** the ship reaches full scale at a lower tilt than in previous versions
 
-### Requirement: Smorzamento e dead zone
+### Requirement: Smoothing and dead zone
 
-Il sistema SHALL filtrare le letture del sensore per ridurre il tremolio e SHALL ignorare le inclinazioni inferiori a una soglia minima, così che il giocatore non vibri quando il telefono è quasi fermo. Il movimento SHALL risultare fluido e non a scatti alla frequenza di aggiornamento disponibile sul dispositivo.
+The system SHALL filter the sensor readings to reduce jitter and SHALL ignore tilts below a minimum threshold, so that the player does not twitch when the phone is almost still. Movement SHALL be smooth rather than jerky at the refresh rate available on the device.
 
-#### Scenario: Tremolio da mano ferma
+#### Scenario: Jitter from a steady hand
 
-- **WHEN** il telefono è fermo ma il sensore oscilla di pochi decimi di grado
-- **THEN** il giocatore resta immobile
+- **WHEN** the phone is still but the sensor wobbles by a few tenths of a degree
+- **THEN** the player stays motionless
 
-#### Scenario: Frequenza di aggiornamento bassa
+#### Scenario: Low refresh rate
 
-- **WHEN** il dispositivo emette eventi di orientamento meno di 30 volte al secondo
-- **THEN** il movimento del giocatore resta continuo, senza salti visibili
+- **WHEN** the device emits orientation events fewer than 30 times per second
+- **THEN** the player's movement stays continuous, without visible jumps
 
-### Requirement: Fallback senza sensori
+### Requirement: Fallback without sensors
 
-Quando il sensore non è disponibile, il permesso è negato o l'utente gioca da desktop, il sistema SHALL rendere il gioco pienamente controllabile con la tastiera (frecce sinistra/destra) e con il trascinamento orizzontale del dito o del mouse. Il gioco MUST NOT bloccarsi in attesa di un permesso.
+When the sensor is unavailable, the permission is denied or the user plays from desktop, the system SHALL make the game fully controllable with the keyboard (left/right arrows) and with horizontal dragging of a finger or the mouse. The game MUST NOT get stuck waiting for a permission.
 
-#### Scenario: Permesso negato
+#### Scenario: Permission denied
 
-- **WHEN** l'utente rifiuta il permesso di accesso ai sensori
-- **THEN** la partita parte comunque e risponde ai comandi di fallback
+- **WHEN** the user refuses the sensor access permission
+- **THEN** the run starts anyway and responds to the fallback controls
 
-#### Scenario: Partita da desktop
+#### Scenario: Run from desktop
 
-- **WHEN** la pagina viene aperta su un computer senza accelerometro
-- **THEN** le frecce orizzontali muovono il giocatore e nessun messaggio di errore blocca l'avvio
+- **WHEN** the page is opened on a computer without an accelerometer
+- **THEN** the horizontal arrows move the player and no error message blocks the start
 
-### Requirement: Richiesta permessi dentro un gesto utente
+### Requirement: Permission request inside a user gesture
 
-Su piattaforme che richiedono un consenso esplicito per i sensori, il sistema SHALL chiedere il permesso solo in risposta a un'azione dell'utente compiuta nel menu, e SHALL gestire l'esito negativo senza interrompere il gioco né bloccare il menu.
+On platforms that require explicit consent for the sensors, the system SHALL ask for the permission only in response to a user action performed in the menu, and SHALL handle a negative outcome without interrupting the game or blocking the menu.
 
-#### Scenario: Primo tocco su Android o iOS
+#### Scenario: First tap on Android or iOS
 
-- **WHEN** l'utente preme **Calibra** o **Inizia gioco** per la prima volta
-- **THEN** la richiesta di permesso avviene dentro quel tocco e l'esito viene registrato prima di proseguire
+- **WHEN** the user presses **Calibrate** or **Start game** for the first time
+- **THEN** the permission request happens inside that tap and the outcome is recorded before continuing
 
-#### Scenario: Permesso negato senza bloccare il menu
+#### Scenario: Permission denied without blocking the menu
 
-- **WHEN** l'utente nega il permesso richiesto dal menu
-- **THEN** il menu mostra l'avviso di sensore non disponibile e resta utilizzabile
+- **WHEN** the user denies the permission requested by the menu
+- **THEN** the menu shows the sensor-unavailable warning and stays usable
 
-### Requirement: Calibrazione esplicita comandata dal menu
+### Requirement: Explicit calibration driven by the menu
 
-Il sistema SHALL usare come inclinazione neutra quella fissata dall'ultima calibrazione esplicita, e MUST sottrarre quel valore a tutte le letture successive. In assenza di calibrazione esplicita SHALL usare l'inclinazione rilevata all'apertura del menu. L'avvio di una partita MUST NOT ricalibrare in modo implicito.
+The system SHALL use as neutral tilt the one set by the last explicit calibration, and MUST subtract that value from all subsequent readings. In the absence of an explicit calibration it SHALL use the tilt detected when the menu was opened. Starting a run MUST NOT recalibrate implicitly.
 
-#### Scenario: Zero fissato dalla calibrazione
+#### Scenario: Zero set by calibration
 
-- **WHEN** l'utente preme **Calibra** con il telefono inclinato di 12 gradi
-- **THEN** quella posizione vale zero per la partita successiva e il giocatore non deriva
+- **WHEN** the user presses **Calibrate** with the phone tilted by 12 degrees
+- **THEN** that position counts as zero for the next run and the player does not drift
 
-#### Scenario: Calibrazione mantenuta fra partite diverse
+#### Scenario: Calibration kept across different runs
 
-- **WHEN** l'utente gioca, muore e riparte senza premere **Calibra**
-- **THEN** lo zero resta quello dell'ultima calibrazione esplicita
+- **WHEN** the user plays, dies and starts again without pressing **Calibrate**
+- **THEN** the zero stays the one from the last explicit calibration
 
-#### Scenario: Zero iniziale senza calibrazione
+#### Scenario: Initial zero without calibration
 
-- **WHEN** l'utente apre il menu e avvia subito la partita senza calibrare
-- **THEN** lo zero è l'inclinazione con cui ha aperto il menu
+- **WHEN** the user opens the menu and starts the run immediately without calibrating
+- **THEN** the zero is the tilt with which the menu was opened
 
-### Requirement: Sensibilità regolabile e persistente
+### Requirement: Adjustable and persistent sensitivity
 
-La sensibilità SHALL essere espressa come inclinazione necessaria a raggiungere il fondo scala e SHALL essere selezionabile fra cinque livelli, da 22° (morbido) a 8° (nervoso), con 13° come default. Il valore scelto MUST restare memorizzato sul dispositivo, MUST essere applicato dalla partita successiva e MUST NOT invalidare la calibrazione già effettuata.
+Sensitivity SHALL be expressed as the tilt needed to reach full scale and SHALL be selectable across five levels, from 22° (soft) to 8° (twitchy), with 13° as the default. The chosen value MUST stay stored on the device, MUST be applied from the next run and MUST NOT invalidate the calibration already performed.
 
-#### Scenario: Livello nervoso
+#### Scenario: Twitchy level
 
-- **WHEN** si seleziona il livello più sensibile
-- **THEN** basta un'inclinazione minore per spostare la nave a fondo scala
+- **WHEN** the most sensitive level is selected
+- **THEN** a smaller tilt is enough to move the ship to full scale
 
-#### Scenario: Livello morbido
+#### Scenario: Soft level
 
-- **WHEN** si seleziona il livello meno sensibile
-- **THEN** serve un'inclinazione maggiore, utile per chi ha una mano poco ferma
+- **WHEN** the least sensitive level is selected
+- **THEN** a larger tilt is required, which helps anyone with a shaky hand
 
-#### Scenario: Riapertura del gioco
+#### Scenario: Reopening the game
 
-- **WHEN** il gioco viene riaperto dopo aver cambiato sensibilità
-- **THEN** la sensibilità salvata è quella attiva
+- **WHEN** the game is reopened after changing the sensitivity
+- **THEN** the saved sensitivity is the active one
 
-#### Scenario: Cambio prima di una partita
+#### Scenario: Change before a run
 
-- **WHEN** la sensibilità cambia dal menu
-- **THEN** la nuova sensibilità vale da subito e lo zero calibrato resta valido
+- **WHEN** the sensitivity is changed from the menu
+- **THEN** the new sensitivity applies right away and the calibrated zero stays valid

@@ -161,7 +161,7 @@ function measuringContext(): CanvasRenderingContext2D {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      throw new Error('contesto 2D non disponibile per misurare il testo');
+      throw new Error('no 2D context available to measure the text');
     }
     sharedContext = ctx;
   }

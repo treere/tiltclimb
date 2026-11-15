@@ -2,103 +2,103 @@
 
 ## REMOVED Requirements
 
-### Requirement: Navi nemiche con traiettoria ondulata
+### Requirement: Enemy ships with a wavy trajectory
 
-**Reason**: non tutte le navi nemiche ondeggiano più. Il movimento ora dipende dall'archetipo, quindi una regola unica per tutte descriverebbe male tre navi su quattro.
+**Reason**: not all enemy ships oscillate anymore. Movement now depends on the archetype, so a single rule for all would misdescribe three ships out of four.
 
-**Migration**: la pattuglia mantiene esattamente il comportamento ondulato descritto prima; gli altri tipi sono descritti dal nuovo requisito sugli archetipi. Chi si aspettava un solo tipo di nemico trova ora una progressione, e i più difficili compaiono solo dopo una certa altezza.
+**Migration**: the patrol keeps exactly the wavy behavior described before; the other types are described by the new requirement on archetypes. Someone who expected a single type of enemy now finds a progression, and the harder ones appear only after a certain height.
 
 ## MODIFIED Requirements
 
-### Requirement: Fuoco nemico verso il basso
+### Requirement: Enemy fire towards the bottom
 
-Ogni nave nemica SHALL sparare proiettili diretti verso il basso a intervalli regolari e a velocità inferiore a quella dei colpi dell'eroe, con uno schema che dipende dal proprio archetipo: colpo singolo, raffica ravvicinata o ventaglio di colpi obliqui. I proiettili nemici SHALL sparire quando escono dallo schermo.
+Every enemy ship SHALL fire projectiles directed downwards at regular intervals and at a speed lower than the hero's shots, with a pattern that depends on its archetype: single shot, close burst or fan of oblique shots. Enemy projectiles SHALL disappear when they exit the screen.
 
-#### Scenario: Raffica nemica
+#### Scenario: Enemy burst
 
-- **WHEN** una nave nemica resta sullo schermo per il tempo previsto
-- **THEN** spara secondo lo schema del suo archetipo e continua a farlo a intervalli regolari
+- **WHEN** an enemy ship stays on screen for the expected time
+- **THEN** it fires according to its archetype pattern and keeps doing so at regular intervals
 
-#### Scenario: Raffica del picchiatore
+#### Scenario: Striker burst
 
-- **WHEN** un picchiatore apre il fuoco
-- **THEN** spara due colpi in rapida successione, non uno solo
+- **WHEN** a striker opens fire
+- **THEN** it fires two shots in quick succession, not just one
 
-#### Scenario: Ventaglio del cacciatore
+#### Scenario: Hunter fan
 
-- **WHEN** un cacciatore apre il fuoco
-- **THEN** spara tre colpi diretti verso il basso, di cui i laterali inclinati
+- **WHEN** a hunter opens fire
+- **THEN** it fires three shots directed downwards, of which the outer ones are angled
 
-#### Scenario: Sequenza della torretta
+#### Scenario: Turret sequence
 
-- **WHEN** la torretta apre il fuoco
-- **THEN** spara quattro colpi in sequenza rapida e poi resta a lungo senza sparare
+- **WHEN** the turret opens fire
+- **THEN** it fires four shots in quick sequence and then stays without firing for a long time
 
-#### Scenario: Proiettile che esce dallo schermo
+#### Scenario: Projectile exiting the screen
 
-- **WHEN** un proiettile nemico supera il bordo inferiore o laterale della vista
-- **THEN** viene rimosso dal gioco
+- **WHEN** an enemy projectile passes the bottom or side edge of the view
+- **THEN** it is removed from the game
 
 ## ADDED Requirements
 
-### Requirement: Archetipi nemici con movimento proprio
+### Requirement: Enemy archetypes with their own movement
 
-Il sistema SHALL avere quattro tipi di nave nemica, ognuno con sprite distinto e movimento proprio: pattuglia che ondeggia scendendo, picchiatore che scende in diagonale verso il lato opposto, cacciatore che segue l'eroe in orizzontale, torretta che staziona a mezza altezza. Ogni tipo MUST restare dentro i bordi del mondo.
+The system SHALL have four types of enemy ship, each with a distinct sprite and its own movement: patrol that oscillates while descending, striker that descends diagonally towards the opposite side, hunter that follows the hero horizontally, turret that stations at mid height. Each type MUST stay within the world edges.
 
-#### Scenario: Pattuglia
+#### Scenario: Patrol
 
-- **WHEN** una pattuglia attraversa lo schermo
-- **THEN** scende lentamente oscillando in orizzontale
+- **WHEN** a patrol crosses the screen
+- **THEN** it descends slowly oscillating horizontally
 
-#### Scenario: Picchiatore
+#### Scenario: Striker
 
-- **WHEN** un picchiatore entra in scena
-- **THEN** scende più velocemente delle altre e si sposta verso il lato opposto a quello di ingresso
+- **WHEN** a striker enters the scene
+- **THEN** it descends faster than the others and moves towards the side opposite the entry one
 
-#### Scenario: Cacciatore
+#### Scenario: Hunter
 
-- **WHEN** un cacciatore è sullo schermo
-- **THEN** la sua posizione orizzontale si avvicina a quella dell'eroe, senza superarla con scatti
+- **WHEN** a hunter is on screen
+- **THEN** its horizontal position approaches the hero's, without overshooting in jerks
 
-#### Scenario: Torretta
+#### Scenario: Turret
 
-- **WHEN** una torretta entra in scena
-- **THEN** scende fino a circa metà altezza e poi resta lì, oscillando piano
+- **WHEN** a turret enters the scene
+- **THEN** it descends to about mid height and then stays there, oscillating slowly
 
-### Requirement: Comparsa progressiva dei nemici più difficili
+### Requirement: Progressive appearance of the harder enemies
 
-I tipi più difficili SHALL sbloccarsi in base all'altezza raggiunta nella partita, e un tipo MUST NOT comparire prima della propria soglia. Il limite di navi nemiche contemporanee SHALL essere due nella fase iniziale e tre da quando è disponibile il cacciatore.
+The harder types SHALL unlock based on the height reached in the run, and a type MUST NOT appear before its own threshold. The limit of simultaneous enemy ships SHALL be two in the early phase and three from when the hunter is available.
 
-#### Scenario: Inizio partita
+#### Scenario: Run start
 
-- **WHEN** la partita è appena iniziata e l'altezza è bassa
-- **THEN** compaiono solo pattuglie
+- **WHEN** the run has just started and the height is low
+- **THEN** only patrols appear
 
-#### Scenario: Sblocco oltre la soglia
+#### Scenario: Unlock beyond the threshold
 
-- **WHEN** l'altezza supera la soglia di un tipo
-- **THEN** quel tipo può comparire, mentre i tipi con soglia più alta restano esclusi
+- **WHEN** the height passes the threshold of a type
+- **THEN** that type can appear, while the types with a higher threshold stay excluded
 
-#### Scenario: Limite che cresce
+#### Scenario: Limit that grows
 
-- **WHEN** il cacciatore è sbloccato
-- **THEN** possono essere presenti fino a tre navi nemiche contemporaneamente
+- **WHEN** the hunter is unlocked
+- **THEN** up to three enemy ships can be present at the same time
 
-### Requirement: Punteggio per tipo di nemico
+### Requirement: Score per enemy type
 
-Ogni tipo di nave nemica SHALL assegnare un valore di punti diverso in base alla difficoltà: pattuglia 25, picchiatore 35, cacciatore 45, torretta 60.
+Each type of enemy ship SHALL award a different points value based on difficulty: patrol 25, striker 35, hunter 45, turret 60.
 
-#### Scenario: Pattuglia abbattuta
+#### Scenario: Patrol destroyed
 
-- **WHEN** l'eroe abbatte una pattuglia
-- **THEN** il punteggio aumenta di 25
+- **WHEN** the hero destroys a patrol
+- **THEN** the score increases by 25
 
-#### Scenario: Torretta abbattuta
+#### Scenario: Turret destroyed
 
-- **WHEN** l'eroe abbatte una torretta
-- **THEN** il punteggio aumenta di 60
+- **WHEN** the hero destroys a turret
+- **THEN** the score increases by 60
 
-#### Scenario: Riepilogo degli abbattimenti
+#### Scenario: Kill summary
 
-- **WHEN** la partita termina
-- **THEN** il riepilogo conta tutte le navi abbattute, indipendentemente dal tipo
+- **WHEN** the run ends
+- **THEN** the summary counts all the ships destroyed, regardless of type

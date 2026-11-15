@@ -2,32 +2,32 @@
 
 ## Why
 
-Il gioco non dice perché si sta salendo: c'è un'astronave, ci sono asteroidi, e basta. Una pagina crediti dà un motivo alla salita (raggiungere la squadra), mette nero su bianco chi ha fatto cosa — a partire da Andrea Tomasi — e documenta gli asset dove un essere umano li cerca, invece che solo dentro `license.txt`.
+The game does not say why you are climbing: there is a spaceship, there are asteroids, and that is it. A credits page gives the climb a reason (reaching the squad), puts on paper who did what — starting with Andrea Tomasi — and documents the assets where a human being looks for them, instead of only inside `license.txt`.
 
-Nella stessa passata si sistema la leggibilità, che oggi è il punto debole dell'interfaccia: i pulsanti sono pannelli semitrasparenti su un campo stellato che passa sotto il testo, e le etichette perdono contrasto proprio dove servono.
+In the same pass the legibility is fixed, which today is the weak point of the interface: the buttons are semi-transparent panels on a starfield that passes under the text, and the labels lose contrast exactly where they are needed.
 
 ## What Changes
 
-- **Nuova schermata Crediti**, raggiungibile dal menu con un terzo pulsante **CREDITI** sotto **Inizia gioco**. Contiene: la storia dell'eroe in poche righe, i crediti degli asset (Kenney, CC0) e l'autore con il suo ruolo. Un pulsante **INDIETRO** riporta al menu.
-- **Racconto**: quattro righe che spiegano la salita — salto andato storto, squadra dispersa, rotta segnata dai relitti, carburante che finisce.
-- **Autore nei crediti**: Andrea Tomasi, idea, game design e direzione.
-- **Pulsanti ridisegnati**: fondo scuro **opaco** invece che semitrasparente, bordo luminoso più marcato, etichetta più grande e in bianco con ombra dietro al testo, così da restare leggibile sopra le stelle.
-- **Testi leggibili ovunque**: ombra sotto le scritte di menu e HUD, dimensioni minime, e un contrasto verificato (rapporto almeno 7:1 fra testo e fondo) invece che "a occhio".
-- Fuori scope: audio, animazioni della pagina crediti, link esterni cliccabili, altre lingue, modifiche a gameplay, nemici, punteggi o calibrazione.
+- **New Credits screen**, reachable from the menu with a third button **CREDITS** below **Start game**. It contains: the hero's story in a few lines, the asset credits (Kenney, CC0) and the author with their role. An **BACK** button returns to the menu.
+- **Story**: four lines explaining the climb — a jump gone wrong, the squad scattered, a route marked by wrecks, fuel running out.
+- **Author in the credits**: Andrea Tomasi, idea, game design and direction.
+- **Redesigned buttons**: **opaque** dark background instead of semi-transparent, more pronounced bright border, larger white label with a shadow behind the text, so that it stays legible over the stars.
+- **Legible texts everywhere**: shadow under the menu and HUD text, minimum sizes, and a verified contrast (ratio of at least 7:1 between text and background) instead of "by eye".
+- Out of scope: audio, credits page animations, clickable external links, other languages, changes to gameplay, enemies, scores or calibration.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `ui/credits`: schermata crediti raggiungibile dal menu, con il racconto che motiva l'avventura, i crediti degli asset e dell'autore, e il ritorno al menu.
+- `ui/credits`: credits screen reachable from the menu, with the story that motivates the adventure, the asset and author credits, and the return to the menu.
 
 ### Modified Capabilities
 
-- `ui/start-menu`: il menu non ha più due comandi ma tre, perché si aggiunge l'accesso ai crediti.
-- `presentation/space-theme`: i pulsanti devono essere opachi e con un contrasto minimo verificabile, e le scritte devono restare leggibili su sfondo stellato anche fuori dai pulsanti.
+- `ui/start-menu`: the menu no longer has two commands but three, because access to the credits is added.
+- `presentation/space-theme`: the buttons must be opaque and have a verifiable minimum contrast, and the texts must stay legible on a starfield even outside the buttons.
 
 ## Impact
 
-- Codice: nuova `src/game/credits-scene.ts`, contenuti testuali in `src/game/credits-text.ts`, ritocchi a `menu-scene.ts` (terzo pulsante e navigazione), `src/ui/button.ts` (fondo opaco, bordo, testo con ombra), `src/main.ts` (registrazione scena), `constants.ts`.
-- Nessun asset nuovo: la pagina usa lo sfondo stellato e la nave già presenti.
-- Rischio: aggiungere un terzo pulsante al menu significa rivedere le altezze, altrimenti su schermi bassi i comandi finiscono sotto il bordo o addosso alla nave.
+- Code: new `src/game/credits-scene.ts`, text content in `src/game/credits-text.ts`, tweaks to `menu-scene.ts` (third button and navigation), `src/ui/button.ts` (opaque background, border, text with shadow), `src/main.ts` (scene registration), `constants.ts`.
+- No new assets: the page uses the starfield and the ship already present.
+- Risk: adding a third button to the menu means reviewing the heights, otherwise on short screens the commands end up below the edge or on top of the ship.

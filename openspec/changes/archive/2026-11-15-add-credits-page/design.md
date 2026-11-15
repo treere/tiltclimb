@@ -2,66 +2,66 @@
 
 ## Context
 
-Vedi `proposal.md` per il perché. Oggi il menu ha due pulsanti centrati alle frazioni 0.73 e 0.85 dell'altezza utile, un blocco calibrazione sopra, e il `Button` è un pannello con fondo `rgba(14,26,43,0.88)` e bordo da 3 px ottenuto con due rettangoli concentrici. Le scene sono registrate in `main.ts` e la navigazione usa `engine.goToScene`.
+See `proposal.md` for the why. Today the menu has two buttons centered at fractions 0.73 and 0.85 of the usable height, a calibration block above them, and the `Button` is a panel with a `rgba(14,26,43,0.88)` background and a 3 px border obtained with two concentric rectangles. The scenes are registered in `main.ts` and navigation uses `engine.goToScene`.
 
-Il punto debole misurato: il fondo dei pulsanti è trasparente all'88%, quindi le stelle ci passano sotto. Il testo chiaro (`#dbeafe`) su un fondo che varia fra `#0e1a2b` e il chiaro di una stella perde contrasto a chiazze — è esattamente la sensazione di "scritte che non si leggono".
+The measured weak point: the button background is 88% transparent, so the stars pass underneath it. The light text (`#dbeafe`) on a background that varies between `#0e1a2b` and the brightness of a star loses contrast in patches — it is exactly the feeling of "text you cannot read".
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- una pagina crediti che si legge, con una storia breve e i crediti al posto giusto;
-- contrasto **verificabile**, non "a occhio": soglia 7:1 testo/fondo, calcolata e controllata;
-- menu a tre comandi senza collisioni di layout su schermi bassi.
+- a credits page that reads well, with a short story and the credits in the right place;
+- **verifiable** contrast, not "by eye": 7:1 text/background threshold, calculated and checked;
+- menu with three commands and no layout collisions on short screens.
 
 **Non-Goals:**
 
-- audio, animazioni della pagina, link esterni;
-- modifiche a gameplay, nemici, punteggi, calibrazione;
-- scorrimento del testo: il racconto sta in una schermata.
+- audio, page animations, external links;
+- changes to gameplay, enemies, scores, calibration;
+- text scrolling: the story fits in one screen.
 
 ## Decisions
 
-### 1. Una scena separata per i crediti
+### 1. A separate scene for the credits
 
-`src/game/credits-scene.ts`, registrata come `credits`, con lo stesso `Starfield` a velocità ridotta del menu, la nave come illustrazione e due pulsanti: **INDIETRO** e nient'altro.
+`src/game/credits-scene.ts`, registered as `credits`, with the same `Starfield` at reduced speed as the menu, the ship as an illustration and two buttons: **BACK** and nothing else.
 
-Alternativa scartata: un pannello dentro `MenuScene`. Il menu gestisce già sensore, permessi, calibrazione e riepilogo; aggiungerci un pannello con proprio stato significherebbe altre guardie in `onPreUpdate` e la stessa logica di "torna indietro" scritta due volte.
+Rejected alternative: a panel inside `MenuScene`. The menu already handles sensor, permissions, calibration and summary; adding a panel with its own state would mean more guards in `onPreUpdate` and the same "go back" logic written twice.
 
-### 2. Contenuti in un modulo, non sparsi nel layout
+### 2. Content in a module, not scattered in the layout
 
-`src/game/credits-text.ts` esporta `STORY: string[]` e `CREDITS: {label, value}[]`. La scena si limita a impaginarli. Così riscrivere la storia non tocca il codice di layout, e i testi sono in un posto che si legge senza aprire una scena.
+`src/game/credits-text.ts` exports `STORY: string[]` and `CREDITS: {label, value}[]`. The scene only lays them out. That way rewriting the story does not touch the layout code, and the texts are in a place you can read without opening a scene.
 
-### 3. Leggibilità misurata, non stimata
+### 3. Legibility measured, not estimated
 
-Il `Button` cambia in tre punti:
+The `Button` changes in three places:
 
-- **fondo opaco** `#0b1a2e` (niente alpha): le stelle non passano più sotto l'etichetta;
-- **bordo** più luminoso `#7fd4ff` a 3 px, sempre con due rettangoli concentrici;
-- **etichetta** bianca `#ffffff`, corpo 38 (era 34), con `shadow` del font (offset 2,2, blur 0, nero) per staccarla dal fondo anche sotto i 60 px di altezza.
+- **opaque background** `#0b1a2e` (no alpha): the stars no longer pass under the label;
+- **border** brighter `#7fd4ff` at 3 px, still with two concentric rectangles;
+- **label** white `#ffffff`, size 38 (was 34), with the font `shadow` (offset 2,2, blur 0, black) to lift it from the background even below 60 px of height.
 
-I valori sono scelti perché il contrasto calcolato superi 7:1: il bianco su `#0b1a2e` sta intorno a 16:1, e il bordo su `#0b1a2e` è ben oltre la soglia 3:1 richiesta per gli elementi non testuali. La verifica è un conto fatto in Node sui colori reali del codice, non una dichiarazione.
+The values are chosen so that the calculated contrast exceeds 7:1: white on `#0b1a2e` is around 16:1, and the border on `#0b1a2e` is well beyond the 3:1 threshold required for non-text elements. The check is a calculation done in Node on the real colors in the code, not a statement.
 
-Fuori dai pulsanti, la stessa ombra va su HUD e testi del menu, perché lì il fondo resta il campo stellato e non c'è modo di renderlo opaco senza perdere l'effetto.
+Outside the buttons, the same shadow goes on the HUD and on the menu texts, because there the background remains the starfield and there is no way to make it opaque without losing the effect.
 
-### 4. Layout del menu a tre comandi
+### 4. Menu layout with three commands
 
-Il menu passa a: illustrazione della nave a 0.20, etichetta e valore inclinazione a 0.30/0.36, barra a 0.44, riepilogo a 0.50, avviso a 0.56, e i tre pulsanti a 0.66 / 0.77 / 0.88, con altezza 92 e gap di 8 px. La conferma di calibrazione scende a 0.95.
+The menu moves to: ship illustration at 0.20, tilt label and value at 0.30/0.36, bar at 0.44, summary at 0.50, warning at 0.56, and the three buttons at 0.66 / 0.77 / 0.88, with height 92 and a gap of 8 px. The calibration confirmation moves down to 0.95.
 
-La frazione 0.88 × 1280 ≈ 1126 px, che lascia 154 px sotto: sufficiente per il pulsante alto 92 e per la safe area. Con un terzo pulsante non c'è spazio per tenere le distanze precedenti: due comandi a 0.73/0.85 diventerebbero tre a 0.66/0.77/0.88.
+The fraction 0.88 × 1280 ≈ 1126 px, which leaves 154 px below: enough for the 92-high button and for the safe area. With a third button there is no room to keep the previous distances: two commands at 0.73/0.85 would become three at 0.66/0.77/0.88.
 
-### 5. Il ritorno non tocca lo stato di sessione
+### 5. Going back does not touch the session state
 
-`CreditsScene` non legge né scrive `session`: la calibrazione vive nel singleton e resta intatta. Il pulsante **INDIETRO** chiama `engine.goToScene('menu')`, e `MenuScene.onActivate` ridisegna il riepilogo, quindi si torna al menu esattamente com'era.
+`CreditsScene` neither reads nor writes `session`: calibration lives in the singleton and stays intact. The **BACK** button calls `engine.goToScene('menu')`, and `MenuScene.onActivate` redraws the summary, so you return to the menu exactly as it was.
 
 ## Risks / Trade-offs
 
-- **Tre pulsanti su schermi bassi**: 0.66–0.88 sono frazioni dell'altezza utile (che rispetta `contentArea`), quindi su un telefono basso i comandi si comprimono ma restano dentro; se in mano risultano stretti si riduce l'altezza dei pulsanti a 84, non le distanze.
-- **Testo con ombra che "sporca"**: un'ombra troppo marcata su corpo 38 sembra un errore di stampa; offset 2 px e blur 0 tengono il bordo netto.
-- **Soglia 7:1**: è severa; se in futuro si vuole un testo colorato invece che bianco, va ricalcolata — meglio un test che un'opinione.
-- **Pagina crediti che invecchia**: la storia è in un modulo dedicato, quindi si riscrive senza toccare la scena; ma nessun test la protegge, e una modifica al gioco potrebbe renderla incoerente. Mitigazione: il racconto parla di salita e asteroidi, non di meccaniche che possono cambiare.
-- **Nessun link esterni**: la pagina non è cliccabile verso kenney.nl; chi vuole approfondire ha il README. È una scelta per non gestire URL esterni in un canvas.
+- **Three buttons on short screens**: 0.66–0.88 are fractions of the usable height (which respects `contentArea`), so on a short phone the commands compress but stay inside; if in hand they feel tight, the button height is reduced to 84, not the distances.
+- **Text with a shadow that "smudges"**: too strong a shadow at size 38 looks like a printing error; 2 px offset and 0 blur keep the edge sharp.
+- **7:1 threshold**: it is strict; if in the future a colored text is wanted instead of white, it must be recalculated — a test is better than an opinion.
+- **Credits page that ages**: the story is in a dedicated module, so it can be rewritten without touching the scene; but no test protects it, and a change to the game could make it inconsistent. Mitigation: the story talks about climbing and asteroids, not about mechanics that can change.
+- **No external links**: the page is not clickable towards kenney.nl; those who want more have the README. It is a choice to avoid handling external URLs in a canvas.
 
 ## Migration Plan
 
-Nessuna migrazione. `CreditsScene` è una scena nuova, il menu cambia solo per un pulsante in più. Rollback: revert del commit di apply.
+No migration. `CreditsScene` is a new scene, the menu changes only by one more button. Rollback: revert of the apply commit.

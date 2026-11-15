@@ -1,6 +1,6 @@
 import * as ex from 'excalibur';
-// Gli sprite veri del gioco, incorporati nel bundle come data URL: costano pochi KB ciascuno e
-// sono disponibili subito, mentre le immagini caricate dal loader non lo sono ancora.
+// The game's real sprites, inlined in the bundle as data URLs: they cost a few KB each and are
+// available immediately, while the images the loader is fetching are not there yet.
 import enemyShipUrl from '../assets/ships/enemyRed1.png?inline';
 import heroShipUrl from '../assets/ships/playerShip2_blue.png?inline';
 
@@ -124,15 +124,15 @@ export class ThemedLoader extends ex.Loader {
   ): void {
     const baseY = height * 0.44;
     const swing = Math.min(width * 0.3, 240);
-    // Il nemico è avanti di quasi un quarto d'onda e più in alto: con gli sprite veri, larghi
-    // come sono, un anticipo più corto li farebbe sembrare un'unica nave.
+    // The enemy is almost a quarter wave ahead and higher up: with the real sprites, wide as
+    // they are, a shorter lead would make them look like a single ship.
     const enemyX = width / 2 + Math.sin(time * 0.9) * swing;
     const enemyY = baseY - height * 0.05 + Math.sin(time * 1.4) * height * 0.02;
     const heroX = width / 2 + Math.sin(time * 0.9 - 0.85) * swing;
     const heroY = baseY + height * 0.05 + Math.sin(time * 1.4 - 0.85) * height * 0.02;
 
-    // Scia e beccheggio seguono la derivata della sinusoide, così le navi si inclinano
-    // nell'onda invece di scivolare rigide.
+    // Trail and pitch follow the derivative of the sine, so the ships lean into the wave
+    // instead of sliding rigidly.
     const heroDir = Math.cos(time * 0.9 - 0.85);
     const enemyDir = Math.cos(time * 0.9);
     const heroWidth = Math.min(width * 0.4, 170);
@@ -216,7 +216,7 @@ export class ThemedLoader extends ex.Loader {
 
     ctx.fillStyle = MUTED;
     ctx.font = `400 ${Math.round(height * 0.018)}px ${FAMILY}`;
-    ctx.fillText('la squadra è più avanti', width / 2, height * 0.31);
+    ctx.fillText('the squad is further ahead', width / 2, height * 0.31);
   }
 
   private drawProgress(ctx: CanvasRenderingContext2D, width: number, height: number): void {

@@ -2,29 +2,29 @@
 
 ## REMOVED Requirements
 
-### Requirement: Ciclo partita con riavvio immediato
+### Requirement: Run cycle with immediate restart
 
-**Reason**: la partita non riparte più con un tocco sulla schermata di fine: ora si torna al menu, dove il risultato viene mostrato insieme ai comandi di calibrazione e di avvio. Il riavvio cieco non lasciava spazio al riepilogo né alla correzione dell'assetto.
+**Reason**: the run no longer restarts with a touch on the end screen: now the game returns to the menu, where the result is shown together with the calibration and start commands. The blind restart left no room for the summary nor for correcting the setup.
 
-**Migration**: dopo la morte il gioco torna al menu; per rigiocare si preme **Inizia gioco**. Il punteggio della partita appena conclusa e il migliore di sessione sono mostrati nel menu.
+**Migration**: after death the game returns to the menu; to play again you press **Start game**. The score of the run just ended and the session best are shown in the menu.
 
 ## ADDED Requirements
 
-### Requirement: Ciclo partita con ritorno al menu
+### Requirement: Run cycle with return to the menu
 
-Alla fine di una partita il sistema SHALL tornare al menu entro un tempo percepito come immediato, senza ricaricare la pagina, e MUST NOT far ripartire automaticamente il gioco. Nel menu SHALL essere visibile l'esito della partita appena conclusa.
+At the end of a run the system SHALL return to the menu within a time perceived as immediate, without reloading the page, and MUST NOT restart the game automatically. In the menu the outcome of the run just ended SHALL be visible.
 
-#### Scenario: Ritorno al menu dopo la collisione
+#### Scenario: Return to the menu after the collision
 
-- **WHEN** il giocatore tocca un ostacolo
-- **THEN** la partita si chiude e la schermata diventa il menu, con l'esito appena ottenuto
+- **WHEN** the player touches an obstacle
+- **THEN** the run closes and the screen becomes the menu, with the outcome just obtained
 
-#### Scenario: Nessuna ripartenza automatica
+#### Scenario: No automatic restart
 
-- **WHEN** il gioco torna al menu dopo una sconfitta
-- **THEN** nessuna nuova partita parte finché l'utente non preme **Inizia gioco**
+- **WHEN** the game returns to the menu after a defeat
+- **THEN** no new run starts until the user presses **Start game**
 
-#### Scenario: Nuova partita pulita
+#### Scenario: Clean new run
 
-- **WHEN** l'utente preme **Inizia gioco** dopo una sconfitta
-- **THEN** la scena riparte dallo stato iniziale, con punteggio a zero e ostacoli azzerati
+- **WHEN** the user presses **Start game** after a defeat
+- **THEN** the scene restarts from the initial state, with the score at zero and the obstacles reset

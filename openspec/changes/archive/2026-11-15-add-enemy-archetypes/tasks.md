@@ -1,37 +1,37 @@
 # Tasks
 
-## 1. Asset e tabella degli archetipi
+## 1. Assets and archetype table
 
-- [x] 1.1 Copiare nei asset `enemyRed1`, `enemyBlue4`, `enemyGreen2` e `ufoYellow` (quest'ultimo non ancora nel repo) aggiungendoli al loader; verifica: nessun 404 e `npm run check` verde
-- [x] 1.2 Creare `src/game/enemy-archetypes.ts` con il tipo `EnemyKind`, la tabella `ARCHETYPES` (sprite, punti, soglia, parametri di movimento e di fuoco) e una funzione `kindsAvailableAt(height)`; verifica: i quattro tipi sono descritti solo dalla tabella, nessun numero magico in `enemy.ts`
+- [x] 1.1 Copy the assets `enemyRed1`, `enemyBlue4`, `enemyGreen2` and `ufoYellow` (the latter not yet in the repo) adding them to the loader; check: no 404 and `npm run check` green
+- [x] 1.2 Create `src/game/enemy-archetypes.ts` with the `EnemyKind` type, the `ARCHETYPES` table (sprite, points, threshold, movement and fire parameters) and a function `kindsAvailableAt(height)`; check: the four types are described only by the table, no magic number in `enemy.ts`
 
-## 2. Proiettili con angolo
+## 2. Projectiles with an angle
 
-- [x] 2.1 Estendere `Projectile.launch` con un angolo opzionale in radianti e far controllare a `isOutside` anche l'asse X; verifica: un colpo lanciato a 18° viaggia obliquo e viene riciclato uscendo di lato
-- [x] 2.2 Aggiungere al pool un helper per raffiche multiple (n colpi con ritardo); verifica: una raffica di 4 produce quattro proiettili distinti, non uno solo sovrascritto
+- [x] 2.1 Extend `Projectile.launch` with an optional angle in radians and make `isOutside` check the X axis too; check: a shot launched at 18° travels obliquely and is recycled when exiting sideways
+- [x] 2.2 Add a helper to the pool for multiple bursts (n shots with delay); check: a burst of 4 produces four distinct projectiles, not a single one overwritten
 
-## 3. Comportamenti dei quattro tipi
+## 3. Behaviors of the four types
 
-- [x] 3.1 Riscrivere `Enemy` perché usi l'archetipo: sprite e punti dal tipo, `weave` solo per la pattuglia, discesa veloce e deriva per il picchiatore, inseguimento orizzontale per il cacciatore, stazionamento a mezza altezza per la torretta; verifica: ogni tipo si muove come descritto nella tabella
-- [x] 3.2 Implementare i quattro schemi di fuoco (singolo, raffica di 2, ventaglio di 3, raffica di 4 con pausa lunga) con le cadenze della tabella; verifica: osservando ciascun tipo per un ciclo completo si contano i colpi attesi
-- [x] 3.3 Selezionare il tipo allo spawn pescando solo fra quelli sbloccati all'altezza corrente; verifica: sotto i 2500 px compaiono solo pattuglie
+- [x] 3.1 Rewrite `Enemy` so that it uses the archetype: sprite and points from the type, `weave` only for the patrol, fast descent and drift for the striker, horizontal chase for the hunter, mid-height stationing for the turret; check: each type moves as described in the table
+- [x] 3.2 Implement the four fire patterns (single, burst of 2, fan of 3, burst of 4 with a long pause) with the rates from the table; check: watching each type for a full cycle, the expected number of shots is counted
+- [x] 3.3 Select the type at spawn drawing only among those unlocked at the current height; check: below 2500 px only patrols appear
 
-## 4. Difficoltà e punteggio
+## 4. Difficulty and score
 
-- [x] 4.1 Rendere dinamico il limite di nemici vivi (2, poi 3 quando il cacciatore è sbloccato); verifica: prima della soglia non si vedono mai tre navi insieme, dopo sì
-- [x] 4.2 Sostituire `KILL_POINTS` con i punti dell'archetipo, sommando in un contatore accumulato; verifica: abbattere una pattuglia aggiunge 25 punti, una torretta 60, e il totale non torna mai indietro
-- [x] 4.3 Aggiornare `climbScore` perché riceva i punti accumulati invece del conteggio per costante fissa; verifica: `npm run check` verde e nessun riferimento a `KILL_POINTS`
+- [x] 4.1 Make the limit of alive enemies dynamic (2, then 3 once the hunter is unlocked); check: before the threshold three ships are never seen together, after it they are
+- [x] 4.2 Replace `KILL_POINTS` with the archetype points, adding into an accumulated counter; check: destroying a patrol adds 25 points, a turret 60, and the total never goes back
+- [x] 4.3 Update `climbScore` so that it receives the accumulated points instead of the count times a fixed constant; check: `npm run check` green and no reference to `KILL_POINTS`
 
-## 5. Documentazione
+## 5. Documentation
 
-- [x] 5.1 Aggiornare `README.md` con i quattro tipi, le soglie di sblocco e il punteggio per tipo; verifica: le informazioni corrispondono alla tabella nel codice
+- [x] 5.1 Update `README.md` with the four types, the unlock thresholds and the score per type; check: the information matches the table in the code
 
-## 6. Verifica finale
+## 6. Final check
 
-- [x] 6.1 Giro su telefono: giocare fino a superare le tre soglie e riconoscere a occhio i quattro tipi; verifica: ogni tipo si distingue per forma e comportamento
-- [x] 6.2 Giudizio sulla difficoltà: il cacciatore deve essere scappabile lateralmente e il ventaglio non deve chiudere lo spazio; verifica: tre partite senza morte percepita come ingiusta
-- [x] 6.3 Controllare che la crescita di difficoltà si senta: le prime fasi devono essere tranquille e le ultime tese; verifica: giudizio dopo almeno una partita lunga
+- [x] 6.1 Round on a phone: play until passing the three thresholds and recognize the four types by eye; check: each type is distinguishable by shape and behavior
+- [x] 6.2 Judgment on difficulty: the hunter must be escapable laterally and the fan must not close the space; check: three runs without a death perceived as unfair
+- [x] 6.3 Check that the difficulty growth is felt: the first phases must be calm and the last ones tense; check: judgment after at least one long run
 
 ## Workflow follow-up
 
-- Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec
+- Archive the change with `openspec-archive-change` after the check, syncing the spec deltas

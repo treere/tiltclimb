@@ -2,37 +2,37 @@
 
 ## MODIFIED Requirements
 
-### Requirement: Provenienza e licenza degli asset documentate
+### Requirement: Documented asset provenance and license
 
-Ogni asset esterno, grafico, audio o di altra natura, SHALL essere accompagnato nel repository dal file di licenza originale o da una nota di licenza equivalente, e SHALL essere elencato con autore, licenza e provenienza in una sezione crediti del `README.md`. Asset di licenza sconosciuta o non ridistribuibile MUST NOT essere usati.
+Every external asset, graphic, audio or of any other kind, SHALL be accompanied in the repository by the original license file or an equivalent license note, and SHALL be listed with author, license and provenance in a credits section of `README.md`. Assets of unknown or non-redistributable license MUST NOT be used.
 
-#### Scenario: Nuovo asset aggiunto
+#### Scenario: New asset added
 
-- **WHEN** viene introdotto un nuovo file grafico o audio
-- **THEN** la sua licenza è presente nel repository e il credito è nel README
+- **WHEN** a new graphic or audio file is introduced
+- **THEN** its license is present in the repository and the credit is in the README
 
-#### Scenario: Verifica della provenienza
+#### Scenario: Provenance check
 
-- **WHEN** si controlla il repository senza rete
-- **THEN** è possibile ricostruire da dove viene ogni immagine e ogni suono, e con quale licenza
+- **WHEN** the repository is inspected offline
+- **THEN** it is possible to reconstruct where each image and each sound comes from, and under which license
 
 ## ADDED Requirements
 
-### Requirement: Le collisioni sono animate
+### Requirement: Collisions are animated
 
-Quando una nave nemica viene abbattuta o l'eroe muore, il sistema SHALL mostrare un'animazione di esplosione a frame nel punto dell'impatto, di durata breve e senza bloccare il gioco. Gli asteroidi, immuni ai colpi, MUST NOT esplodere.
+When an enemy ship is destroyed or the hero dies, the system SHALL show a frame animation explosion at the point of impact, of short duration and without blocking the game. Asteroids, immune to shots, MUST NOT explode.
 
-#### Scenario: Nave nemica abbattuta
+#### Scenario: Enemy ship destroyed
 
-- **WHEN** un colpo dell'eroe distrugge una nave nemica
-- **THEN** al suo posto appare un'esplosione animata che si spegne da sola
+- **WHEN** a hero shot destroys an enemy ship
+- **THEN** an animated explosion appears in its place and fades out on its own
 
-#### Scenario: Morte dell'eroe
+#### Scenario: Hero death
 
-- **WHEN** l'eroe viene colpito
-- **THEN** appare un'esplosione più grande e la partita termina
+- **WHEN** the hero is hit
+- **THEN** a larger explosion appears and the run ends
 
-#### Scenario: Asteroide colpito
+#### Scenario: Asteroid hit
 
-- **WHEN** un colpo attraversa un asteroide
-- **THEN** non appare alcuna esplosione
+- **WHEN** a shot passes through an asteroid
+- **THEN** no explosion appears

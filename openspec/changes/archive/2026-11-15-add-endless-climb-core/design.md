@@ -2,94 +2,94 @@
 
 ## Context
 
-Vedi `proposal.md` per il perché. Lo stato attuale è solo impalcatura: Vite 8 con TypeScript 7 (nota: `erasableSyntaxOnly` attivo, quindi niente `enum` e niente parameter properties nelle classi), Excalibur 1.0.1 installato, `npm run build` verde, dev server già configurato per il tunnel (`allowedHosts: ['.trycloudflare.com']`, HMR su `wss:443`). Non esiste ancora codice di gioco.
+See `proposal.md` for the why. The current state is only scaffolding: Vite 8 with TypeScript 7 (note: `erasableSyntaxOnly` is active, so no `enum` and no parameter properties in classes), Excalibur 1.0.1 installed, `npm run build` green, dev server already configured for the tunnel (`allowedHosts: ['.trycloudflare.com']`, HMR on `wss:443`). There is no game code yet.
 
-Vincoli che guidano il progetto:
+Constraints that guide the design:
 
-- le specifiche (`specs/gameplay/endless-climb`, `specs/input/tilt-control`) descrivono il comportamento osservabile; qui si decide come ottenerlo.
-- il gioco è verticale e portrait: l'asse Y è la direzione di marcia, l'asse X è l'unico controllo.
-- Excalibur non ha API per i sensori: il tilt resta codice nostro, isolato dietro un'interfaccia minima.
-- nessun asset: solo forme disegnate via codice (`ex.Rectangle`, `ex.Circle`).
+- the specs (`specs/gameplay/endless-climb`, `specs/input/tilt-control`) describe the observable behavior; here we decide how to obtain it.
+- the game is vertical and portrait: the Y axis is the direction of travel, the X axis is the only control.
+- Excalibur has no sensor API: the tilt stays our own code, isolated behind a minimal interface.
+- no assets: only shapes drawn in code (`ex.Rectangle`, `ex.Circle`).
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- un nucleo giocabile in cui l'input tilt è sostituibile senza toccare la logica di gioco (e quindi testabile con input finto);
-- frame rate stabile su telefono: nessuna allocazione per frame nel ciclo di gioco;
-- comportamento identico su desktop, dove i sensori non esistono.
+- a playable core in which the tilt input is replaceable without touching the game logic (and therefore testable with a fake input);
+- stable frame rate on a phone: no per-frame allocation in the game loop;
+- identical behavior on desktop, where sensors do not exist.
 
 **Non-Goals:**
 
-- bilanciamento fine della difficoltà, progressione, power-up, audio, salvataggio del record;
-- supporto landscape, iOS testato, PWA, deploy.
+- fine difficulty balancing, progression, power-ups, audio, best score persistence;
+- landscape support, tested iOS, PWA, deploy.
 
 ## Decisions
 
-### 1. Separazione netta fra sorgente di input e gioco
+### 1. Clean separation between input source and game
 
-`src/input/tilt-source.ts` espone una sola cosa: `axis(): number` in [-1, 1], già calibrato, filtrato e con dead zone applicata. `src/input/input-router.ts` sceglie la sorgente attiva (tilt se disponibile, altrimenti tastiera o drag) e la compone: se il tilt è attivo, tastiera e drag restano disponibili come override manuale.
+`src/input/tilt-source.ts` exposes one thing only: `axis(): number` in [-1, 1], already calibrated, filtered and with the dead zone applied. `src/input/input-router.ts` chooses the active source (tilt if available, otherwise keyboard or drag) and composes it: if the tilt is active, keyboard and drag stay available as a manual override.
 
-Alternativa scartata: leggere `window.addEventListener('deviceorientation')` dentro la scena. Sarebbe più corto di dieci righe, ma accoppia sensore e gameplay e rende impossibile provare la scena con un input finto.
+Rejected alternative: reading `window.addEventListener('deviceorientation')` inside the scene. It would be ten lines shorter, but it couples sensor and gameplay and makes it impossible to test the scene with a fake input.
 
-### 2. Camera lockata su un solo asse
+### 2. Camera locked to a single axis
 
-`scene.camera.strategy.lockToActorAxis(player, ex.Axis.Y)`, con il giocatore che sale tramite velocità verticale costante (`vel.y` negativo: in Excalibur la Y cresce verso il basso). La posizione orizzontale del giocatore è libera entro i bordi del mondo, quindi la camera non deve seguirla.
+`scene.camera.strategy.lockToActorAxis(player, ex.Axis.Y)`, with the player climbing through a constant vertical speed (`vel.y` negative: in Excalibur Y grows downwards). The player's horizontal position is free within the world edges, so the camera does not have to follow it.
 
-Alternativa scartata: muovere il mondo invece della camera. Costa un aggiornamento per ogni ostacolo a ogni frame, mentre la camera è una sola trasformazione applicata dal renderer.
+Rejected alternative: moving the world instead of the camera. It costs one update per obstacle per frame, while the camera is a single transform applied by the renderer.
 
-### 3. Pool di ostacoli a dimensione fissa
+### 3. Fixed-size obstacle pool
 
-Un array di N actor creati una volta in `onInitialize` (N = 24, sufficiente per due schermate di ostacoli), riusati in rotazione: chi esce sotto il bordo inferiore torna in coda. Nessun `new` durante la partita.
+An array of N actors created once in `onInitialize` (N = 24, enough for two screens of obstacles), reused in rotation: whoever exits below the bottom edge goes back to the queue. No `new` during the run.
 
-Alternativa scartata: creare un `Obstacle` a ogni spawn e lasciarlo raccogliere al GC. Su Android il garbage collector produce micro pause visibili in un gioco a scorrimento continuo.
+Rejected alternative: creating an `Obstacle` on every spawn and letting the GC collect it. On Android the garbage collector produces visible micro pauses in a continuously scrolling game.
 
-### 4. Timestep fisso per la fisica
+### 4. Fixed timestep for physics
 
-`new ex.Engine({ fixedUpdateFps: 60, displayMode: ex.DisplayMode.FitScreen, ... })`, così la velocità di salita non dipende dal refresh dello schermo (60, 90 o 120 Hz).
+`new ex.Engine({ fixedUpdateFps: 60, displayMode: ex.DisplayMode.FitScreen, ... })`, so that the climb speed does not depend on the screen refresh (60, 90 or 120 Hz).
 
-### 5. Matematica del tilt
+### 5. Tilt math
 
-Letture da `deviceorientation`, campo `gamma` (gradi, -90..90, positivo = inclinato a destra in portrait). Catena di trasformazione, in ordine:
+Readings from `deviceorientation`, field `gamma` (degrees, -90..90, positive = tilted right in portrait). Transformation chain, in order:
 
-1. **zero**: al primo tocco della partita si memorizza `zero = gamma`; ogni lettura diventa `g = gamma - zero`;
+1. **zero**: on the first touch of the run `zero = gamma` is stored; every reading becomes `g = gamma - zero`;
 2. **dead zone**: `if (|g| < TILT_DEAD_ZONE) g = 0`;
-3. **normalizzazione**: `raw = clamp(g / TILT_RANGE, -1, 1)` — oltre `TILT_RANGE` si satura;
-4. **smoothing indipendente dal frame rate**: `axis = lerp(axis, raw, 1 - exp(-dt / SMOOTH_TAU))`. Il classico `lerp(a, b, 0.2)` per frame è stato scartato perché a 30 Hz il movimento è più lento che a 60 Hz: il tempo di assestamento cambierebbe con il dispositivo;
-5. **velocità**: `player.vel.x = axis * MAX_HORIZONTAL_SPEED`.
+3. **normalization**: `raw = clamp(g / TILT_RANGE, -1, 1)` — beyond `TILT_RANGE` it saturates;
+4. **frame-rate independent smoothing**: `axis = lerp(axis, raw, 1 - exp(-dt / SMOOTH_TAU))`. The classic per-frame `lerp(a, b, 0.2)` was rejected because at 30 Hz the movement is slower than at 60 Hz: the settling time would change with the device;
+5. **speed**: `player.vel.x = axis * MAX_HORIZONTAL_SPEED`.
 
-Il gamma si legge in un handler passivo che salva solo l'ultimo valore; la conversione avviene nel ciclo di gioco, così eventi a 100 Hz non producono 100 aggiornamenti di fisica.
+Gamma is read in a passive handler that only stores the last value; the conversion happens in the game loop, so events at 100 Hz do not produce 100 physics updates.
 
-Costanti iniziali, da tarare in mano (in `src/game/constants.ts`):
+Initial constants, to be tuned in hand (in `src/game/constants.ts`):
 
-- `WORLD_WIDTH = 720`, `WORLD_HEIGHT = 1280` (risoluzione logica, scala gestita da `DisplayMode.FitScreen` (in 1.0.1 `FullScreen` non esiste: il valore si chiama `FitScreen`, che mantiene le proporzioni con bande nere))
-- `CLIMB_SPEED = 190` px/s (velocità di salita del mondo)
+- `WORLD_WIDTH = 720`, `WORLD_HEIGHT = 1280` (logical resolution, scale handled by `DisplayMode.FitScreen` (in 1.0.1 `FullScreen` does not exist: the value is called `FitScreen`, which keeps the proportions with black bars))
+- `CLIMB_SPEED = 190` px/s (world climb speed)
 - `MAX_HORIZONTAL_SPEED = 300` px/s
 - `TILT_DEAD_ZONE = 3` °
-- `TILT_RANGE = 22` ° (inclinazione a cui si raggiunge la velocità massima)
+- `TILT_RANGE = 22` ° (tilt at which maximum speed is reached)
 - `SMOOTH_TAU = 90` ms
-- `OBSTACLE_POOL_SIZE = 24`, `SPAWN_GAP = 260` px di scorrimento
+- `OBSTACLE_POOL_SIZE = 24`, `SPAWN_GAP = 260` px of scrolling
 - `PLAYER_SIZE = 44x56`, `OBSTACLE_SIZE = 120x28`
 
-### 6. Permessi e fallback
+### 6. Permissions and fallback
 
-Al primo tocco: se `DeviceOrientationEvent.requestPermission` esiste si chiama dentro il gesto e si memorizza l'esito. Se il permesso manca, è negato, o dopo 1,5 s non arriva nessun evento `deviceorientation`, la sorgente tilt viene marcata non disponibile e il gioco prosegue con tastiera/drag. Il drag misura lo spostamento orizzontale del puntatore rispetto al punto di presa (delta, non posizione assoluta), così il dito non deve stare sopra il personaggio.
+On the first touch: if `DeviceOrientationEvent.requestPermission` exists it is called inside the gesture and the outcome is stored. If the permission is missing, denied, or after 1.5 s no `deviceorientation` event arrives, the tilt source is marked unavailable and the game continues with keyboard/drag. The drag measures the horizontal displacement of the pointer relative to the grab point (delta, not absolute position), so the finger does not have to stay on top of the character.
 
-`ex.Input` normalizza mouse e touch in un unico pointer: drag con un solo percorso di codice.
+`ex.Input` normalizes mouse and touch into a single pointer: drag with a single code path.
 
-### 7. HUD e stati di gioco
+### 7. HUD and game states
 
-`ex.Label` montata su `ex.ScreenElement` per punteggio e messaggio di fine partita; un solo stato esplicito (`idle | playing | gameover`) nella scena evita transizioni impossibili. Il riavvio riusa la stessa scena resettando pool, posizioni e punteggio: nessun ricaricamento di pagina.
+`ex.Label` mounted on `ex.ScreenElement` for the score and the end-of-run message; a single explicit state (`idle | playing | gameover`) in the scene avoids impossible transitions. The restart reuses the same scene resetting pool, positions and score: no page reload.
 
 ## Risks / Trade-offs
 
-- **Sensazione del tilt troppo sensibile o troppo lenta** → tutte le costanti del tilt stanno in un solo file e la pagina di prova già misurata dice il range reale del suo telefono; la taratura è una modifica di numeri, non di struttura.
-- **Eventi di orientamento assenti o a bassa frequenza su alcuni Android** → smoothing indipendente dal tempo e fallback dichiarato: il gioco non si blocca mai in attesa del sensore.
-- **`gamma` si comporta diversamente se il telefono ruota** → portrait forzato via CSS e tentativo di `screen.orientation.lock('portrait')` dopo il primo tocco in fullscreen, senza far fallire il gioco se il lock viene rifiutato.
-- **Collisioni percepite come ingiuste** (ostacoli sottili a 190 px/s) → hitbox più piccola dello sprite (circa 80% del rettangolo), e velocità di salita tra le costanti da tarare per prime.
-- **TypeScript 7 con `erasableSyntaxOnly`** → niente `enum`, niente parameter properties: si usano union di stringhe e campi espliciti. Se la costrizione diventa fastidiosa si valuta di disattivarla, ma non è necessario per questo nucleo.
-- **Pool a dimensione fissa** → se in futuro gli ostacoli diventassero molto più frequenti va alzato `OBSTACLE_POOL_SIZE`; a dimensione esaurita il pool ricicla il più vecchio, quindi non si rompe, si comporta in modo strano.
+- **Tilt feel too sensitive or too slow** → all the tilt constants are in a single file and the test page already measured gives the real range of that phone; tuning is a change of numbers, not of structure.
+- **Orientation events missing or at low frequency on some Android devices** → time-independent smoothing and declared fallback: the game never freezes waiting for the sensor.
+- **`gamma` behaves differently if the phone rotates** → portrait forced via CSS and attempt at `screen.orientation.lock('portrait')` after the first touch in fullscreen, without failing the game if the lock is refused.
+- **Collisions perceived as unfair** (thin obstacles at 190 px/s) → hitbox smaller than the sprite (about 80% of the rectangle), and climb speed among the constants to tune first.
+- **TypeScript 7 with `erasableSyntaxOnly`** → no `enum`, no parameter properties: string unions and explicit fields are used. If the restriction becomes annoying we consider disabling it, but it is not necessary for this core.
+- **Fixed-size pool** → if in the future the obstacles became much more frequent, `OBSTACLE_POOL_SIZE` must be raised; once the size is exhausted the pool recycles the oldest, so it does not break, it behaves strangely.
 
 ## Migration Plan
 
-Non c'è nulla da migrare: primo codice di gioco del progetto. Ordine di lavoro: costanti e scena vuota → giocatore e camera → pool e generazione → collisione e stati → input tilt → fallback → taratura sul telefono. Ogni passo lascia il gioco avviabile e `npm run build` verde. Rollback: il repository è a uno stato di scaffold committato, quindi `git revert` del commit di apply torna all'impalcatura.
+There is nothing to migrate: first game code of the project. Work order: constants and empty scene → player and camera → pool and generation → collision and states → tilt input → fallback → tuning on the phone. Each step leaves the game startable and `npm run build` green. Rollback: the repository is at a committed scaffold state, so `git revert` of the apply commit returns to the scaffolding.

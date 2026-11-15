@@ -1,47 +1,47 @@
 # ui/credits Specification
 
 ## Purpose
-È la pagina che racconta perché si gioca e chi ha fatto il gioco: la storia dell'eroe che cerca la sua squadra, i crediti degli asset e quello dell'autore. Si apre dal menu e si chiude tornando al menu.
+It is the page that tells why you play and who made the game: the story of the hero looking for their squad, the asset credits and the author's one. It opens from the menu and closes by returning to the menu.
 
 ## Requirements
 
-### Requirement: Pagina crediti raggiungibile dal menu
+### Requirement: Credits page reachable from the menu
 
-Il menu SHALL offrire un comando **CREDITI** che apre la pagina crediti, e la pagina SHALL offrire un comando **INDIETRO** che riporta al menu. Aprire i crediti MUST NOT avviare una partita né perdere la calibrazione del sensore già fatta.
+The menu SHALL offer a **CREDITS** command that opens the credits page, and the page SHALL offer a **BACK** command that returns to the menu. Opening the credits MUST NOT start a run nor lose the sensor calibration already performed.
 
-#### Scenario: Apertura dei crediti
+#### Scenario: Opening the credits
 
-- **WHEN** l'utente preme **CREDITI** nel menu
-- **THEN** si apre la pagina crediti e la partita non è iniziata
+- **WHEN** the user presses **CREDITS** in the menu
+- **THEN** the credits page opens and the run has not started
 
-#### Scenario: Ritorno al menu
+#### Scenario: Return to the menu
 
-- **WHEN** l'utente preme **INDIETRO** nella pagina crediti
-- **THEN** torna al menu con la calibrazione invariata
+- **WHEN** the user presses **BACK** on the credits page
+- **THEN** they return to the menu with the calibration unchanged
 
-### Requirement: La storia dell'eroe è raccontata
+### Requirement: The hero's story is told
 
-La pagina crediti SHALL contenere un breve racconto che spiega la situazione dell'eroe — pilota rimasto solo dopo un salto andato storto, squadra dispersa, salita come unico modo per raggiungerla — coerente con ciò che accade nel gioco.
+The credits page SHALL contain a short story explaining the hero's situation — a pilot left alone after a jump gone wrong, squad scattered, the climb as the only way to reach it — consistent with what happens in the game.
 
-#### Scenario: Racconto presente
+#### Scenario: Story present
 
-- **WHEN** l'utente apre i crediti
-- **THEN** legge un testo che spiega chi è l'eroe e perché sta salendo fra gli asteroidi
+- **WHEN** the user opens the credits
+- **THEN** they read a text explaining who the hero is and why they are climbing among the asteroids
 
-### Requirement: Crediti di asset e autore
+### Requirement: Asset and author credits
 
-La pagina SHALL elencare gli asset grafici con autore e licenza, e SHALL riportare l'autore del gioco con il suo ruolo. Ogni informazione MUST essere leggibile sulla pagina, non solo nei file del repository.
+The page SHALL list the graphic assets with author and license, and SHALL report the game's author with their role. Every piece of information MUST be readable on the page, not only in the repository files.
 
-#### Scenario: Crediti degli asset
+#### Scenario: Asset credits
 
-- **WHEN** l'utente legge i crediti
-- **THEN** trova il pack grafico con autore e licenza, e trova il nome dell'autore del gioco con il ruolo
+- **WHEN** the user reads the credits
+- **THEN** they find the graphic pack with author and license, and they find the game author's name with the role
 
-### Requirement: Navigazione senza trappole
+### Requirement: Navigation without traps
 
-Dalla pagina crediti SHALL essere sempre possibile tornare al menu con una sola azione, anche su telefono, e MUST NOT esserci uno stato in cui l'utente resta bloccato.
+From the credits page it SHALL always be possible to return to the menu with a single action, even on a phone, and there MUST NOT be any state where the user is stuck.
 
-#### Scenario: Ritorno con un tocco
+#### Scenario: Return with one tap
 
-- **WHEN** l'utente tocca **INDIETRO**
-- **THEN** torna al menu immediatamente, senza conferme aggiuntive
+- **WHEN** the user taps **BACK**
+- **THEN** they return to the menu immediately, without additional confirmations

@@ -2,29 +2,29 @@
 
 ## Why
 
-Il gioco funziona ma è fatto di rettangoli: non comunica cosa si sta giocando né perché sterzare. Con un'astronave, un campo di asteroidi e uno sfondo stellato che scorre, il tema diventa leggibile a colpo d'occhio e il tilt acquista un senso fisico ("sto pilotando"). Serve inoltre una base grafica con licenza pulita, documentata nel repo, per non doverla rifare quando il progetto cresce.
+The game works but is made of rectangles: it does not communicate what you are playing nor why you steer. With a spaceship, an asteroid field and a scrolling starfield, the theme becomes legible at a glance and the tilt gains a physical meaning ("I am piloting"). A graphic base with a clean license, documented in the repo, is also needed so it does not have to be redone when the project grows.
 
 ## What Changes
 
-- **Eroe**: il rettangolo diventa un'astronave (sprite Kenney `playerShip2_blue`, 112×75) con **scia animata** ai motori (20 frame `fire00–fire19`, 16×40) riprodotta sotto la nave.
-- **Ostacoli**: i rettangoli diventano **asteroidi** (21 meteore Kenney brown/grey, da tiny a big), ognuno con dimensione e **rotazione casuale** che continua a girare mentre scorre: il movimento rende l'animazione.
-- **Sfondo**: campo stellato a **parallasse su due strati** che scorre verso il basso mentre la nave sale — tassello `darkPurple.png` 256×256 ripetuto per il fondo, più stelle piccole disegnate a varie velocità per la profondità.
-- **Menu**: stessa atmosfera (sfondo stellato fermo o lentissimo, nave come illustrazione, colori coerenti), **etichette dei pulsanti centrate** — il bug attuale è che il testo lungo allarga i bounds del gruppo grafico e sposta il fondo.
-- **Licenze**: gli asset entrano in `public/assets/kenney/` con il `license.txt` originale accanto, provenienza e credito (CC0, Kenney) nel `README.md`.
-- Fuori scope: spari, laser, nemici, power-up, punteggi per distruzione, particelle di impatto, audio/musica, modifica di fisica, velocità o difficoltà, animazione del menu diversa da quella descritta.
+- **Hero**: the rectangle becomes a spaceship (Kenney sprite `playerShip2_blue`, 112×75) with an **animated trail** at the engines (20 frames `fire00–fire19`, 16×40) drawn under the ship.
+- **Obstacles**: the rectangles become **asteroids** (21 Kenney meteors brown/grey, from tiny to big), each with a random size and **rotation** that keeps turning while it scrolls: the movement provides the animation.
+- **Background**: **two-layer parallax** starfield scrolling downwards while the ship climbs — `darkPurple.png` 256×256 tile repeated for the base, plus small stars drawn at various speeds for depth.
+- **Menu**: same atmosphere (starfield still or very slow, the ship as an illustration, coherent colors), **button labels centered** — the current bug is that long text widens the bounds of the graphic group and moves the background.
+- **Licenses**: the assets enter `public/assets/kenney/` with the original `license.txt` next to them, provenance and credit (CC0, Kenney) in `README.md`.
+- Out of scope: shots, lasers, enemies, power-ups, scores per destruction, impact particles, audio/music, changes to physics, speed or difficulty, menu animation other than the one described.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `presentation/space-theme`: identità visiva dello spazio — astronave con scia animata al posto del giocatore, asteroidi al posto degli ostacoli, sfondo stellato in parallasse, menu coerente con lo stesso universo, etichette centrate nei pulsanti e provenienza/licenza di ogni asset documentata.
+- `presentation/space-theme`: visual identity of space — spaceship with animated trail instead of the player, asteroids instead of the obstacles, parallax starfield, menu consistent with the same universe, labels centered in the buttons and provenance/license of every asset documented.
 
 ### Modified Capabilities
 
-Nessuna: il comportamento di gioco (salita, collisione, punteggio, ciclo menu → partita → menu) non cambia; cambia solo come appare.
+None: the game behavior (climb, collision, score, menu → run → menu cycle) does not change; only how it looks.
 
 ## Impact
 
-- Asset: ~20–30 PNG in `public/assets/kenney/` (circa 200 kB) più `license.txt`; nessuna dipendenza npm nuova.
-- Codice: nuovo `src/game/sprites.ts` (definizioni e caricamento), `src/game/player.ts` (astronave + scia), `src/game/obstacle.ts` (sprite + rotazione), `src/game/starfield.ts` (parallasse), ritocchi a `menu-scene.ts`, `climb-scene.ts`, `constants.ts` e `src/ui/button.ts` (centratura etichetta).
-- Rischio principale: le hitbox non devono cambiare — il collisore resta quello attuale, lo sprite viene scalato per riempirlo, così il gioco resta identico da giocare.
+- Assets: ~20–30 PNGs in `public/assets/kenney/` (about 200 kB) plus `license.txt`; no new npm dependency.
+- Code: new `src/game/sprites.ts` (definitions and loading), `src/game/player.ts` (spaceship + trail), `src/game/obstacle.ts` (sprite + rotation), `src/game/starfield.ts` (parallax), tweaks to `menu-scene.ts`, `climb-scene.ts`, `constants.ts` and `src/ui/button.ts` (label centering).
+- Main risk: the hitboxes must not change — the collider stays the current one, the sprite is scaled to fill it, so the game stays identical to play.

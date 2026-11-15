@@ -2,57 +2,57 @@
 
 ## Purpose
 
-Definisce cosa si vede mentre il gioco carica: una schermata coerente con il tema, con un progresso vero, che non lampeggia sulle connessioni veloci e non dipende dagli asset che sta caricando.
+Defines what is seen while the game loads: a screen consistent with the theme, with real progress, that does not flash on fast connections and does not depend on the assets it is loading.
 
 ## ADDED Requirements
 
-### Requirement: Schermata di caricamento a tema
+### Requirement: Themed loading screen
 
-Durante il caricamento il sistema SHALL mostrare una schermata disegnata con la palette e il linguaggio visivo del gioco: campo stellato in movimento e due astronavi che si inseguono. La schermata MUST NOT dipendere da immagini, suoni o caratteri che fanno parte del caricamento stesso.
+During loading the system SHALL show a screen drawn with the game's palette and visual language: moving starfield and two spaceships chasing each other. The screen MUST NOT depend on images, sounds or fonts that are part of the loading itself.
 
-#### Scenario: Avvio del gioco
+#### Scenario: Game startup
 
-- **WHEN** il gioco si apre e gli asset non sono ancora pronti
-- **THEN** si vede la schermata a tema con le navi che si inseguono, non la schermata predefinita del motore
+- **WHEN** the game opens and the assets are not ready yet
+- **THEN** the themed screen with the ships chasing each other is seen, not the engine's default screen
 
-#### Scenario: Asset non ancora disponibili
+#### Scenario: Assets not available yet
 
-- **WHEN** la schermata è visibile e le immagini del gioco non sono ancora caricate
-- **THEN** la schermata funziona comunque, perché disegna solo con primitive
+- **WHEN** the screen is visible and the game images are not loaded yet
+- **THEN** the screen works anyway, because it draws only with primitives
 
-### Requirement: Progresso reale
+### Requirement: Real progress
 
-La schermata SHALL mostrare una barra di avanzamento proporzionale agli asset effettivamente caricati, accompagnata dal valore percentuale. La barra MUST NOT avanzare in modo finto o a tempo.
+The screen SHALL show a progress bar proportional to the assets actually loaded, accompanied by the percentage value. The bar MUST NOT advance in a fake or timed way.
 
-#### Scenario: Avanzamento
+#### Scenario: Advancement
 
-- **WHEN** gli asset vengono caricati progressivamente
-- **THEN** la barra e la percentuale crescono di conseguenza e arrivano al 100% solo a caricamento concluso
+- **WHEN** the assets are loaded progressively
+- **THEN** the bar and the percentage grow accordingly and reach 100% only when loading is complete
 
-#### Scenario: Connessione lenta
+#### Scenario: Slow connection
 
-- **WHEN** il caricamento procede lentamente
-- **THEN** la barra resta indietro in modo coerente con quanto manca, senza saltare avanti da sola
+- **WHEN** loading proceeds slowly
+- **THEN** the bar stays behind consistently with how much is missing, without jumping ahead on its own
 
-### Requirement: Durata minima e dissolvenza
+### Requirement: Minimum duration and fade
 
-La schermata SHALL restare visibile per almeno circa settecento millisecondi anche se il caricamento termina prima, e SHALL uscire con una dissolvenza breve invece che con uno stacco secco.
+The screen SHALL stay visible for at least about seven hundred milliseconds even if loading ends earlier, and SHALL exit with a short fade instead of an abrupt cut.
 
-#### Scenario: Caricamento istantaneo
+#### Scenario: Instant loading
 
-- **WHEN** gli asset sono già in cache e il caricamento dura pochi millisecondi
-- **THEN** la schermata resta visibile per il tempo minimo e poi sfuma, senza lampeggiare
+- **WHEN** the assets are already in cache and loading takes a few milliseconds
+- **THEN** the screen stays visible for the minimum time and then fades, without flashing
 
-#### Scenario: Uscita verso il menu
+#### Scenario: Exit towards the menu
 
-- **WHEN** il caricamento è concluso e il tempo minimo è trascorso
-- **THEN** si passa al menu con una dissolvenza, non con un taglio
+- **WHEN** loading is finished and the minimum time has elapsed
+- **THEN** the game moves to the menu with a fade, not with a cut
 
-### Requirement: Rispetto delle preferenze di movimento
+### Requirement: Respect for motion preferences
 
-Se il sistema segnala la preferenza per meno animazioni, la schermata SHALL restare leggibile senza elementi in movimento, mantenendo barra e percentuale.
+If the system reports a preference for fewer animations, the screen SHALL stay legible without moving elements, keeping bar and percentage.
 
-#### Scenario: Meno animazioni richieste
+#### Scenario: Fewer animations requested
 
-- **WHEN** il dispositivo dichiara `prefers-reduced-motion`
-- **THEN** navi e stelle sono ferme e la barra continua a mostrare il progresso
+- **WHEN** the device declares `prefers-reduced-motion`
+- **THEN** ships and stars are still and the bar keeps showing progress

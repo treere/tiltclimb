@@ -2,33 +2,33 @@
 
 ## Why
 
-Oggi ogni nave nemica si comporta allo stesso modo: onda larga e un colpo dritto. Dopo un minuto di gioco si è visto tutto, e la difficoltà non cresce perché non arriva nulla di nuovo. Gli sprite disponibili nel pack sono venti navi più quattro UFO: bastano per dare a ogni tipo un carattere riconoscibile e per far entrare i più cattivi man mano che si sale.
+Today every enemy ship behaves the same way: wide wave and one straight shot. After a minute of play you have seen everything, and the difficulty does not grow because nothing new arrives. The sprites available in the pack are twenty ships plus four UFOs: enough to give each type a recognizable character and to bring in the nastiest ones as you climb.
 
 ## What Changes
 
-- Quattro **archetipi** di nemico, ognuno con sprite proprio, movimento proprio e fuoco proprio:
-  - **Pattuglia** (rossa): onda larga e lenta, un colpo dritto. È quella di oggi, la più facile.
-  - **Picchiatore** (blu): scende veloce in diagonale verso il lato opposto, raffica di due colpi ravvicinati.
-  - **Cacciatore** (verde): si sposta in orizzontale seguendo la posizione dell'eroe, spara un ventaglio di tre colpi verso il basso.
-  - **Torretta UFO** (gialla): scende poco e staziona a mezza altezza, raffica di quattro colpi in sequenza, poi pausa lunga.
-- **Comparsa progressiva**: si parte con la sola Pattuglia; gli altri tipi si sbloccano ad altezze crescenti raggiunte nella partita, e non compaiono prima.
-- **Pressione crescente**: il limite di nemici contemporanei passa da 2 a 3 nella fase avanzata, insieme allo sblocco del Cacciatore.
-- **Punteggio per tipo**: i nemici più difficili valgono più punti (25 / 35 / 45 / 60).
-- **Proiettili inclinati**: il ventaglio del Cacciatore richiede colpi con direzione obliqua, quindi il proiettile impara un angolo; gli altri tipi continuano a sparare dritto verso il basso.
-- Fuori scope: boss, formazioni coordinate fra nemici, nemici che inseguono in verticale, nuovi tipi oltre i quattro, modifiche all'eroe, al tilt, al menu o agli asteroidi.
+- Four enemy **archetypes**, each with its own sprite, movement and fire:
+  - **Patrol** (red): wide slow wave, one straight shot. It is today's one, the easiest.
+  - **Striker** (blue): descends fast diagonally towards the opposite side, burst of two close shots.
+  - **Hunter** (green): moves horizontally following the hero's position, fires a fan of three shots downwards.
+  - **UFO Turret** (yellow): descends little and stations at mid height, burst of four shots in sequence, then a long pause.
+- **Progressive appearance**: you start with the Patrol only; the other types unlock at increasing heights reached in the run, and do not appear before.
+- **Growing pressure**: the limit of simultaneous enemies goes from 2 to 3 in the late phase, together with the unlock of the Hunter.
+- **Score per type**: harder enemies are worth more points (25 / 35 / 45 / 60).
+- **Angled projectiles**: the Hunter's fan requires shots with an oblique direction, so the projectile learns an angle; the other types keep firing straight downwards.
+- Out of scope: bosses, coordinated formations between enemies, enemies that chase vertically, new types beyond the four, changes to the hero, the tilt, the menu or the asteroids.
 
 ## Capabilities
 
 ### New Capabilities
 
-Nessuna: il combattimento esiste già come capability e questa change ne cambia il comportamento.
+None: combat already exists as a capability and this change modifies its behavior.
 
 ### Modified Capabilities
 
-- `gameplay/combat`: la traiettoria delle navi nemiche non è più una sola onda uguale per tutti ma dipende dall'archetipo; il fuoco non è più un colpo singolo regolare ma dipende dall'archetipo, comprese raffiche e ventagli; si aggiungono la comparsa progressiva per altezza e il punteggio differenziato per tipo.
+- `gameplay/combat`: the trajectory of enemy ships is no longer a single wave equal for everyone but depends on the archetype; fire is no longer a regular single shot but depends on the archetype, including bursts and fans; progressive appearance by height and differentiated score per type are added.
 
 ## Impact
 
-- Asset: nuove navi `enemyBlue4`, `enemyGreen2`, `enemyRed1`, `ufoYellow` dal pack Kenney già nel repo (stessa licenza CC0, stesso `license.txt`).
-- Codice: `src/game/enemy.ts` diventa una piccola gerarchia di archetipi con una tabella di configurazione; `src/game/projectile.ts` accetta un angolo di lancio; `src/game/combat-math.ts` guadagna la scelta del tipo in base all'altezza; `climb-scene.ts` cambia lo spawn e il limite dinamico; `constants.ts` raccoglie le soglie.
-- Rischio principale: senza taratura, il Cacciatore che segue l'eroe può risultare ingiocabile su uno schermo stretto, perché toglie spazio lateralmente proprio dove si sterza.
+- Assets: new ships `enemyBlue4`, `enemyGreen2`, `enemyRed1`, `ufoYellow` from the Kenney pack already in the repo (same CC0 license, same `license.txt`).
+- Code: `src/game/enemy.ts` becomes a small hierarchy of archetypes with a configuration table; `src/game/projectile.ts` accepts a launch angle; `src/game/combat-math.ts` gains the type choice based on height; `climb-scene.ts` changes the spawn and the dynamic limit; `constants.ts` collects the thresholds.
+- Main risk: without tuning, the Hunter that follows the hero can be unplayable on a narrow screen, because it takes away lateral space exactly where you steer.

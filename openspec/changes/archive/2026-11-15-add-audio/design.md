@@ -2,92 +2,92 @@
 
 ## Context
 
-Vedi `proposal.md` per il perché. Il gioco non ha audio: nessun `Sound` nel loader, nessun gesto che sblocchi il contesto audio. Le scene sono `menu`, `credits`, `climb`, il loader è `createLoader()` in `src/game/sprites.ts`, e le collisioni si risolvono a mano in `climb-scene.resolveHits()` — il punto esatto dove agganciare esplosioni e suoni.
+See `proposal.md` for the why. The game has no audio: no `Sound` in the loader, no gesture that unlocks the audio context. The scenes are `menu`, `credits`, `climb`, the loader is `createLoader()` in `src/game/sprites.ts`, and collisions are resolved by hand in `climb-scene.resolveHits()` — the exact point where explosions and sounds should hook in.
 
-Ricerca già fatta, con verifica dei file scaricati e non solo delle pagine:
+Research already done, verifying the downloaded files and not just the pages:
 
-- **Musica**, due tracce CC0 da OpenGameArt: `OutThere_0.ogg` («Space Music: Out There», 3,9 MB) e `MyVeryOwnDeadShip.ogg` («Background Space Track», 4,5 MB).
-- **Effetti**, «The Essential Retro Video Game Sound Effects Collection» di Juhani Junkala, CC0, 508 WAV in cinque categorie verificate: `Weapons` (`sfx_wpn_laser*`, `sfx_weapon_singleshot*`), `Explosions` (`sfx_exp_cluster/double/long/medium/small*`), `General Sounds` (coin, powerup, alarm), oltre a `Death Screams`, `Movement` e gli hit `sfx_damage_hit*`/`sfx_sounds_impact*`.
-- **Esplosioni**, «Free - 2D Explosion Animations» CC0: 4 fogli 4096×4096 (più versioni a metà), senza readme: la licenza sta nella pagina OGA e va scritta da noi nel repository.
+- **Music**, two CC0 tracks from OpenGameArt: `OutThere_0.ogg` ("Space Music: Out There", 3.9 MB) and `MyVeryOwnDeadShip.ogg` ("Background Space Track", 4.5 MB).
+- **Effects**, "The Essential Retro Video Game Sound Effects Collection" by Juhani Junkala, CC0, 508 WAVs in five verified categories: `Weapons` (`sfx_wpn_laser*`, `sfx_weapon_singleshot*`), `Explosions` (`sfx_exp_cluster/double/long/medium/small*`), `General Sounds` (coin, powerup, alarm), plus `Death Screams`, `Movement` and the hits `sfx_damage_hit*`/`sfx_sounds_impact*`.
+- **Explosions**, "Free - 2D Explosion Animations" CC0: 4 sheets 4096×4096 (plus half-size versions), with no readme: the license lives on the OGA page and we have to write it into the repository ourselves.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- audio che non pesa: traffico totale sotto i 3 MB, musica compresa;
-- nessun suono prima del gesto utente, e nessun errore se l'audio è bloccato;
-- un timbro riconoscibile per archetipo, così i nemici si sentono prima di vederli.
+- audio that does not weigh much: total traffic under 3 MB, music included;
+- no sound before the user gesture, and no errors if audio is blocked;
+- a recognizable timbre per archetype, so enemies are heard before they are seen.
 
 **Non-Goals:**
 
-- mixer con volumi separati esposti all'utente, panning spaziale, musica adattiva;
-- suoni per i pulsanti del menu, per gli asteroidi, voci o doppiaggio;
-- audio posizionale o riverberi.
+- mixer with separate volumes exposed to the user, spatial panning, adaptive music;
+- sounds for menu buttons, for asteroids, voices or voice-over;
+- positional audio or reverbs.
 
 ## Decisions
 
-### 1. Un modulo audio con due bus e un solo interruttore
+### 1. An audio module with two buses and a single switch
 
-`src/audio/audio.ts` espone `audio.playSfx(key)`, `audio.playMusic('menu' | 'game')`, `audio.stopMusic()`, `audio.toggleMuted()`. Internamente tiene due volumi (musica 0,35, effetti 0,7), un master `muted` e un flag `unlocked`.
+`src/audio/audio.ts` exposes `audio.playSfx(key)`, `audio.playMusic('menu' | 'game')`, `audio.stopMusic()`, `audio.toggleMuted()`. Internally it keeps two volumes (music 0.35, effects 0.7), a master `muted` and an `unlocked` flag.
 
-Lo stato di silenziamento vive in `localStorage` (`tiltclimb.muted`): è una preferenza del dispositivo, non della partita, e deve sopravvivere al ricaricamento. La partita e il menu non conoscono `localStorage`: passano dal modulo.
+The mute state lives in `localStorage` (`tiltclimb.muted`): it is a device preference, not a run preference, and must survive a reload. The run and the menu do not know about `localStorage`: they go through the module.
 
-### 2. Sblocco al primo gesto, non al caricamento
+### 2. Unlock on the first gesture, not on load
 
-I browser non consentono `AudioContext` prima di un gesto. Il modulo espone `unlock()`, chiamato dal primo `pointerdown` (e dal primo tasto premuto) già ascoltato dal menu per i permessi dei sensori. Prima di `unlock()` nessuna chiamata a `play()`: le richieste vengono messe in coda e scartate se lo sblocco non arriva, così un browser che blocca l'audio non produce errori in console né blocchi.
+Browsers do not allow an `AudioContext` before a gesture. The module exposes `unlock()`, called from the first `pointerdown` (and the first key press) already listened to by the menu for sensor permissions. Before `unlock()` there is no call to `play()`: requests are queued and discarded if the unlock never arrives, so a browser that blocks audio produces no console errors and no freezes.
 
-`ex.Sound` implementa `Loadable`, quindi le tracce entrano nel loader esistente: quando la scena parte, i buffer sono già decodificati e il primo sparo non arriva in ritardo.
+`ex.Sound` implements `Loadable`, so the tracks go into the existing loader: by the time the scene starts, the buffers are already decoded and the first shot does not arrive late.
 
-### 3. Musica: due tracce, cambio con dissolvenza breve
+### 3. Music: two tracks, switched with a short fade
 
-Una traccia per scena, `loop = true`. Al cambio scena la traccia uscente sfuma in 250 ms e quella entrante parte a volume zero salendo in 250 ms, guidate da `onPreUpdate` della scena (nessun timer globalе da ripulire). La traccia di partita riparte dall'inizio a ogni partita: è quello che ci si aspetta da un arcade, e evita di riprendere a metà di un passaggio.
+One track per scene, `loop = true`. On a scene change the outgoing track fades out over 250 ms and the incoming one starts at zero volume rising over 250 ms, driven by the scene's `onPreUpdate` (no global timers to clean up). The run track restarts from the beginning on every run: that is what you expect from an arcade game, and it avoids resuming halfway through a passage.
 
-La musica è ricodificata a **OGG mono 80 kbps** con ffmpeg: da 3,9/4,5 MB a circa 1 MB per traccia, senza differenze udibili su un altoparlante di telefono. I comandi di ricodifica stanno in `scripts/prepare-audio.sh` insieme agli effetti, così il passaggio dai sorgenti ai file del repo è riproducibile.
+The music is re-encoded to **OGG mono 80 kbps** with ffmpeg: from 3.9/4.5 MB to about 1 MB per track, with no audible difference on a phone speaker. The re-encoding commands live in `scripts/prepare-audio.sh` together with the effects, so the step from the sources to the repo files is reproducible.
 
-### 4. Effetti: mappa evento → file, con la variante per archetipo
+### 4. Effects: event → file map, with the per-archetype variant
 
-`src/audio/sfx.ts` contiene una tabella:
+`src/audio/sfx.ts` contains a table:
 
-| Evento | File | Note |
+| Event | File | Notes |
 | --- | --- | --- |
-| sparo eroe | `sfx_wpn_laser1` | secco, breve |
-| sparo pattuglia | `sfx_wpn_laser10` | più acuto |
-| sparo picchiatore | `sfx_weapon_singleshot3` | più corposo |
-| sparo cacciatore | `sfx_wpn_laser7` | più lungo |
-| sparo torretta | `sfx_wpn_laser12` | più basso |
-| abbattimento pattuglia | `sfx_exp_medium1` | piccolo |
-| abbattimento picchiatore | `sfx_exp_cluster2` | medio |
-| abbattimento cacciatore | `sfx_exp_double1` | medio |
-| abbattimento torretta | `sfx_exp_long1` | più lungo |
-| morte eroe | `sfx_exp_long3` + `sfx_damage_hit1` | due strati |
-| sconfitta | `sfx_exp_long6` | basso e lungo |
-| record | `sfx_sounds_powerup1` | crescente |
+| hero shot | `sfx_wpn_laser1` | dry, short |
+| patrol shot | `sfx_wpn_laser10` | higher pitched |
+| striker shot | `sfx_weapon_singleshot3` | fuller |
+| hunter shot | `sfx_wpn_laser7` | longer |
+| turret shot | `sfx_wpn_laser12` | lower |
+| patrol destroyed | `sfx_exp_medium1` | small |
+| striker destroyed | `sfx_exp_cluster2` | medium |
+| hunter destroyed | `sfx_exp_double1` | medium |
+| turret destroyed | `sfx_exp_long1` | longer |
+| hero death | `sfx_exp_long3` + `sfx_damage_hit1` | two layers |
+| defeat | `sfx_exp_long6` | low and long |
+| best score | `sfx_sounds_powerup1` | rising |
 
-I nomi esatti delle famiglie sono verificati; in apply si conferma l'esistenza dei singoli file elencando il pacchetto, e sostituire un timbro è una riga di tabella.
+The exact family names are verified; during apply the existence of the individual files is confirmed by listing the package, and swapping a timbre is one table row.
 
-Sovrapposizione: `ex.Sound.play()` gestisce più istanze con un tetto interno; le raffiche della torretta (4 colpi in 600 ms) sono il caso limite da controllare in prova, con la possibilità di abbassare il volume per istanza invece di ridurre la frequenza.
+Overlap: `ex.Sound.play()` handles multiple instances with an internal cap; the turret bursts (4 shots in 600 ms) are the edge case to check in testing, with the option of lowering the per-instance volume instead of reducing the rate.
 
-### 5. Esplosioni: pool di animazioni, frame estratti dai fogli
+### 5. Explosions: animation pool, frames extracted from the sheets
 
-I fogli originali sono 4096×4096 e non si possono caricare su un telefono: `scripts/prepare-explosions.py` li apre, determina la griglia di frame, ne estrae 16 per foglio, li ridimensiona a 128 px e li salva in `public/assets/effects/explosion/<n>/frame_00..15.png`. Lo script documenta la griglia assunta e fallisce se il foglio non è divisibile, invece di produrre frame tagliati male.
+The original sheets are 4096×4096 and cannot be loaded on a phone: `scripts/prepare-explosions.py` opens them, determines the frame grid, extracts 16 per sheet, resizes them to 128 px and saves them to `public/assets/effects/explosion/<n>/frame_00..15.png`. The script documents the assumed grid and fails if the sheet is not evenly divisible, instead of producing badly cropped frames.
 
-`src/game/explosion.ts` è un pool di 6 actor: `burst(x, y, size)` prende un actor libero, gli monta l'`ex.Animation` (50 ms per frame) e lo rilascia quando l'animazione finisce. Nessuna allocazione durante la partita; due esplosioni ravvicinate non si sovrascrivono.
+`src/game/explosion.ts` is a pool of 6 actors: `burst(x, y, size)` takes a free actor, mounts the `ex.Animation` on it (50 ms per frame) and releases it when the animation ends. No allocation during the run; two explosions close together do not overwrite each other.
 
-L'esplosione dell'eroe usa lo stesso pool con scala 2× e un suono diverso.
+The hero's explosion uses the same pool at 2× scale and with a different sound.
 
-### 6. Interruttore nel menu, non un quarto pulsante
+### 6. Switch in the menu, not a fourth button
 
-Un'icona 56×56 in alto a destra (`src/ui/audio-toggle.ts`), sopra la safe area, con due stati disegnati con la stessa tecnica canvas dei pulsanti (altoparlante con e senza onde). Tocca un'area grande il doppio dell'icona per essere raggiungibile col pollice. Non tocca il layout dei tre pulsanti già misurato.
+A 56×56 icon in the top right (`src/ui/audio-toggle.ts`), above the safe area, with two states drawn with the same canvas technique as the buttons (speaker with and without waves). It touches an area twice the size of the icon so it is reachable with a thumb. It does not affect the layout of the three buttons already measured.
 
 ## Risks / Trade-offs
 
-- **Autoplay bloccato** → coda di richieste scartate prima di `unlock()`; nessun errore, nessun blocco. Su iOS il primo tocco deve essere reale, e il menu ne ha già uno per i sensori.
-- **Peso audio** → musica ricodificata (~1 MB per traccia) e solo ~15 effetti brevi: il totale resta sotto i 3 MB, meno della metà di una traccia originale.
-- **Latenza su Android** → buffer precaricati nel loader e nessuna creazione di `AudioContext` per ogni suono; se il primo sparo arrivasse tardi, il volume degli effetti si alza e si riduce il numero di istanze.
-- **Troppi suoni insieme** (raffica della torretta + esplosione + musica) → il tetto di istanze di Excalibur scarta le nuove: in prova si verifica che la raffica non "mangi" l'esplosione, eventualmente abbassando il volume dei colpi nemici.
-- **Fogli di esplosione enormi** → estrazione offline con script, mai a runtime; il repo riceve solo i frame ridotti.
-- **Licenze** → i pacchetti audio non contengono un file di licenza (verificato: solo un `INFO.txt` generico nel pacchetto effetti): si scrive una nota `LICENSE.md` per cartella con autore, URL e licenza CC0, come già fatto per la grafica.
+- **Autoplay blocked** → queue of requests discarded before `unlock()`; no errors, no freeze. On iOS the first touch must be real, and the menu already has one for the sensors.
+- **Audio weight** → re-encoded music (~1 MB per track) and only ~15 short effects: the total stays under 3 MB, less than half of a single original track.
+- **Latency on Android** → buffers preloaded in the loader and no `AudioContext` creation per sound; if the first shot arrived late, the effects volume goes up and the number of instances goes down.
+- **Too many sounds at once** (turret burst + explosion + music) → Excalibur's instance cap discards the new ones: in testing we check that the burst does not "eat" the explosion, possibly lowering the volume of enemy shots.
+- **Huge explosion sheets** → offline extraction with a script, never at runtime; the repo only receives the reduced frames.
+- **Licenses** → the audio packages do not contain a license file (verified: only a generic `INFO.txt` in the effects package): a `LICENSE.md` note is written per folder with author, URL and CC0 license, as already done for the graphics.
 
 ## Migration Plan
 
-Nessuna migrazione. Le scene esistenti guadagnano chiamate a `audio.*` in punti già esistenti (`fireHero`, `resolveHits`, `onActivate`, `endRun`). Rollback: revert del commit di apply; nessun file esistente viene riscritto.
+No migration. The existing scenes gain calls to `audio.*` at points that already exist (`fireHero`, `resolveHits`, `onActivate`, `endRun`). Rollback: revert of the apply commit; no existing file is rewritten.

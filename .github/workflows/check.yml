@@ -1,7 +1,7 @@
 name: check
 
-# Ogni push e ogni pull request passano typecheck, Biome, controlli di contrasto e build.
-# Non pubblica niente: serve a sapere subito se il codice è in ordine.
+# Every push and every pull request goes through typecheck, Biome, contrast checks and build.
+# It publishes nothing: it exists to know right away whether the code is in order.
 
 on:
   push:
@@ -23,8 +23,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Installa le dipendenze
+      - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck, lint, contrasti e build
+      - name: Typecheck, lint, contrast and build
         run: npm run check

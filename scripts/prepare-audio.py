@@ -54,26 +54,26 @@ SOUNDS = {
     'record': 'sfx_sounds_powerup1.wav',
 }
 
-LICENSE = """# Licenze audio
+LICENSE = """# Audio licences
 
-Tutti gli asset audio di questa cartella sono **CC0 1.0** (public domain) e provengono da
-OpenGameArt. File costruiti da `scripts/prepare-audio.py`.
+All the audio assets in this folder are **CC0 1.0** (public domain) and come from
+OpenGameArt. Files built by `scripts/prepare-audio.py`.
 
-## Effetti (`*.wav`)
+## Effects (`*.wav`)
 
-- Autore: **Juhani Junkala**
-- Pacchetto: «The Essential Retro Video Game Sound Effects Collection [512 sounds]»
-- Fonte: https://opengameart.org/content/512-sound-effects-8-bit-style
-- Licenza: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+- Author: **Juhani Junkala**
+- Pack: "The Essential Retro Video Game Sound Effects Collection [512 sounds]"
+- Source: https://opengameart.org/content/512-sound-effects-8-bit-style
+- Licence: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
 
-## Musica
+## Music
 
-- `music-menu.ogg` — «Background Space Track», fonte
+- `music-menu.ogg` — "Background Space Track", source
   https://opengameart.org/content/background-space-track — CC0 1.0
-- `music-game.ogg` — «Space Music: Out There», fonte
+- `music-game.ogg` — "Space Music: Out There", source
   https://opengameart.org/content/space-music-out-there — CC0 1.0
 
-Musica ricodificata a OGG mono 80 kbps per ridurre il peso su telefono.
+Music re-encoded to OGG mono 80 kbps to keep the weight down on a phone.
 """
 
 
@@ -81,7 +81,7 @@ def download(url: str, target: Path) -> Path:
     if target.exists() and target.stat().st_size > 0:
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
-    print(f'scarico {url}')
+    print(f'downloading {url}')
     with urllib.request.urlopen(url, timeout=180) as response, target.open('wb') as handle:
         shutil.copyfileobj(response, handle)
     return target
@@ -94,7 +94,7 @@ def extract_sounds(archive: Path, ffmpeg: str) -> None:
         by_name = {Path(name).name: name for name in bundle.namelist() if name.endswith('.wav')}
         missing = [src for src in SOUNDS.values() if src not in by_name]
         if missing:
-            raise SystemExit(f'file mancanti nel pacchetto effetti: {missing}')
+            raise SystemExit(f'files missing from the effects pack: {missing}')
 
         for out_name, src_name in SOUNDS.items():
             raw = archive.parent / src_name
@@ -151,16 +151,16 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
 
     archive = download(SFX_URL, cache / 'sfx-512.zip')
-    print('effetti:')
+    print('effects:')
     extract_sounds(archive, ffmpeg)
 
-    print('musica:')
+    print('music:')
     transcode_music(ffmpeg, cache)
 
     (OUT / 'LICENSE.md').write_text(LICENSE, encoding='utf-8')
 
     total = sum(f.stat().st_size for f in OUT.iterdir() if f.is_file()) / 1024 / 1024
-    print(f'totale cartella audio: {total:.2f} MB')
+    print(f'audio folder total: {total:.2f} MB')
     for file in sorted(OUT.iterdir()):
         print(f'  {file.name}: {file.stat().st_size / 1024:.0f} kB')
     return 0

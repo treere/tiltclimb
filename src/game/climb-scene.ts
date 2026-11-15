@@ -393,7 +393,7 @@ export class ClimbScene extends ex.Scene {
       y: FIRE_BUTTON_Y,
       width: FIRE_BUTTON_WIDTH,
       height: FIRE_BUTTON_HEIGHT,
-      label: 'FUOCO',
+      label: 'FIRE',
       onPress: () => {
         this.fireHero();
       },

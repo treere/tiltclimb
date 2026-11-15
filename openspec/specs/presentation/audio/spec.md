@@ -1,90 +1,90 @@
 # presentation/audio Specification
 
 ## Purpose
-Definisce cosa si sente e quando: una musica per il menu e una per la partita, un timbro per ogni nemico, un'esplosione per ogni abbattimento, il suono della sconfitta e quello del record, e la possibilità di zittire tutto.
+Defines what you hear and when: one music track for the menu and one for the run, a voice for every enemy, an explosion for every shoot-down, the defeat sound and the best-score sound, and the option to silence everything.
 
 ## Requirements
 
-### Requirement: Musica nelle due scene
+### Requirement: Music in both scenes
 
-Il sistema SHALL riprodurre una traccia musicale in loop nel menu e una traccia diversa durante la partita. Il passaggio da una all'altra SHALL avvenire al cambio di scena, senza sovrapposizioni prolungate, e la traccia della partita SHALL ripartire dall'inizio a ogni partita.
+The system SHALL play a looping music track in the menu and a different track during the run. The switch from one to the other SHALL happen on the scene change, without prolonged overlaps, and the run track SHALL restart from the beginning on every run.
 
-#### Scenario: Musica di menu
+#### Scenario: Menu music
 
-- **WHEN** l'utente è nel menu
-- **THEN** sente la traccia del menu in loop
+- **WHEN** the user is in the menu
+- **THEN** they hear the menu track on loop
 
-#### Scenario: Musica di partita
+#### Scenario: Run music
 
-- **WHEN** la partita inizia
-- **THEN** la traccia del menu si ferma e parte quella della partita
+- **WHEN** the run starts
+- **THEN** the menu track stops and the run one starts
 
-#### Scenario: Ritorno al menu
+#### Scenario: Return to the menu
 
-- **WHEN** la partita finisce e si torna al menu
-- **THEN** la musica di partita si ferma e riprende quella del menu
+- **WHEN** the run ends and the game returns to the menu
+- **THEN** the run music stops and the menu one resumes
 
-### Requirement: Nessun suono prima di un gesto dell'utente
+### Requirement: No sound before a user gesture
 
-L'audio SHALL partire solo dopo un gesto dell'utente (tocco o tasto), perché i browser bloccano la riproduzione automatica. Se l'audio non è disponibile o viene bloccato, il gioco SHALL restare giocabile e MUST NOT mostrare errori bloccanti.
+Audio SHALL start only after a user gesture (tap or key), because browsers block automatic playback. If audio is unavailable or blocked, the game SHALL stay playable and MUST NOT show blocking errors.
 
-#### Scenario: Primo tocco
+#### Scenario: First tap
 
-- **WHEN** l'utente tocca lo schermo per la prima volta
-- **THEN** l'audio si sblocca e la musica del menu parte
+- **WHEN** the user taps the screen for the first time
+- **THEN** audio unlocks and the menu music starts
 
-#### Scenario: Audio bloccato dal browser
+#### Scenario: Audio blocked by the browser
 
-- **WHEN** il browser rifiuta la riproduzione
-- **THEN** il gioco prosegue senza audio e senza messaggi di errore invasivi
+- **WHEN** the browser refuses playback
+- **THEN** the game goes on without audio and without intrusive error messages
 
-### Requirement: Effetti legati agli eventi
+### Requirement: Effects tied to events
 
-Il sistema SHALL riprodurre un effetto per ogni evento rilevante: sparo dell'eroe, sparo di una nave nemica, abbattimento di una nave nemica, morte dell'eroe. Gli effetti SHALL essere brevi e sovrapponibili, così che più eventi ravvicinati non si taglino a vicenda.
+The system SHALL play an effect for every relevant event: hero shot, enemy ship shot, enemy ship shot down, hero death. The effects SHALL be short and overlappable, so that several close events do not cut each other off.
 
-#### Scenario: Sparo dell'eroe
+#### Scenario: Hero shot
 
-- **WHEN** l'eroe spara
-- **THEN** si sente un effetto di sparo, anche se un altro sparo era ancora in corso
+- **WHEN** the hero fires
+- **THEN** a shot effect is heard, even if another shot was still playing
 
-#### Scenario: Abbattimento
+#### Scenario: Shoot-down
 
-- **WHEN** un colpo dell'eroe distrugge una nave nemica
-- **THEN** si sente un'esplosione nel punto in cui si trovava la nave
+- **WHEN** a hero shot destroys an enemy ship
+- **THEN** an explosion is heard at the point where the ship was
 
-### Requirement: Un timbro per ogni tipo di nemico
+### Requirement: One voice per enemy type
 
-Ogni archetipo nemico SHALL avere un proprio suono di sparo e un proprio suono di esplosione, distinguibili fra loro anche senza guardare lo schermo.
+Every enemy archetype SHALL have its own shot sound and its own explosion sound, distinguishable from each other even without looking at the screen.
 
-#### Scenario: Quattro nemici, quattro voci
+#### Scenario: Four enemies, four voices
 
-- **WHEN** sparano o vengono abbattuti tipi diversi di nave nemica
-- **THEN** i suoni sono riconoscibilmente diversi per tipo
+- **WHEN** different enemy ship types fire or are shot down
+- **THEN** the sounds are recognizably different per type
 
-### Requirement: Suono di sconfitta e suono di record
+### Requirement: Defeat sound and best-score sound
 
-Alla fine di una partita il sistema SHALL riprodurre un suono di sconfitta. Se il punteggio della partita supera il migliore della sessione precedente, SHALL riprodurre invece un suono diverso, riconoscibile come successo.
+At the end of a run the system SHALL play a defeat sound. If the run's score beats the previous session's best score, it SHALL play a different sound instead, recognizable as success.
 
-#### Scenario: Sconfitta normale
+#### Scenario: Normal defeat
 
-- **WHEN** la partita finisce senza superare il record
-- **THEN** si sente il suono di sconfitta
+- **WHEN** the run ends without beating the best score
+- **THEN** the defeat sound is heard
 
-#### Scenario: Record superato
+#### Scenario: Best score beaten
 
-- **WHEN** la partita finisce con un punteggio superiore al migliore precedente
-- **THEN** si sente il suono di record, non quello di sconfitta
+- **WHEN** the run ends with a score higher than the previous best score
+- **THEN** the best-score sound is heard, not the defeat one
 
-### Requirement: Interruttore audio
+### Requirement: Audio toggle
 
-Il menu SHALL offrire un comando per attivare o disattivare tutto l'audio, visibile e raggiungibile col pollice. Lo stato SHALL essere ricordato fra una sessione e l'altra sullo stesso dispositivo, e con l'audio disattivato MUST NOT partire alcun suono.
+The menu SHALL offer a command to turn all audio on or off, visible and reachable with the thumb. The state SHALL be remembered between sessions on the same device, and with audio turned off MUST NOT any sound start.
 
-#### Scenario: Disattivazione
+#### Scenario: Turning it off
 
-- **WHEN** l'utente disattiva l'audio dal menu
-- **THEN** musica ed effetti si fermano e non ripartono al cambio scena
+- **WHEN** the user turns audio off from the menu
+- **THEN** music and effects stop and do not restart on the scene change
 
-#### Scenario: Stato ricordato
+#### Scenario: State remembered
 
-- **WHEN** l'utente ricarica il gioco dopo aver disattivato l'audio
-- **THEN** il gioco riparte silenzioso, con il comando nello stato disattivato
+- **WHEN** the user reloads the game after turning audio off
+- **THEN** the game restarts silent, with the command in the off state

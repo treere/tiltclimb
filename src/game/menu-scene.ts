@@ -82,10 +82,10 @@ export class MenuScene extends ex.Scene {
       'TILTCLIMB',
     );
     new UiText(this, { x: centerX, y: at(0.15), size: 26, color: MUTED, weight: 400 }).setText(
-      'inclina il telefono per sterzare',
+      'tilt your phone to steer',
     );
     new UiText(this, { x: centerX, y: at(0.25), size: 24, color: MUTED, weight: 500 }).setText(
-      'INCLINAZIONE',
+      'TILT',
     );
 
     this.angleText = new UiText(this, { x: centerX, y: at(0.32), size: 84, color: TEXT });
@@ -116,8 +116,8 @@ export class MenuScene extends ex.Scene {
       maxWidth: BUTTON_WIDTH + 100,
     });
 
-    // Sensibilita': due pulsanti e un valore, niente slider — su schermo piccolo un
-    // trascinamento preciso e' piu' facile sbagliarlo che centrarlo.
+    // Sensitivity: two buttons and a value, no slider — on a small screen a precise drag is
+    // easier to miss than to hit.
     this.sensitivityCaption = new UiText(this, {
       x: centerX,
       y: at(0.565),
@@ -159,7 +159,7 @@ export class MenuScene extends ex.Scene {
       y: at(0.72),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
-      label: 'Calibra',
+      label: 'Calibrate',
       onPress: () => {
         void this.onCalibrate();
       },
@@ -171,7 +171,7 @@ export class MenuScene extends ex.Scene {
       y: at(0.81),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
-      label: 'Inizia gioco',
+      label: 'Start game',
       onPress: () => {
         void this.onStart();
       },
@@ -183,7 +183,7 @@ export class MenuScene extends ex.Scene {
       y: at(0.9),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
-      label: 'CREDITI',
+      label: 'CREDITS',
       onPress: () => {
         void this.engine.goToScene('credits');
       },
@@ -261,20 +261,20 @@ export class MenuScene extends ex.Scene {
   private refreshWarning(): void {
     if (session.tilt.isAvailable) {
       this.warningText.setText('');
-      this.calibrateButton.setLabel('Calibra');
+      this.calibrateButton.setLabel('Calibrate');
       return;
     }
 
-    this.calibrateButton.setLabel('Sensore non disponibile');
+    this.calibrateButton.setLabel('Sensor unavailable');
     this.warningText.setText(
       session.sensorPromptDone
-        ? 'Sensore non disponibile: si gioca con il trascinamento o con le frecce.'
-        : 'Tocca lo schermo per attivare i sensori.',
+        ? 'Sensor unavailable: play with dragging or with the arrow keys.'
+        : 'Tap the screen to enable the sensors.',
     );
   }
 
   private refreshSensitivity(): void {
-    this.sensitivityCaption.setText(`SENSIBILITÀ · ${tiltSettings.rangeDeg}°`);
+    this.sensitivityCaption.setText(`SENSITIVITY · ${tiltSettings.rangeDeg}°`);
     this.sensitivityValue.setText(tiltSettings.label);
     this.decreaseButton.setEnabled(!tiltSettings.isSoft);
     this.increaseButton.setEnabled(!tiltSettings.isNervous);
@@ -291,7 +291,7 @@ export class MenuScene extends ex.Scene {
   private refreshResult(): void {
     this.resultText.setText(
       session.hasPlayed
-        ? `Ultimo: ${session.lastScore}   Migliore: ${session.bestScore}   Abbattuti: ${session.lastKills}`
+        ? `Last: ${session.lastScore}   Best: ${session.bestScore}   Kills: ${session.lastKills}`
         : '',
     );
   }
@@ -317,14 +317,14 @@ export class MenuScene extends ex.Scene {
 
     if (!session.tilt.isAvailable) {
       this.confirmText.setColor(WARN);
-      this.showConfirm('Niente da calibrare: sensore non disponibile');
+      this.showConfirm('Nothing to calibrate: sensor unavailable');
       return;
     }
 
     session.tilt.calibrate();
     this.calibrateButton.flash();
     this.confirmText.setColor(OK);
-    this.showConfirm('Calibrato ✓');
+    this.showConfirm('Calibrated ✓');
   }
 
   private async onStart(): Promise<void> {

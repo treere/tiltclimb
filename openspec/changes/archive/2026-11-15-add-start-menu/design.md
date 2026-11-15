@@ -2,77 +2,77 @@
 
 ## Context
 
-Vedi `proposal.md` per il perché. Lo stato attuale è una sola scena (`ClimbScene`) che contiene tutto: giocatore, pool, HUD, `TiltSource`, `InputRouter`, oltre agli stati `idle | playing | gameover`. La calibrazione è implicita in `startRun()` e il permesso si chiede al primo tocco in partita. Il menu deve leggere lo stesso sensore e fissare lo stesso zero che poi usa la partita: questo è il vincolo che decide l'architettura, più di quanto non faccia la grafica.
+See `proposal.md` for the why. The current state is a single scene (`ClimbScene`) that contains everything: player, pool, HUD, `TiltSource`, `InputRouter`, plus the states `idle | playing | gameover`. Calibration is implicit in `startRun()` and the permission is requested on the first touch during the run. The menu must read the same sensor and fix the same zero that the run then uses: this is the constraint that decides the architecture, more than graphics does.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- un solo `TiltSource` e un solo zero per tutta la sessione: menu e partita leggono la stessa cosa;
-- menu e partita come unità separate, con reset gratuito passando da una scena all'altra;
-- comandi toccabili che funzionano su telefono e con il mouse, senza librerie UI.
+- a single `TiltSource` and a single zero for the whole session: menu and run read the same thing;
+- menu and run as separate units, with free reset when moving from one scene to the other;
+- touchable commands that work on a phone and with the mouse, without UI libraries.
 
 **Non-Goals:**
 
-- pausa e ritorno al menu da partita in corso;
-- persistenza fra sessioni, impostazioni, nuove schermate;
-- restyling dell'HUD di gioco o modifiche alla fisica.
+- pause and return to the menu from a run in progress;
+- persistence across sessions, settings, new screens;
+- restyling of the game HUD or changes to the physics.
 
 ## Decisions
 
-### 1. Due scene Excalibur, non due stati nella stessa scena
+### 1. Two Excalibur scenes, not two states in the same scene
 
-`MenuScene` e `ClimbScene` sono scene separate registrate sull'engine (`engine.add('menu', …)`, `engine.add('climb', …)`), e la scena iniziale diventa `menu`.
+`MenuScene` and `ClimbScene` are separate scenes registered on the engine (`engine.add('menu', …)`, `engine.add('climb', …)`), and the initial scene becomes `menu`.
 
-Alternativa scartata: aggiungere uno stato `menu` alla `ClimbScene` esistente. Costerebbe zero nuovi file ma ogni `onPreUpdate` dovrebbe iniziare con una guardia sullo stato, il pool andrebbe smontato a mano e il menu erediterebbe camera, collisori e HUD della partita — cioè esattamente l'entropia che vogliamo evitare.
+Rejected alternative: adding a `menu` state to the existing `ClimbScene`. It would cost zero new files but every `onPreUpdate` would have to start with a state guard, the pool would have to be torn down by hand and the menu would inherit camera, colliders and HUD of the run — that is, exactly the entropy we want to avoid.
 
-### 2. `TiltSource` esce dalla scena e diventa stato di sessione
+### 2. `TiltSource` leaves the scene and becomes session state
 
-Nuovo modulo `src/game/session.ts` che espone un'unica istanza condivisa di `TiltSource` e i due numeri del riepilogo (`lastScore`, `bestScore`). Le scene ricevono l'istanza, non la creano.
+New module `src/game/session.ts` that exposes a single shared instance of `TiltSource` and the two summary numbers (`lastScore`, `bestScore`). The scenes receive the instance, they do not create it.
 
-È la decisione centrale: la calibrazione è proprietà della **sessione**, non della partita. Se ogni scena creasse il proprio `TiltSource`, lo zero premuto nel menu andrebbe perso al cambio scena, che è precisamente il bug che questa change deve chiudere.
+It is the central decision: calibration is a property of the **session**, not of the run. If each scene created its own `TiltSource`, the zero pressed in the menu would be lost on the scene change, which is precisely the bug this change must close.
 
-Lo zero iniziale (nessuna calibrazione esplicita ancora) viene fissato al primo evento del sensore che arriva quando il menu è visibile: `TiltSource.axis()` già lo fa quando `zero === null`, quindi non serve codice nuovo, serve solo non chiamare `calibrate()` all'avvio della partita.
+The initial zero (no explicit calibration yet) is fixed at the first sensor event that arrives while the menu is visible: `TiltSource.axis()` already does this when `zero === null`, so no new code is needed, only not calling `calibrate()` at the start of the run.
 
-### 3. Pulsanti come componente locale
+### 3. Buttons as a local component
 
-`src/ui/button.ts`: un `ScreenElement` con `ex.Rectangle` di sfondo e `ex.Text` sopra, che ascolta gli eventi pointer dell'attore (`pointerdown`, `pointerup`, `pointerenter`, `pointerleave`) e cambia colore per dare feedback. Nessuna dipendenza UI aggiuntiva.
+`src/ui/button.ts`: a `ScreenElement` with an `ex.Rectangle` background and `ex.Text` above it, which listens to the actor's pointer events (`pointerdown`, `pointerup`, `pointerenter`, `pointerleave`) and changes color to give feedback. No additional UI dependency.
 
-Alternativa scartata: intercettare i tocchi a livello di engine e fare hit-test sui rettangoli. Sarebbe la stessa cosa scritta peggio: Excalibur espone già gli eventi pointer per attore, con i bounds della grafica come area sensibile.
+Rejected alternative: intercepting touches at engine level and hit-testing the rectangles. It would be the same thing written worse: Excalibur already exposes per-actor pointer events, with the graphic bounds as the sensitive area.
 
-Un pulsante disabilitato semplicemente non si iscrive agli eventi, e il suo aspetto cambia: niente stato "disabled ma cliccabile".
+A disabled button simply does not subscribe to the events, and its appearance changes: no "disabled but clickable" state.
 
-### 4. Calibrazione: comando esplicito, conferma concreta
+### 4. Calibration: explicit command, concrete confirmation
 
-**Calibra** chiama `tilt.calibrate()` (zero = gamma attuale, smoothing azzerato) e mostra `Calibrato ✓` per 1,2 secondi, oltre a un flash del pulsante. Se `tilt.currentStatus === 'unavailable'`, il pulsante mostra invece `Sensore non disponibile` e non finge una conferma.
+**Calibrate** calls `tilt.calibrate()` (zero = current gamma, smoothing reset) and shows `Calibrated ✓` for 1.2 seconds, plus a flash of the button. If `tilt.currentStatus === 'unavailable'`, the button shows `Sensor unavailable` instead and does not fake a confirmation.
 
-**Inizia gioco** non tocca lo zero. Se l'utente non ha mai calibrato, vale lo zero fissato all'apertura del menu (decisione 2), che è il comportamento dichiarato nella spec.
+**Start game** does not touch the zero. If the user has never calibrated, the zero fixed at menu open applies (decision 2), which is the behavior declared in the spec.
 
-### 5. Permesso richiesto nel menu, una volta sola
+### 5. Permission requested in the menu, only once
 
-Il primo dei due pulsanti premuti chiama `requestSensorPermission()` dentro il gesto e sottoscrive `tilt.listen()`. L'esito va in `tilt` e in un flag di sessione (`sensorPromptDone`), così nessuna scena richiede due volte. Se l'esito è negativo, il menu mostra l'avviso e `Inizia gioco` resta attivo: il fallback tastiera/drag è già implementato e non richiede modifiche.
+The first of the two buttons pressed calls `requestSensorPermission()` inside the gesture and subscribes `tilt.listen()`. The outcome goes into `tilt` and into a session flag (`sensorPromptDone`), so no scene asks twice. If the outcome is negative, the menu shows the warning and `Start game` stays active: the keyboard/drag fallback is already implemented and requires no changes.
 
-### 6. Ritorno al menu dopo la morte
+### 6. Return to the menu after death
 
-In `ClimbScene.endRun()`: `session.lastScore = score`, `session.bestScore = max(bestScore, score)`, poi `engine.goToScene('menu')` dopo 500 ms (`setTimeout`) — la pausa serve a far leggere la collisione invece di teletrasportare l'utente. Un flag `leaving` impedisce doppi cambi scena se arriva un secondo evento di collisione.
+In `ClimbScene.endRun()`: `session.lastScore = score`, `session.bestScore = max(bestScore, score)`, then `engine.goToScene('menu')` after 500 ms (`setTimeout`) — the pause is there to let the collision be read instead of teleporting the user. A `leaving` flag prevents double scene changes if a second collision event arrives.
 
-Il `setTimeout` viene salvato e cancellato in `onDeactivate`, così una scena riattivata non porta in giro un cambio scena pendente dalla partita precedente.
+The `setTimeout` is saved and cleared in `onDeactivate`, so a reactivated scene does not carry around a scene change pending from the previous run.
 
-### 7. Layout del menu
+### 7. Menu layout
 
-Coordinate in screen space, con `screen.contentArea` come riferimento invece degli angoli del canvas, così notch e angoli arrotondati non mangiano i pulsanti. Misure in `constants.ts` (`BUTTON_WIDTH = 420`, `BUTTON_HEIGHT = 96`, gap 24) espresse nella risoluzione logica 720×1280, non in pixel dello schermo.
+Coordinates in screen space, with `screen.contentArea` as the reference instead of the canvas corners, so notch and rounded corners do not eat the buttons. Sizes in `constants.ts` (`BUTTON_WIDTH = 420`, `BUTTON_HEIGHT = 96`, gap 24) expressed in the logical resolution 720×1280, not in screen pixels.
 
-Struttura verticale: titolo in alto, blocco calibrazione al centro (valore grande + barra), i due pulsanti in basso, avviso sensori sopra i pulsanti.
+Vertical structure: title at the top, calibration block in the center (large value + bar), the two buttons at the bottom, sensor warning above the buttons.
 
 ## Risks / Trade-offs
 
-- **Doppio listener sul sensore** (menu e partita che chiamano entrambi `listen()`) → `listen()` è idempotente e lo stato vive nel singleton: la sottoscrizione avviene una volta per sessione.
-- **Tocco su un pulsante che "buca" fino al gioco** → i pulsanti esistono solo nella scena menu, e la scena non ha handler globali di pointer; il primo pointerdown che avvia la partita viene consumato dal cambio scena.
-- **Doppio tap su Inizia che avvia due partite** → il cambio scena è idempotente e la scena di gioco si resetta in `onActivate`, non nel costruttore.
-- **Testo che sborda su schermi stretti** → tutte le misure sono in unità logiche 720×1280 e il testo ha `maxWidth`; se serve, si riduce la dimensione del font invece di spostare i pulsanti.
-- **`setTimeout` che sopravvive alla scena** → gestito con `clearTimeout` in `onDeactivate` (decisione 6); senza questo, morire due volte in rapida successione produrrebbe due cambi scena.
-- **Zero "sporco" fra menu e partita** → la calibrazione esplicita è l'unico modo di cambiare zero; se l'utente calibra e poi cambia assetto durante la partita, deriva come prima, ed è il comportamento atteso.
+- **Double sensor listener** (menu and run both calling `listen()`) → `listen()` is idempotent and the state lives in the singleton: the subscription happens once per session.
+- **Touch on a button that "leaks" to the game** → the buttons exist only in the menu scene, and the scene has no global pointer handlers; the first pointerdown that starts the run is consumed by the scene change.
+- **Double tap on Start starting two runs** → the scene change is idempotent and the game scene resets in `onActivate`, not in the constructor.
+- **Text that overflows on narrow screens** → all sizes are in logical units 720×1280 and the text has `maxWidth`; if needed, the font size is reduced instead of moving the buttons.
+- **`setTimeout` surviving the scene** → handled with `clearTimeout` in `onDeactivate` (decision 6); without this, dying twice in quick succession would produce two scene changes.
+- **"Dirty" zero between menu and run** → explicit calibration is the only way to change the zero; if the user calibrates and then changes hold during the run, it drifts as before, and that is the expected behavior.
 
 ## Migration Plan
 
-Nessun dato da migrare (nessuna persistenza). Cambio di comportamento dichiarato BREAKING: spariscono l'avvio e il riavvio a tocco singolo. Il rollback è il revert del commit di apply: la change precedente è archiviata e le sue spec sono in `openspec/specs/`, quindi lo stato precedente è ricostruibile.
+No data to migrate (no persistence). Behavior change declared BREAKING: the single-touch boot and restart disappear. The rollback is the revert of the apply commit: the previous change is archived and its specs are in `openspec/specs/`, so the previous state is reconstructable.

@@ -38,13 +38,13 @@ GRID = 8
 FRAME_SIZE = 128
 FRAMES_PER_SHEET = 24
 
-LICENSE = """# Licenze effetti visivi
+LICENSE = """# Visual effects licences
 
-- Pacchetto: «Free - 2D Explosion Animations»
-- Fonte: https://opengameart.org/content/2d-explosion-animations-frame-by-frame
-- Licenza: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+- Pack: "Free - 2D Explosion Animations"
+- Source: https://opengameart.org/content/2d-explosion-animations-frame-by-frame
+- Licence: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
 
-Frame estratti dai fogli originali (4096×4096) e ridimensionati a 128 px da
+Frames extracted from the original sheets (4096×4096) and resized to 128 px by
 `scripts/prepare-explosions.py`.
 """
 
@@ -53,7 +53,7 @@ def download(url: str, target: Path) -> Path:
     if target.exists() and target.stat().st_size > 0:
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
-    print(f'scarico {url}')
+    print(f'downloading {url}')
     with urllib.request.urlopen(url, timeout=180) as response, target.open('wb') as handle:
         shutil.copyfileobj(response, handle)
     return target
@@ -64,7 +64,7 @@ def frames_of(sheet: Image.Image) -> list[Image.Image]:
     width, height = sheet.size
     cell_w, cell_h = width // GRID, height // GRID
     if width % GRID or height % GRID:
-        raise SystemExit(f'foglio {width}x{height} non divisibile in {GRID}x{GRID} celle')
+        raise SystemExit(f'sheet {width}x{height} not divisible into {GRID}x{GRID} cells')
 
     frames: list[Image.Image] = []
     for row in range(GRID):
@@ -91,7 +91,7 @@ def main() -> int:
             sheet = Image.open(io.BytesIO(bundle.read(member))).convert('RGBA')
             frames = frames_of(sheet)
             if not frames:
-                raise SystemExit(f'nessun frame trovato in {member}')
+                raise SystemExit(f'no frames found in {member}')
 
             # Sample evenly across the blast so 16 frames tell the whole story.
             step = max(1, len(frames) // FRAMES_PER_SHEET)
@@ -107,11 +107,11 @@ def main() -> int:
                 canvas.paste(frame, ((FRAME_SIZE - frame.width) // 2, (FRAME_SIZE - frame.height) // 2))
                 canvas.save(folder / f'frame_{index:02d}.png')
 
-            print(f'{name}: {len(chosen)} frame da {len(frames)} disponibili')
+            print(f'{name}: {len(chosen)} frames out of {len(frames)} available')
 
     (OUT / 'LICENSE.md').write_text(LICENSE, encoding='utf-8')
     total = sum(f.stat().st_size for f in OUT.rglob('*') if f.is_file()) / 1024
-    print(f'totale cartella esplosioni: {total:.0f} kB')
+    print(f'explosions folder total: {total:.0f} kB')
     return 0
 
 

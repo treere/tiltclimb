@@ -2,32 +2,32 @@
 
 ## MODIFIED Requirements
 
-### Requirement: I pulsanti del menu sono a tema
+### Requirement: Menu buttons are themed
 
-I pulsanti SHALL usare la palette dello spazio con fondo **opaco**, bordo luminoso marcato e testo chiaro, e SHALL distinguere visivamente lo stato normale da quello premuto e da quello disabilitato. Il fondo MUST essere opaco, così che il campo stellato non passi sotto l'etichetta, e il contrasto fra testo e fondo SHALL essere almeno 7:1 in ogni stato.
+The buttons SHALL use the space palette with an **opaque** background, a pronounced bright border and light text, and SHALL visually distinguish the normal state from the pressed and the disabled ones. The background MUST be opaque, so that the starfield does not pass under the label, and the contrast between text and background SHALL be at least 7:1 in every state.
 
-#### Scenario: Pulsante su sfondo stellato
+#### Scenario: Button on starfield
 
-- **WHEN** il menu mostra i pulsanti sopra il campo stellato
-- **THEN** il fondo è opaco, il bordo è distinguibile dallo sfondo e il testo ha contrasto di almeno 7:1
+- **WHEN** the menu shows the buttons over the starfield
+- **THEN** the background is opaque, the border is distinguishable from the background and the text has a contrast of at least 7:1
 
-#### Scenario: Stato premuto e disabilitato
+#### Scenario: Pressed and disabled state
 
-- **WHEN** l'utente preme un pulsante o un pulsante è disabilitato
-- **THEN** l'aspetto cambia in modo riconoscibile e il contrasto del testo resta di almeno 7:1
+- **WHEN** the user presses a button or a button is disabled
+- **THEN** the appearance changes recognizably and the text contrast stays at least 7:1
 
 ## ADDED Requirements
 
-### Requirement: Testi leggibili sopra lo sfondo animato
+### Requirement: Legible texts over the animated background
 
-Le scritte del menu, dell'HUD e della pagina crediti SHALL restare leggibili sopra lo sfondo stellato, usando un'ombra o un contorno dietro al testo quando il fondo non è opaco, e una dimensione minima tale da essere letta senza sforzo su uno schermo da telefono.
+The menu, HUD and credits page texts SHALL stay legible over the starfield, using a shadow or an outline behind the text when the background is not opaque, and a minimum size such that they can be read without effort on a phone screen.
 
-#### Scenario: HUD sopra le stelle
+#### Scenario: HUD over the stars
 
-- **WHEN** il punteggio è mostrato sopra il campo stellato durante la partita
-- **THEN** le cifre restano leggibili mentre lo sfondo scorre
+- **WHEN** the score is shown over the starfield during the run
+- **THEN** the digits stay legible while the background scrolls
 
-#### Scenario: Testo della pagina crediti
+#### Scenario: Credits page text
 
-- **WHEN** la pagina crediti mostra il racconto
-- **THEN** le righe sono leggibili senza ambiguità e il testo va a capo invece di uscire dallo schermo
+- **WHEN** the credits page shows the story
+- **THEN** the lines are legible without ambiguity and the text wraps instead of going off screen

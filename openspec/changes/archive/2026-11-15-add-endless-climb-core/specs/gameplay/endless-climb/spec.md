@@ -2,71 +2,71 @@
 
 ## Purpose
 
-Definisce il ciclo di gioco di un'arrampicata verticale infinita: il mondo scorre, gli ostacoli arrivano dall'alto, il giocatore sale finché non sbaglia, e il punteggio misura l'altezza raggiunta.
+Defines the game loop of an infinite vertical climb: the world scrolls, obstacles come from above, the player climbs until they make a mistake, and the score measures the height reached.
 
 ## ADDED Requirements
 
-### Requirement: Salita automatica con camera a un asse
+### Requirement: Automatic climb with single-axis camera
 
-Il giocatore SHALL salire automaticamente verso l'alto a velocità costante. La camera SHALL seguire il giocatore solo sull'asse verticale, mantenendolo sempre visibile, e MUST NOT spostarsi orizzontalmente con lui.
+The player SHALL climb automatically upwards at constant speed. The camera SHALL follow the player only on the vertical axis, keeping them always visible, and MUST NOT move horizontally with them.
 
-#### Scenario: La camera insegue in verticale
+#### Scenario: The camera chases vertically
 
-- **WHEN** il giocatore sale oltre il centro dello schermo
-- **THEN** la camera si sposta verso l'alto mantenendo il giocatore nella stessa posizione verticale relativa
+- **WHEN** the player climbs past the center of the screen
+- **THEN** the camera moves upwards keeping the player in the same relative vertical position
 
-#### Scenario: Lo spostamento orizzontale non muove il mondo
+#### Scenario: Horizontal movement does not move the world
 
-- **WHEN** il giocatore si sposta a sinistra o a destra
-- **THEN** gli ostacoli e lo sfondo restano fermi in orizzontale
+- **WHEN** the player moves left or right
+- **THEN** the obstacles and the background stay still horizontally
 
-### Requirement: Generazione e riciclo degli ostacoli
+### Requirement: Obstacle generation and recycling
 
-Il sistema SHALL generare ostacoli sopra il bordo superiore dello schermo a intervalli regolari e MUST riciclare quelli usciti sotto il bordo inferiore invece di crearne di nuovi. Il numero di ostacoli contemporaneamente attivi SHALL restare limitato e costante durante la partita.
+The system SHALL generate obstacles above the top edge of the screen at regular intervals and MUST recycle those that exit below the bottom edge instead of creating new ones. The number of simultaneously active obstacles SHALL stay limited and constant during the run.
 
-#### Scenario: Nuovo ostacolo sopra lo schermo
+#### Scenario: New obstacle above the screen
 
-- **WHEN** il mondo è scorso di una distanza pari all'intervallo di generazione
-- **THEN** compare un nuovo ostacolo sopra il bordo superiore, fuori dalla vista
+- **WHEN** the world has scrolled by a distance equal to the generation interval
+- **THEN** a new obstacle appears above the top edge, out of view
 
-#### Scenario: Riciclo sotto il bordo inferiore
+#### Scenario: Recycling below the bottom edge
 
-- **WHEN** un ostacolo esce dal bordo inferiore dello schermo
-- **THEN** torna disponibile nel pool e viene riutilizzato per una generazione successiva, senza aumentare il numero di ostacoli attivi
+- **WHEN** an obstacle exits the bottom edge of the screen
+- **THEN** it becomes available again in the pool and is reused for a later generation, without increasing the number of active obstacles
 
-### Requirement: Collisione e fine partita
+### Requirement: Collision and end of run
 
-Il contatto tra il giocatore e un ostacolo SHALL terminare la partita. Dopo la fine, il mondo SHALL fermarsi e MUST NOT continuare a generare ostacoli finché la partita non viene riavviata.
+Contact between the player and an obstacle SHALL end the run. After the end, the world SHALL stop and MUST NOT keep generating obstacles until the run is restarted.
 
-#### Scenario: Impatto contro un ostacolo
+#### Scenario: Impact against an obstacle
 
-- **WHEN** il giocatore tocca un ostacolo
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an obstacle
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Nessuna generazione dopo la fine
+#### Scenario: No generation after the end
 
-- **WHEN** la partita è terminata e l'utente non ha ancora riavviato
-- **THEN** non vengono creati né riciclati ostacoli
+- **WHEN** the run has ended and the user has not restarted yet
+- **THEN** no obstacles are created or recycled
 
-### Requirement: Punteggio per altezza
+### Requirement: Score by height
 
-Il punteggio SHALL essere proporzionale all'altezza massima raggiunta nella partita corrente e SHALL essere visibile durante il gioco. Il valore SHALL restare in memoria per la sessione e MUST NOT essere salvato in modo persistente in questa iterazione.
+The score SHALL be proportional to the maximum height reached in the current run and SHALL be visible during play. The value SHALL remain in memory for the session and MUST NOT be saved persistently in this iteration.
 
-#### Scenario: Il punteggio cresce salendo
+#### Scenario: The score grows while climbing
 
-- **WHEN** il giocatore sale e supera la propria altezza massima precedente
-- **THEN** il punteggio mostrato aumenta in modo monotono
+- **WHEN** the player climbs and exceeds their previous maximum height
+- **THEN** the displayed score increases monotonically
 
-#### Scenario: Riavvio azzera il punteggio
+#### Scenario: Restart resets the score
 
-- **WHEN** l'utente riavvia la partita dopo una sconfitta
-- **THEN** il punteggio riparte da zero e l'altezza massima viene reimpostata
+- **WHEN** the user restarts the run after a defeat
+- **THEN** the score starts again from zero and the maximum height is reset
 
-### Requirement: Ciclo partita con riavvio immediato
+### Requirement: Run cycle with immediate restart
 
-Il sistema SHALL mostrare lo stato di partita conclusa con il punteggio ottenuto e SHALL permettere di ricominciare con una singola azione, senza ricaricare la pagina.
+The system SHALL show the run-over state with the score obtained and SHALL allow restarting with a single action, without reloading the page.
 
-#### Scenario: Ripartenza dopo la sconfitta
+#### Scenario: Restart after the defeat
 
-- **WHEN** l'utente tocca lo schermo o preme un tasto sulla schermata di fine partita
-- **THEN** una nuova partita inizia immediatamente dallo stato iniziale
+- **WHEN** the user touches the screen or presses a key on the end-of-run screen
+- **THEN** a new run starts immediately from the initial state

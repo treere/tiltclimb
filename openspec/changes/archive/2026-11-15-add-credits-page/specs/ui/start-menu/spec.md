@@ -2,21 +2,21 @@
 
 ## MODIFIED Requirements
 
-### Requirement: Menu come primo stato dell'applicazione
+### Requirement: Menu as the first state of the application
 
-All'apertura della pagina il sistema SHALL mostrare il menu, con il titolo del gioco, la lettura della calibrazione e i comandi **Calibra**, **Inizia gioco** e **CREDITI**. La partita MUST NOT iniziare senza un comando esplicito dell'utente. Il menu MUST essere utilizzabile sia da telefono sia da desktop, e i tre comandi MUST restare visibili senza sovrapporsi fra loro né all'illustrazione dell'astronave.
+On page open the system SHALL show the menu, with the game title, the calibration reading and the commands **Calibrate**, **Start game** and **CREDITS**. The run MUST NOT start without an explicit command from the user. The menu MUST be usable both from a phone and from a desktop, and the three commands MUST stay visible without overlapping each other or the spaceship illustration.
 
-#### Scenario: Apertura della pagina
+#### Scenario: Page open
 
-- **WHEN** l'utente apre il gioco su telefono o desktop
-- **THEN** vede il menu con tutti e tre i comandi e la partita non è iniziata
+- **WHEN** the user opens the game on a phone or desktop
+- **THEN** they see the menu with all three commands and the run has not started
 
-#### Scenario: Nessun avvio implicito
+#### Scenario: No implicit start
 
-- **WHEN** l'utente tocca lo schermo in un punto qualsiasi fuori dai comandi
-- **THEN** la partita non parte
+- **WHEN** the user touches the screen anywhere outside the commands
+- **THEN** the run does not start
 
-#### Scenario: Tre comandi visibili
+#### Scenario: Three visible commands
 
-- **WHEN** il menu è mostrato su uno schermo piccolo
-- **THEN** Calibra, Inizia gioco e CREDITI sono tutti visibili e distinti
+- **WHEN** the menu is shown on a small screen
+- **THEN** Calibrate, Start game and CREDITS are all visible and distinct

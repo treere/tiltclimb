@@ -2,96 +2,96 @@
 
 ## Purpose
 
-Definisce lo scontro: l'eroe spara dal tasto in basso, navi nemiche scendono zigzagando e sparano verso il basso, e le regole dicono cosa si colpisce e cosa no — comprese le immunità degli asteroidi.
+Defines the encounter: the hero fires from the bottom button, enemy ships descend in zigzags and fire downwards, and the rules say what is hit and what is not — including the asteroids' immunities.
 
 ## ADDED Requirements
 
-### Requirement: Fuoco dell'eroe a colpo singolo
+### Requirement: Single-shot hero fire
 
-L'eroe SHALL poter sparare premendo un pulsante posto nella parte bassa dello schermo, e ogni tocco SHALL produrre esattamente un colpo, senza raffica automatica. Il colpo SHALL partire dall'astronave e viaggiare verso l'alto. Il pulsante SHALL restare raggiungibile dal pollice senza coprire l'astronave né gli asteroidi in arrivo.
+The hero SHALL be able to fire by pressing a button placed in the lower part of the screen, and every touch SHALL produce exactly one shot, without automatic burst. The shot SHALL leave the spaceship and travel upwards. The button SHALL stay reachable by the thumb without covering the spaceship or the incoming asteroids.
 
-#### Scenario: Un tocco, un colpo
+#### Scenario: One touch, one shot
 
-- **WHEN** l'utente tocca il pulsante di fuoco una volta
-- **THEN** parte un solo colpo, indipendentemente da quanto a lungo tiene premuto
+- **WHEN** the user touches the fire button once
+- **THEN** a single shot leaves, regardless of how long they hold it down
 
-#### Scenario: Tocchi ripetuti
+#### Scenario: Repeated touches
 
-- **WHEN** l'utente tocca il pulsante più volte in rapida successione
-- **THEN** parte un colpo per ogni tocco riconosciuto, senza raffica automatica
+- **WHEN** the user touches the button several times in quick succession
+- **THEN** one shot leaves for every recognized touch, without automatic burst
 
-#### Scenario: Il colpo viaggia verso l'alto
+#### Scenario: The shot travels upwards
 
-- **WHEN** un colpo viene sparato
-- **THEN** si muove verso l'alto e scompare quando esce dallo schermo
+- **WHEN** a shot is fired
+- **THEN** it moves upwards and disappears when it exits the screen
 
-### Requirement: Navi nemiche con traiettoria ondulata
+### Requirement: Enemy ships with a wavy trajectory
 
-Le navi nemiche SHALL scendere dall'alto verso il basso con una traiettoria ondulata orizzontale, restando entro i bordi del mondo. Il numero di navi nemiche contemporaneamente presenti SHALL essere limitato, e le navi SHALL comparire a intervalli regolari.
+Enemy ships SHALL descend from top to bottom with a horizontal wavy trajectory, staying within the world edges. The number of simultaneously present enemy ships SHALL be limited, and the ships SHALL appear at regular intervals.
 
-#### Scenario: Discesa ondulata
+#### Scenario: Wavy descent
 
-- **WHEN** una nave nemica è sullo schermo
-- **THEN** la sua posizione orizzontale cambia in modo continuo e oscillante mentre scende
+- **WHEN** an enemy ship is on screen
+- **THEN** its horizontal position changes continuously and oscillating while it descends
 
-#### Scenario: Limite di navi presenti
+#### Scenario: Limit of present ships
 
-- **WHEN** il limite di navi contemporanee è già raggiunto
-- **THEN** non ne compaiono altre finché una non esce dallo schermo o viene abbattuta
+- **WHEN** the limit of simultaneous ships is already reached
+- **THEN** no others appear until one exits the screen or is destroyed
 
-### Requirement: Fuoco nemico verso il basso
+### Requirement: Enemy fire towards the bottom
 
-Ogni nave nemica SHALL sparare proiettili che viaggiano verso il basso, a intervalli regolari e a velocità inferiore a quella dei colpi dell'eroe, così da essere schivabili. I proiettili nemici SHALL sparire quando escono dallo schermo.
+Every enemy ship SHALL fire projectiles that travel downwards, at regular intervals and at a speed lower than the hero's shots, so that they are dodgeable. Enemy projectiles SHALL disappear when they exit the screen.
 
-#### Scenario: Raffica nemica
+#### Scenario: Enemy burst
 
-- **WHEN** una nave nemica resta sullo schermo per il tempo previsto
-- **THEN** spara un proiettile verso il basso e continua a farlo a intervalli regolari
+- **WHEN** an enemy ship stays on screen for the expected time
+- **THEN** it fires a projectile downwards and keeps doing so at regular intervals
 
-#### Scenario: Proiettile che esce dallo schermo
+#### Scenario: Projectile exiting the screen
 
-- **WHEN** un proiettile nemico supera il bordo inferiore
-- **THEN** viene rimosso dal gioco
+- **WHEN** an enemy projectile passes the bottom edge
+- **THEN** it is removed from the game
 
-### Requirement: Regole di collisione del combattimento
+### Requirement: Combat collision rules
 
-Un colpo dell'eroe che colpisce una nave nemica SHALL distruggerla, perché le navi nemiche resistono a un solo colpo. Il contatto fra l'eroe e una nave nemica o un proiettile nemico SHALL terminare la partita, come il contatto con un asteroide. I colpi dell'eroe MUST attraversare gli asteroidi senza consumarsi, e le navi nemiche MUST attraversare gli asteroidi senza subire conseguenze.
+A hero shot that hits an enemy ship SHALL destroy it, because enemy ships withstand a single shot. Contact between the hero and an enemy ship or an enemy projectile SHALL end the run, like contact with an asteroid. Hero shots MUST pass through asteroids without being consumed, and enemy ships MUST pass through asteroids without suffering consequences.
 
-#### Scenario: Nave nemica abbattuta
+#### Scenario: Enemy ship destroyed
 
-- **WHEN** un colpo dell'eroe raggiunge una nave nemica
-- **THEN** la nave scompare e il colpo viene consumato
+- **WHEN** a hero shot reaches an enemy ship
+- **THEN** the ship disappears and the shot is consumed
 
-#### Scenario: Eroe colpito da un proiettile
+#### Scenario: Hero hit by a projectile
 
-- **WHEN** un proiettile nemico tocca l'eroe
-- **THEN** la partita termina
+- **WHEN** an enemy projectile touches the hero
+- **THEN** the run ends
 
-#### Scenario: Eroe colpito da una nave
+#### Scenario: Hero hit by a ship
 
-- **WHEN** una nave nemica tocca l'eroe
-- **THEN** la partita termina
+- **WHEN** an enemy ship touches the hero
+- **THEN** the run ends
 
-#### Scenario: Asteroide immune ai colpi
+#### Scenario: Asteroid immune to shots
 
-- **WHEN** un colpo dell'eroe attraversa un asteroide
-- **THEN** il colpo continua la sua corsa e l'asteroide resta intatto
+- **WHEN** a hero shot passes through an asteroid
+- **THEN** the shot continues its course and the asteroid stays intact
 
-#### Scenario: Nave nemica sopra un asteroide
+#### Scenario: Enemy ship over an asteroid
 
-- **WHEN** una nave nemica attraversa la posizione di un asteroide
-- **THEN** nessuna delle due viene distrutta e la nave prosegue la sua traiettoria
+- **WHEN** an enemy ship crosses the position of an asteroid
+- **THEN** neither of the two is destroyed and the ship continues its trajectory
 
-### Requirement: Punteggio per abbattimento
+### Requirement: Score per kill
 
-Ogni nave nemica abbattuta SHALL assegnare punti al punteggio della partita corrente, e il numero di abbattimenti SHALL essere riportato nel riepilogo mostrato dal menu a fine partita.
+Every enemy ship destroyed SHALL award points to the score of the current run, and the number of kills SHALL be reported in the summary shown by the menu at the end of the run.
 
-#### Scenario: Punti per un abbattimento
+#### Scenario: Points for a kill
 
-- **WHEN** l'eroe abbatte una nave nemica
-- **THEN** il punteggio aumenta del valore previsto per un abbattimento
+- **WHEN** the hero destroys an enemy ship
+- **THEN** the score increases by the value expected for a kill
 
-#### Scenario: Riepilogo con gli abbattimenti
+#### Scenario: Summary with the kills
 
-- **WHEN** la partita finisce
-- **THEN** il menu mostra il punteggio ottenuto e il numero di navi abbattute
+- **WHEN** the run ends
+- **THEN** the menu shows the score obtained and the number of ships destroyed

@@ -1,96 +1,96 @@
 # gameplay/endless-climb Specification
 
 ## Purpose
-Definisce il ciclo di gioco di un'arrampicata verticale infinita: il mondo scorre, gli ostacoli arrivano dall'alto, il giocatore sale finché non sbaglia, e il punteggio misura l'altezza raggiunta.
+Defines the game loop of an endless vertical climb: the world scrolls, obstacles come from above, the player climbs until they make a mistake, and the score measures the height reached.
 
 ## Requirements
 
-### Requirement: Salita automatica con camera a un asse
+### Requirement: Automatic climb with a single-axis camera
 
-Il giocatore SHALL salire automaticamente verso l'alto a velocità costante. La camera SHALL seguire il giocatore solo sull'asse verticale, mantenendolo sempre visibile, e MUST NOT spostarsi orizzontalmente con lui.
+The player SHALL climb upward automatically at a constant speed. The camera SHALL follow the player on the vertical axis only, always keeping them visible, and MUST NOT move horizontally with them.
 
-#### Scenario: La camera insegue in verticale
+#### Scenario: The camera chases vertically
 
-- **WHEN** il giocatore sale oltre il centro dello schermo
-- **THEN** la camera si sposta verso l'alto mantenendo il giocatore nella stessa posizione verticale relativa
+- **WHEN** the player climbs past the center of the screen
+- **THEN** the camera moves upward, keeping the player in the same relative vertical position
 
-#### Scenario: Lo spostamento orizzontale non muove il mondo
+#### Scenario: Horizontal movement does not move the world
 
-- **WHEN** il giocatore si sposta a sinistra o a destra
-- **THEN** gli ostacoli e lo sfondo restano fermi in orizzontale
+- **WHEN** the player moves left or right
+- **THEN** obstacles and background stay still horizontally
 
-### Requirement: Generazione e riciclo degli ostacoli
+### Requirement: Obstacle generation and recycling
 
-Il sistema SHALL generare ostacoli sopra il bordo superiore dello schermo a intervalli regolari e MUST riciclare quelli usciti sotto il bordo inferiore invece di crearne di nuovi. Il numero di ostacoli contemporaneamente attivi SHALL restare limitato e costante durante la partita.
+The system SHALL generate obstacles above the top edge of the screen at regular intervals and MUST recycle those that have left through the bottom edge instead of creating new ones. The number of simultaneously active obstacles SHALL stay bounded and constant during the run.
 
-#### Scenario: Nuovo ostacolo sopra lo schermo
+#### Scenario: New obstacle above the screen
 
-- **WHEN** il mondo è scorso di una distanza pari all'intervallo di generazione
-- **THEN** compare un nuovo ostacolo sopra il bordo superiore, fuori dalla vista
+- **WHEN** the world has scrolled by a distance equal to the generation interval
+- **THEN** a new obstacle appears above the top edge, out of sight
 
-#### Scenario: Riciclo sotto il bordo inferiore
+#### Scenario: Recycling below the bottom edge
 
-- **WHEN** un ostacolo esce dal bordo inferiore dello schermo
-- **THEN** torna disponibile nel pool e viene riutilizzato per una generazione successiva, senza aumentare il numero di ostacoli attivi
+- **WHEN** an obstacle leaves through the bottom edge of the screen
+- **THEN** it becomes available again in the pool and is reused for a later generation, without increasing the number of active obstacles
 
-### Requirement: Collisione e fine partita
+### Requirement: Collision and end of run
 
-Il contatto tra il giocatore e un ostacolo SHALL terminare la partita. Dopo la fine, il mondo SHALL fermarsi e MUST NOT continuare a generare ostacoli, navi nemiche o proiettili finché la partita non viene riavviata.
+Contact between the player and an obstacle SHALL end the run. After the end, the world SHALL stop and MUST NOT keep generating obstacles, enemy ships or projectiles until the run is restarted.
 
-#### Scenario: Impatto contro un ostacolo
+#### Scenario: Impact against an obstacle
 
-- **WHEN** il giocatore tocca un ostacolo
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an obstacle
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Impatto contro un proiettile nemico
+#### Scenario: Impact against an enemy projectile
 
-- **WHEN** il giocatore tocca un proiettile nemico
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an enemy projectile
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Impatto contro una nave nemica
+#### Scenario: Impact against an enemy ship
 
-- **WHEN** il giocatore tocca una nave nemica
-- **THEN** la partita termina e lo scorrimento si interrompe
+- **WHEN** the player touches an enemy ship
+- **THEN** the run ends and the scrolling stops
 
-#### Scenario: Nessuna generazione dopo la fine
+#### Scenario: No generation after the end
 
-- **WHEN** la partita è terminata e l'utente non ha ancora riavviato
-- **THEN** non vengono creati né riciclati ostacoli, navi nemiche o proiettili
+- **WHEN** the run is over and the user has not restarted yet
+- **THEN** no obstacles, enemy ships or projectiles are created or recycled
 
-### Requirement: Punteggio per altezza
+### Requirement: Score for height
 
-Il punteggio SHALL essere la somma dei punti per l'altezza massima raggiunta nella partita corrente e dei punti guadagnati abbattendo navi nemiche, e SHALL essere visibile durante il gioco. Il valore SHALL restare in memoria per la sessione e MUST NOT essere salvato in modo persistente in questa iterazione.
+The score SHALL be the sum of the points for the maximum height reached in the current run and the points earned by shooting down enemy ships, and SHALL be visible during play. The value SHALL stay in memory for the session and MUST NOT be persisted in this iteration.
 
-#### Scenario: Il punteggio cresce salendo
+#### Scenario: The score grows by climbing
 
-- **WHEN** il giocatore sale e supera la propria altezza massima precedente
-- **THEN** il punteggio mostrato aumenta in modo monotono
+- **WHEN** the player climbs and passes their previous maximum height
+- **THEN** the displayed score increases monotonically
 
-#### Scenario: Il punteggio cresce abbattendo
+#### Scenario: The score grows by shooting down
 
-- **WHEN** il giocatore abbatte una nave nemica
-- **THEN** il punteggio mostrato aumenta dello stesso valore previsto dalla spec del combattimento
+- **WHEN** the player shoots down an enemy ship
+- **THEN** the displayed score increases by the same value expected by the combat spec
 
-#### Scenario: Riavvio azzera il punteggio
+#### Scenario: Restart resets the score
 
-- **WHEN** l'utente riavvia la partita dopo una sconfitta
-- **THEN** il punteggio riparte da zero, l'altezza massima viene reimpostata e gli abbattimenti tornano a zero
+- **WHEN** the user restarts the run after a defeat
+- **THEN** the score starts again from zero, the maximum height is reset and the shoot-downs go back to zero
 
-### Requirement: Ciclo partita con ritorno al menu
+### Requirement: Run loop with return to the menu
 
-Alla fine di una partita il sistema SHALL tornare al menu entro un tempo percepito come immediato, senza ricaricare la pagina, e MUST NOT far ripartire automaticamente il gioco. Nel menu SHALL essere visibile l'esito della partita appena conclusa.
+At the end of a run the system SHALL return to the menu within a time perceived as immediate, without reloading the page, and MUST NOT restart the game automatically. The outcome of the run just ended SHALL be visible in the menu.
 
-#### Scenario: Ritorno al menu dopo la collisione
+#### Scenario: Return to the menu after the collision
 
-- **WHEN** il giocatore tocca un ostacolo
-- **THEN** la partita si chiude e la schermata diventa il menu, con l'esito appena ottenuto
+- **WHEN** the player touches an obstacle
+- **THEN** the run closes and the screen becomes the menu, with the outcome just achieved
 
-#### Scenario: Nessuna ripartenza automatica
+#### Scenario: No automatic restart
 
-- **WHEN** il gioco torna al menu dopo una sconfitta
-- **THEN** nessuna nuova partita parte finché l'utente non preme **Inizia gioco**
+- **WHEN** the game returns to the menu after a defeat
+- **THEN** no new run starts until the user presses **Start game**
 
-#### Scenario: Nuova partita pulita
+#### Scenario: Clean new run
 
-- **WHEN** l'utente preme **Inizia gioco** dopo una sconfitta
-- **THEN** la scena riparte dallo stato iniziale, con punteggio a zero e ostacoli azzerati
+- **WHEN** the user presses **Start game** after a defeat
+- **THEN** the scene restarts from the initial state, with the score at zero and the obstacles reset

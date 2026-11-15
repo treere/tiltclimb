@@ -50,7 +50,7 @@ export type Archetype = {
 export const ARCHETYPES: Record<EnemyKind, Archetype> = {
   patrol: {
     kind: 'patrol',
-    label: 'pattuglia',
+    label: 'patrol',
     spriteFile: 'enemyRed1.png',
     points: 25,
     unlockHeight: 0,
@@ -62,7 +62,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
   },
   diver: {
     kind: 'diver',
-    label: 'picchiatore',
+    label: 'diver',
     spriteFile: 'enemyBlue4.png',
     points: 35,
     unlockHeight: 2500,
@@ -74,7 +74,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
   },
   hunter: {
     kind: 'hunter',
-    label: 'cacciatore',
+    label: 'hunter',
     spriteFile: 'enemyGreen2.png',
     points: 45,
     unlockHeight: 6000,
@@ -86,7 +86,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
   },
   ufo: {
     kind: 'ufo',
-    label: 'torretta',
+    label: 'turret',
     spriteFile: 'ufoYellow.png',
     points: 60,
     unlockHeight: 10000,

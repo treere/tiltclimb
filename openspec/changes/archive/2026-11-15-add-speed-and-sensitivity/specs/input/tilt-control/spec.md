@@ -2,47 +2,47 @@
 
 ## MODIFIED Requirements
 
-### Requirement: Sterzata proporzionale al tilt
+### Requirement: Steering proportional to the tilt
 
-Con i sensori attivi, il sistema SHALL tradurre l'inclinazione sinistra/destra del dispositivo in una velocità orizzontale del giocatore, proporzionale all'angolo inclinato e con segno corrispondente alla direzione. L'inclinazione a destra SHALL muovere il giocatore a destra e quella a sinistra a sinistra, su schermo in orientamento verticale. La proporzionalità MUST usare l'inclinazione di fondo scala scelta come sensibilità, che di default è più reattiva di quella delle versioni precedenti.
+With the sensors active, the system SHALL translate the left/right tilt of the device into a horizontal speed of the player, proportional to the angle tilted and with a sign matching the direction. Tilting right SHALL move the player to the right and tilting left to the left, on a screen in vertical orientation. The proportionality MUST use the full-scale tilt chosen as sensitivity, which by default is more responsive than the one of previous versions.
 
-#### Scenario: Inclinazione verso destra
+#### Scenario: Tilting to the right
 
-- **WHEN** il telefono è inclinato verso destra oltre la dead zone
-- **THEN** il giocatore si muove verso destra, tanto più veloce quanto maggiore è l'angolo
+- **WHEN** the phone is tilted to the right beyond the dead zone
+- **THEN** the player moves to the right, the faster the greater the angle
 
-#### Scenario: Telefono in piano
+#### Scenario: Phone flat
 
-- **WHEN** il telefono è tenuto nell'inclinazione neutra
-- **THEN** il giocatore non si muove in orizzontale da solo
+- **WHEN** the phone is held at the neutral tilt
+- **THEN** the player does not move horizontally on its own
 
-#### Scenario: Default più reattivo
+#### Scenario: More responsive default
 
-- **WHEN** il gioco viene avviato senza impostazioni salvate
-- **THEN** la nave raggiunge il fondo scala a un'inclinazione inferiore a quella delle versioni precedenti
+- **WHEN** the game is started without saved settings
+- **THEN** the ship reaches full scale at a lower tilt than in previous versions
 
 ## ADDED Requirements
 
-### Requirement: Sensibilità regolabile e persistente
+### Requirement: Adjustable and persistent sensitivity
 
-La sensibilità SHALL essere espressa come inclinazione necessaria a raggiungere il fondo scala e SHALL essere selezionabile fra cinque livelli, da 22° (morbido) a 8° (nervoso), con 13° come default. Il valore scelto MUST restare memorizzato sul dispositivo, MUST essere applicato dalla partita successiva e MUST NOT invalidare la calibrazione già effettuata.
+Sensitivity SHALL be expressed as the tilt needed to reach full scale and SHALL be selectable among five levels, from 22° (soft) to 8° (twitchy), with 13° as default. The chosen value MUST stay stored on the device, MUST be applied from the next run and MUST NOT invalidate the calibration already performed.
 
-#### Scenario: Livello nervoso
+#### Scenario: Twitchy level
 
-- **WHEN** si seleziona il livello più sensibile
-- **THEN** basta un'inclinazione minore per spostare la nave a fondo scala
+- **WHEN** the most sensitive level is selected
+- **THEN** a smaller tilt is enough to move the ship at full scale
 
-#### Scenario: Livello morbido
+#### Scenario: Soft level
 
-- **WHEN** si seleziona il livello meno sensibile
-- **THEN** serve un'inclinazione maggiore, utile per chi ha una mano poco ferma
+- **WHEN** the least sensitive level is selected
+- **THEN** a greater tilt is needed, useful for those with an unsteady hand
 
-#### Scenario: Riapertura del gioco
+#### Scenario: Reopening the game
 
-- **WHEN** il gioco viene riaperto dopo aver cambiato sensibilità
-- **THEN** la sensibilità salvata è quella attiva
+- **WHEN** the game is reopened after changing sensitivity
+- **THEN** the saved sensitivity is the active one
 
-#### Scenario: Cambio prima di una partita
+#### Scenario: Change before a run
 
-- **WHEN** la sensibilità cambia dal menu
-- **THEN** la nuova sensibilità vale da subito e lo zero calibrato resta valido
+- **WHEN** the sensitivity changes from the menu
+- **THEN** the new sensitivity applies right away and the calibrated zero stays valid

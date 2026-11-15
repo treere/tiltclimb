@@ -1,29 +1,29 @@
 # Tasks
 
-## 1. Schermata a tema
+## 1. Themed screen
 
-- [x] 1.1 Creare `src/ui/loading-screen.ts` con `ThemedLoader extends ex.Loader` e un `onDraw(ctx)` che disegna sfondo, campo stellato e i due chevron che si inseguono; verifica: `npm run check` verde e nessuna dipendenza da asset nel file
-- [x] 1.4 Usare gli sprite reali del gioco incorporati con `?inline` (data URL nel bundle) al posto dei chevron, con fallback a chevron finché l'immagine non è decodificata; verifica: a schermo si vedono la nave azzurra e il nemico arancione, separati
-- [x] 1.2 Aggiungere barra di avanzamento e percentuale legate a `this.progress`; verifica: la percentuale cresce durante il caricamento e arriva a 100 solo alla fine
-- [x] 1.3 Comporre il layout a frazioni dell'altezza utile con barra al massimo al 70% della larghezza; verifica: in verticale e in orizzontale nulla esce dallo schermo
+- [x] 1.1 Create `src/ui/loading-screen.ts` with `ThemedLoader extends ex.Loader` and an `onDraw(ctx)` that draws background, starfield and the two chevrons chasing each other; check: `npm run check` green and no dependency on assets in the file
+- [x] 1.4 Use the game's real sprites embedded with `?inline` (data URL in the bundle) instead of the chevrons, with a chevron fallback until the image is decoded; check: on screen the light-blue ship and the orange enemy are visible, separated
+- [x] 1.2 Add a progress bar and percentage tied to `this.progress`; check: the percentage grows during loading and reaches 100 only at the end
+- [x] 1.3 Compose the layout with fractions of the usable height and a bar at most 70% of the width; check: in portrait and landscape nothing goes off screen
 
-## 2. Tempi e uscita
+## 2. Timing and exit
 
-- [x] 2.1 Implementare il tempo minimo di 700 ms con `onBeforeLoad` e una `show()` che attende progresso, tempo minimo e dissolvenza di 250 ms; verifica: con gli asset in cache la schermata resta visibile almeno 700 ms
-- [x] 2.2 Dissolvenza in uscita realizzata come sipario del menu (il loader non può sfumare sopra il gioco, perché l'engine smette di disegnarlo): `ScreenElement` nero che passa da opacità 1 a 0 in 320 ms; verifica: nessun frame nero intermedio fra caricamento e menu
-- [x] 2.3 Rispettare `prefers-reduced-motion`: navi e stelle fermi, barra e percentuale attive; verifica: con l'emulazione attiva la schermata resta leggibile e statica
+- [x] 2.1 Implement the 700 ms minimum time with `onBeforeLoad` and a `show()` that waits for progress, minimum time and a 250 ms fade; check: with the assets in cache the screen stays visible for at least 700 ms
+- [x] 2.2 Exit fade implemented as a menu curtain (the loader cannot fade over the game, because the engine stops drawing it): black `ScreenElement` going from opacity 1 to 0 in 320 ms; check: no intermediate black frame between loading and menu
+- [x] 2.3 Respect `prefers-reduced-motion`: ships and stars still, bar and percentage active; check: with the emulation active the screen stays legible and static
 
-## 3. Integrazione
+## 3. Integration
 
-- [x] 3.1 Sostituire il loader predefinito in `src/main.ts` con `ThemedLoader` e attendere `show()` prima di entrare nel menu; verifica: all'avvio si vede la schermata a tema e solo dopo il menu
-- [x] 3.2 Verificare che il caricamento reale (immagini, audio, frame) mostri progresso coerente e nessun errore in console; verifica: nessun 404 e barra che arriva al 100%
+- [x] 3.1 Replace the default loader in `src/main.ts` with `ThemedLoader` and await `show()` before entering the menu; check: on startup the themed screen is seen and only then the menu
+- [x] 3.2 Check that the real loading (images, audio, frames) shows consistent progress and no console errors; check: no 404 and a bar that reaches 100%
 
-## 4. Documentazione e verifica
+## 4. Documentation and check
 
-- [x] 4.1 Aggiornare `README.md` con la schermata di caricamento ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
-- [x] 4.2 Prova su telefono via tunnel, con cache svuotata per rivedere il caricamento lento; verifica: schermata leggibile, navi in movimento, uscita in dissolvenza
-- [x] 4.3 Giudizio estetico: le due navi si leggono come un inseguimento e la schermata non sembra più "un errore"; verifica: giudizio a occhio su schermo piccolo
+- [x] 4.1 Update `README.md` with the loading screen and run `npm run check`; check: green command and consistent documentation
+- [x] 4.2 Test on a phone via tunnel, with cache cleared to see the slow loading again; check: legible screen, ships moving, fade-out exit
+- [x] 4.3 Aesthetic judgment: the two ships read as a chase and the screen no longer looks like "an error"; check: visual judgment on a small screen
 
 ## Workflow follow-up
 
-- Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec
+- Archive the change with `openspec-archive-change` after the check, syncing the spec deltas

@@ -2,45 +2,45 @@
 
 ## REMOVED Requirements
 
-### Requirement: Calibrazione dello zero al primo tocco
+### Requirement: Zero calibration on the first touch
 
-**Reason**: la calibrazione non è più implicita all'avvio della partita: ora è un comando esplicito nel menu, con lettura visibile e conferma, perché la calibrazione silenziosa nascondeva i problemi di assetto del telefono.
+**Reason**: calibration is no longer implicit at the start of the run: it is now an explicit command in the menu, with a visible reading and confirmation, because the silent calibration hid the phone's setup problems.
 
-**Migration**: chi giocava con lo zero automatico ora preme **Calibra** nel menu; senza quel tocco lo zero resta l'inclinazione all'apertura del menu, quindi il comportamento di partenza non peggiora.
+**Migration**: those who played with the automatic zero now press **Calibrate** in the menu; without that touch the zero stays the tilt at menu open, so the starting behavior does not get worse.
 
 ## MODIFIED Requirements
 
-### Requirement: Richiesta permessi dentro un gesto utente
+### Requirement: Permission request inside a user gesture
 
-Su piattaforme che richiedono un consenso esplicito per i sensori, il sistema SHALL chiedere il permesso solo in risposta a un'azione dell'utente compiuta nel menu, e SHALL gestire l'esito negativo senza interrompere il gioco né bloccare il menu.
+On platforms that require explicit consent for the sensors, the system SHALL ask for the permission only in response to a user action performed in the menu, and SHALL handle the negative outcome without interrupting the game or blocking the menu.
 
-#### Scenario: Primo tocco su Android o iOS
+#### Scenario: First touch on Android or iOS
 
-- **WHEN** l'utente preme **Calibra** o **Inizia gioco** per la prima volta
-- **THEN** la richiesta di permesso avviene dentro quel tocco e l'esito viene registrato prima di proseguire
+- **WHEN** the user presses **Calibrate** or **Start game** for the first time
+- **THEN** the permission request happens inside that touch and the outcome is recorded before continuing
 
-#### Scenario: Permesso negato senza bloccare il menu
+#### Scenario: Permission denied without blocking the menu
 
-- **WHEN** l'utente nega il permesso richiesto dal menu
-- **THEN** il menu mostra l'avviso di sensore non disponibile e resta utilizzabile
+- **WHEN** the user denies the permission requested by the menu
+- **THEN** the menu shows the sensor unavailable warning and stays usable
 
 ## ADDED Requirements
 
-### Requirement: Calibrazione esplicita comandata dal menu
+### Requirement: Explicit calibration commanded from the menu
 
-Il sistema SHALL usare come inclinazione neutra quella fissata dall'ultima calibrazione esplicita, e MUST sottrarre quel valore a tutte le letture successive. In assenza di calibrazione esplicita SHALL usare l'inclinazione rilevata all'apertura del menu. L'avvio di una partita MUST NOT ricalibrare in modo implicito.
+The system SHALL use as neutral tilt the one fixed by the last explicit calibration, and MUST subtract that value from all subsequent readings. In the absence of explicit calibration it SHALL use the tilt detected at menu open. Starting a run MUST NOT recalibrate implicitly.
 
-#### Scenario: Zero fissato dalla calibrazione
+#### Scenario: Zero fixed by the calibration
 
-- **WHEN** l'utente preme **Calibra** con il telefono inclinato di 12 gradi
-- **THEN** quella posizione vale zero per la partita successiva e il giocatore non deriva
+- **WHEN** the user presses **Calibrate** with the phone tilted by 12 degrees
+- **THEN** that position counts as zero for the next run and the player does not drift
 
-#### Scenario: Calibrazione mantenuta fra partite diverse
+#### Scenario: Calibration kept between different runs
 
-- **WHEN** l'utente gioca, muore e riparte senza premere **Calibra**
-- **THEN** lo zero resta quello dell'ultima calibrazione esplicita
+- **WHEN** the user plays, dies and starts again without pressing **Calibrate**
+- **THEN** the zero stays the one of the last explicit calibration
 
-#### Scenario: Zero iniziale senza calibrazione
+#### Scenario: Initial zero without calibration
 
-- **WHEN** l'utente apre il menu e avvia subito la partita senza calibrare
-- **THEN** lo zero è l'inclinazione con cui ha aperto il menu
+- **WHEN** the user opens the menu and starts the run immediately without calibrating
+- **THEN** the zero is the tilt with which they opened the menu

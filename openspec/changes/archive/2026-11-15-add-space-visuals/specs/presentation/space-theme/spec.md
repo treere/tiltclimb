@@ -2,113 +2,113 @@
 
 ## Purpose
 
-Definisce l'aspetto del gioco: la storia raccontata sullo schermo è un'astronave che si fa strada in un campo di asteroidi, e ogni superficie visibile (gioco, menu, sfondo) deve raccontarla coerentemente, con asset di provenienza e licenza note.
+Defines the look of the game: the story told on screen is a spaceship making its way through an asteroid field, and every visible surface (game, menu, background) must tell it consistently, with assets of known provenance and license.
 
 ## ADDED Requirements
 
-### Requirement: Il giocatore è un'astronave con scia animata
+### Requirement: The player is a spaceship with an animated trail
 
-Il giocatore SHALL essere rappresentato da uno sprite di astronave orientato verso l'alto, con una scia ai motori animata e riprodotta in continuazione mentre la partita è in corso. La scia MUST fermarsi quando la partita termina.
+The player SHALL be represented by a spaceship sprite facing upwards, with an animated engine trail played continuously while the run is in progress. The trail MUST stop when the run ends.
 
-#### Scenario: Astronave in partita
+#### Scenario: Spaceship in the run
 
-- **WHEN** la partita è in corso
-- **THEN** si vede l'astronave orientata verso l'alto con la scia animata sotto la fusoliera
+- **WHEN** the run is in progress
+- **THEN** the spaceship facing upwards is seen with the animated trail below the fuselage
 
-#### Scenario: Scia ferma a fine partita
+#### Scenario: Trail stopped at the end of the run
 
-- **WHEN** la partita termina
-- **THEN** la scia non continua ad animarsi
+- **WHEN** the run ends
+- **THEN** the trail does not keep animating
 
-### Requirement: Gli ostacoli sono asteroidi
+### Requirement: The obstacles are asteroids
 
-Ogni ostacolo SHALL essere rappresentato da uno sprite di asteroide e MUST avere orientamento iniziale casuale, così che due ostacoli vicini non sembrino lo stesso oggetto. Gli asteroidi SHALL ruotare lentamente mentre scorrono.
+Every obstacle SHALL be represented by an asteroid sprite and MUST have a random initial orientation, so that two nearby obstacles do not look like the same object. The asteroids SHALL rotate slowly while they scroll.
 
-#### Scenario: Due asteroidi vicini
+#### Scenario: Two nearby asteroids
 
-- **WHEN** due ostacoli entrano nel campo visivo
-- **THEN** appaiono con sagome o orientamenti distinguibili fra loro
+- **WHEN** two obstacles enter the field of view
+- **THEN** they appear with silhouettes or orientations distinguishable from each other
 
-#### Scenario: Rotazione durante lo scorrimento
+#### Scenario: Rotation during the scrolling
 
-- **WHEN** un asteroide attraversa lo schermo
-- **THEN** la sua rotazione cambia nel tempo invece di restare fissa
+- **WHEN** an asteroid crosses the screen
+- **THEN** its rotation changes over time instead of staying fixed
 
-### Requirement: Sfondo stellato che scorre
+### Requirement: Scrolling starfield
 
-Lo sfondo SHALL essere un campo stellato che scorre verso il basso mentre il giocatore sale, con almeno due strati a velocità diverse per dare profondità. Lo sfondo MUST coprire sempre tutta l'area visibile, senza bordi vuoti o cuciture percepibili durante lo scorrimento.
+The background SHALL be a starfield that scrolls downwards while the player climbs, with at least two layers at different speeds to give depth. The background MUST always cover the whole visible area, without empty edges or perceptible seams during scrolling.
 
-#### Scenario: Scorrimento continuo
+#### Scenario: Continuous scrolling
 
-- **WHEN** il giocatore sale per un tratto lungo
-- **THEN** lo sfondo scorre senza interruzioni e senza mostrare bande vuote o stacchi
+- **WHEN** the player climbs for a long stretch
+- **THEN** the background scrolls without interruptions and without showing empty bands or cuts
 
-#### Scenario: Profondità
+#### Scenario: Depth
 
-- **WHEN** lo sfondo scorre
-- **THEN** gli elementi più lontani si muovono più lentamente di quelli vicini
+- **WHEN** the background scrolls
+- **THEN** the farther elements move more slowly than the near ones
 
-### Requirement: Menu coerente con il tema
+### Requirement: Menu consistent with the theme
 
-La schermata di menu SHALL usare lo stesso universo visivo della partita (sfondo stellato, astronave, colori coerenti) senza perdere leggibilità dei valori di calibrazione e dei comandi. Il cambio di aspetto MUST NOT alterare il comportamento del menu definito dalla spec `ui/start-menu`.
+The menu screen SHALL use the same visual universe as the run (starfield, spaceship, coherent colors) without losing the legibility of the calibration values and of the commands. The change of look MUST NOT alter the behavior of the menu defined by the `ui/start-menu` spec.
 
-#### Scenario: Menu a tema
+#### Scenario: Themed menu
 
-- **WHEN** si apre il gioco
-- **THEN** il menu mostra uno sfondo stellato e l'astronave del giocatore, e lettura, avvisi e comandi restano leggibili
+- **WHEN** the game is opened
+- **THEN** the menu shows a starfield and the player's spaceship, and reading, warnings and commands stay legible
 
-### Requirement: Etichette dei pulsanti centrate
+### Requirement: Centered button labels
 
-Il testo di un pulsante SHALL restare centrato rispetto al proprio fondo indipendentemente dalla lunghezza dell'etichetta. Un'etichetta più lunga MUST NOT spostare il fondo né il testo fuori dal centro del pulsante.
+The text of a button SHALL stay centered relative to its own background regardless of the label length. A longer label MUST NOT move the background nor the text away from the center of the button.
 
-#### Scenario: Etichetta lunga
+#### Scenario: Long label
 
-- **WHEN** il pulsante mostra un'etichetta lunga come "Sensore non disponibile"
-- **THEN** il fondo resta nella posizione prevista e il testo resta centrato su di esso
+- **WHEN** the button shows a long label such as "Sensor unavailable"
+- **THEN** the background stays in the expected position and the text stays centered on it
 
-#### Scenario: Cambio di etichetta a runtime
+#### Scenario: Label change at runtime
 
-- **WHEN** l'etichetta di un pulsante viene sostituita mentre il menu è visibile
-- **THEN** il nuovo testo appare centrato senza salti di posizione del fondo
+- **WHEN** the label of a button is replaced while the menu is visible
+- **THEN** the new text appears centered without position jumps of the background
 
-### Requirement: Provenienza e licenza degli asset documentate
+### Requirement: Documented asset provenance and license
 
-Ogni asset grafico esterno SHALL essere accompagnato nel repository dal file di licenza originale e SHALL essere elencato con autore, licenza e provenienza in una sezione crediti del `README.md`. Asset di licenza sconosciuta o non ridistribuibile MUST NOT essere usati.
+Every external graphic asset SHALL be accompanied in the repository by the original license file and SHALL be listed with author, license and provenance in a credits section of `README.md`. Assets of unknown or non-redistributable license MUST NOT be used.
 
-#### Scenario: Nuovo asset aggiunto
+#### Scenario: New asset added
 
-- **WHEN** viene introdotto un nuovo file grafico
-- **THEN** la sua licenza è presente nel repository e il credito è nel README
+- **WHEN** a new graphic file is introduced
+- **THEN** its license is present in the repository and the credit is in the README
 
-#### Scenario: Verifica della provenienza
+#### Scenario: Provenance check
 
-- **WHEN** si controlla il repository senza rete
-- **THEN** è possibile ricostruire da dove viene ogni immagine e con quale licenza
+- **WHEN** the repository is inspected offline
+- **THEN** it is possible to reconstruct where each image comes from and under which license
 
-### Requirement: Il giocatore sta nella parte bassa dello schermo
+### Requirement: The player sits in the lower part of the screen
 
-L'astronave SHALL essere posizionata sotto il centro dello schermo, con più spazio visibile davanti a sé che dietro, così che l'utente veda il campo di asteroidi che sta per attraversare. La posizione verticale sullo schermo SHALL restare stabile per tutta la partita.
+The spaceship SHALL be positioned below the center of the screen, with more visible space ahead than behind, so that the user sees the asteroid field they are about to cross. The vertical position on screen SHALL stay stable for the whole run.
 
-#### Scenario: Posizione all'avvio della partita
+#### Scenario: Position at run start
 
-- **WHEN** la partita inizia
-- **THEN** l'astronave appare nella parte bassa dello schermo e non al centro
+- **WHEN** the run starts
+- **THEN** the spaceship appears in the lower part of the screen and not in the center
 
-#### Scenario: Posizione stabile mentre si sale
+#### Scenario: Stable position while climbing
 
-- **WHEN** l'astronave sale per un tratto lungo
-- **THEN** resta nella stessa posizione verticale sullo schermo e scorre il mondo sotto di lei
+- **WHEN** the spaceship climbs for a long stretch
+- **THEN** it stays in the same vertical position on screen and the world scrolls under it
 
-### Requirement: I pulsanti del menu sono a tema
+### Requirement: Menu buttons are themed
 
-I pulsanti SHALL usare la palette dello spazio (fondo scuro, bordo luminoso, testo chiaro) e SHALL distinguere visivamente lo stato normale da quello premuto e da quello disabilitato, mantenendo il contrasto del testo su ognuno. Il bordo MUST restare visibile sopra lo sfondo stellato.
+The buttons SHALL use the space palette (dark background, glowing border, light text) and SHALL visually distinguish the normal state from the pressed and the disabled ones, keeping the text contrast on each. The border MUST stay visible over the starfield.
 
-#### Scenario: Pulsante su sfondo stellato
+#### Scenario: Button on starfield
 
-- **WHEN** il menu mostra i pulsanti sopra il campo stellato
-- **THEN** il bordo dei pulsanti è distinguibile dallo sfondo e il testo resta leggibile
+- **WHEN** the menu shows the buttons over the starfield
+- **THEN** the border of the buttons is distinguishable from the background and the text stays legible
 
-#### Scenario: Stato premuto e disabilitato
+#### Scenario: Pressed and disabled state
 
-- **WHEN** l'utente preme un pulsante o un pulsante è disabilitato
-- **THEN** l'aspetto cambia in modo riconoscibile e il testo resta leggibile
+- **WHEN** the user presses a button or a button is disabled
+- **THEN** the appearance changes recognizably and the text stays legible

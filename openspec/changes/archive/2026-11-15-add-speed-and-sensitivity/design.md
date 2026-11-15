@@ -2,37 +2,37 @@
 
 ## Context
 
-Vedi `proposal.md`. Numeri di partenza, dal codice attuale:
+See `proposal.md`. Starting numbers, from the current code:
 
-- `CLIMB_SPEED = 190` px/s, costante, usata dal giocatore (`player.vel.y = -CLIMB_SPEED`), dal campo stellato (parallasse) e dai nemici, che ne ricavano la discesa relativa.
-- `TILT_RANGE_DEG = 22` come fondo scala, `TILT_DEAD_ZONE_DEG = 3`, `TILT_SMOOTH_TAU_MS = 90`.
-- Gli ostacoli sono posizionati a passi di `SPAWN_GAP_PX = 260` pixel di salita.
-- Preferenze già persistenti con `localStorage` (`tiltclimb.muted` in `src/audio/audio.ts`): c'è un precedente da seguire.
+- `CLIMB_SPEED = 190` px/s, constant, used by the player (`player.vel.y = -CLIMB_SPEED`), by the starfield (parallax) and by the enemies, which derive the relative descent from it.
+- `TILT_RANGE_DEG = 22` as full scale, `TILT_DEAD_ZONE_DEG = 3`, `TILT_SMOOTH_TAU_MS = 90`.
+- The obstacles are positioned in steps of `SPAWN_GAP_PX = 260` pixels of climb.
+- Preferences already persisted with `localStorage` (`tiltclimb.muted` in `src/audio/audio.ts`): there is a precedent to follow.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- difficoltà che cresce da sola, in modo prevedibile e senza scatti;
-- sterzo più reattivo di default ma regolabile, con la scelta che sopravvive al riavvio;
-- nessuna regressione su parallasse, ostacoli e nemici quando il mondo accelera.
+- difficulty that grows on its own, predictably and without jumps;
+- steering more responsive by default but adjustable, with the choice surviving a restart;
+- no regression on parallax, obstacles and enemies when the world accelerates.
 
 **Non-Goals:**
 
-- difficoltà selezionabile a mano (facile/normale/difficile);
-- progressi salvati, classifiche, unlock;
-- modifiche a punteggio, archetipi, frequenza di comparsa dei nemici.
+- difficulty selectable by hand (easy/normal/hard);
+- saved progress, leaderboards, unlocks;
+- changes to score, archetypes, enemy spawn rate.
 
 ## Decisions
 
-### 1. La velocità è una funzione pura dell'altezza
+### 1. Speed is a pure function of height
 
 `src/game/speed.ts`:
 
 ```ts
 export const CLIMB_SPEED_START = 190;
 export const CLIMB_SPEED_MAX = 320;
-/** Quanto sale la velocità per ogni pixel di altezza conquistato. */
+/** How much the speed rises for every pixel of height gained. */
 export const CLIMB_SPEED_PER_PX = 0.0135;
 
 export function climbSpeedAt(heightPx: number): number {
@@ -40,59 +40,59 @@ export function climbSpeedAt(heightPx: number): number {
 }
 ```
 
-Con questi numeri: 200 px/s a ~740 px, 260 px/s a ~5.200 px, tetto a ~9.600 px (poco meno di 55 secondi di salita piena). Funzione pura → testabile in Node senza browser, come già fatto per `combat-math.ts` e `enemy-archetypes.ts`.
+With these numbers: 200 px/s at ~740 px, 260 px/s at ~5,200 px, cap at ~9,600 px (a little less than 55 seconds of full climb). Pure function → testable in Node without a browser, as already done for `combat-math.ts` and `enemy-archetypes.ts`.
 
-Perché legata all'altezza e non al tempo: il tempo premia chi resta vivo senza salire (non possibile qui) e soprattutto rende la difficoltà diversa fra due partite con lo stesso percorso. Con l'altezza, "sei arrivato a 6.000 px" implica sempre la stessa velocità.
+Why tied to height and not to time: time rewards those who stay alive without climbing (not possible here) and above all makes the difficulty different between two runs over the same path. With height, "you got to 6,000 px" always implies the same speed.
 
-### 2. La velocità corrente è un valore della scena, non una costante importata
+### 2. The current speed is a value of the scene, not an imported constant
 
-`climb-scene.ts` calcola `const speed = climbSpeedAt(this.score.distance)` una volta per update e lo passa a chi ne ha bisogno:
+`climb-scene.ts` computes `const speed = climbSpeedAt(this.score.distance)` once per update and passes it to whoever needs it:
 
 - `player.vel.y = -speed`;
-- `starfield.update(elapsed, speed)` — oggi `Starfield` importa `CLIMB_SPEED`, che diventa un parametro;
-- `EnemyContext.speed` — `enemy.ts` calcola `-(speed - archetype.descent)` invece di `-(CLIMB_SPEED - ...)`.
+- `starfield.update(elapsed, speed)` — today `Starfield` imports `CLIMB_SPEED`, which becomes a parameter;
+- `EnemyContext.speed` — `enemy.ts` computes `-(speed - archetype.descent)` instead of `-(CLIMB_SPEED - ...)`.
 
-Alternativa scartata: lasciare `CLIMB_SPEED` come costante e aggiungere un moltiplicatore globale. Sarebbe un valore nascosto che tutti leggono, cioè lo stesso accoppiamento di oggi con un livello di indirezione in più.
+Rejected alternative: leaving `CLIMB_SPEED` as a constant and adding a global multiplier. It would be a hidden value that everyone reads, that is the same coupling as today with one more level of indirection.
 
-### 3. Ostacoli: la distanza resta in pixel di salita
+### 3. Obstacles: the distance stays in climb pixels
 
-La generazione già lavora a passi di `SPAWN_GAP_PX` sull'asse Y del mondo, quindi accelerare non cambia la densità spaziale: gli ostacoli sono più distanti nel tempo, non più vicini nello spazio. È il comportamento giusto — il gioco diventa più veloce, non più ingiusto — e non richiede codice nuovo. La verifica è che il numero di ostacoli per 1.000 px resti costante.
+Generation already works in steps of `SPAWN_GAP_PX` on the world Y axis, so accelerating does not change the spatial density: the obstacles are farther apart in time, not closer in space. It is the right behavior — the game becomes faster, not more unfair — and it requires no new code. The check is that the number of obstacles per 1,000 px stays constant.
 
-### 4. Sensibilità a cinque livelli
+### 4. Sensitivity at five levels
 
 `src/input/tilt-settings.ts`:
 
 ```ts
-export const TILT_RANGES_DEG = [22, 17, 13, 10, 8]; // dal più morbido al più nervoso
-export const DEFAULT_TILT_LEVEL = 2;                // 13°, il default più reattivo
+export const TILT_RANGES_DEG = [22, 17, 13, 10, 8]; // from the softest to the twitchiest
+export const DEFAULT_TILT_LEVEL = 2;                // 13°, the more responsive default
 export function rangeForLevel(level: number): number;
-export function loadTiltLevel(): number;             // localStorage, con clamp
+export function loadTiltLevel(): number;             // localStorage, with clamp
 export function saveTiltLevel(level: number): void;
 ```
 
-La sensibilità è solo l'ampiezza (`TILT_RANGE_DEG`), applicata dentro `TiltSource` come proprietà modificabile: dead zone e smorzamento non cambiano, così il centro resta stabile anche al livello più nervoso — è il motivo per cui non ho toccato i 3° di dead zone.
+Sensitivity is only the amplitude (`TILT_RANGE_DEG`), applied inside `TiltSource` as a mutable property: dead zone and damping do not change, so the center stays stable even at the twitchiest level — that is why I did not touch the 3° dead zone.
 
-**Perché cambiare sensibilità non richiede ricalibrare**: la calibrazione è un offset sullo zero, la sensibilità è un fattore di scala. Sono indipendenti per costruzione; vale la pena dirlo nel codice perché è il tipo di cosa che si "sistema" per sbaglio aggiungendo una ricalibrazione automatica.
+**Why changing sensitivity does not require recalibrating**: calibration is an offset on the zero, sensitivity is a scale factor. They are independent by construction; it is worth saying so in the code because it is the kind of thing that gets "fixed" by mistake by adding an automatic recalibration.
 
-### 5. Controllo nel menu: `−` e `+` con etichetta centrale
+### 5. Control in the menu: `−` and `+` with a central label
 
-Il menu ha già `Button` (Canvas 2D) e `addCenteredGraphic`. Il controllo è una riga: pulsante `−` a sinistra, valore centrale, pulsante `+` a destra, con la didascalia `SENSIBILITÀ · 13°` sopra. Ai limiti il pulsante corrispondente va in stato disabilitato, che `Button` già supporta.
+The menu already has `Button` (Canvas 2D) and `addCenteredGraphic`. The control is a row: `−` button on the left, central value, `+` button on the right, with the caption `SENSITIVITY · 13°` above. At the limits the corresponding button goes into the disabled state, which `Button` already supports.
 
-Alternativa scartata: uno slider. Su schermo piccolo richiede un trascinamento preciso, e con cinque valori discreti i due pulsanti sono più affidabili (e più semplici da centrare, visto il pregresso).
+Rejected alternative: a slider. On a small screen it requires precise dragging, and with five discrete values the two buttons are more reliable (and simpler to center, given the history).
 
-La riga si posiziona sopra i pulsanti esistenti con spazio misurato, non a occhio: la verifica è che su 720×1280 e su 360×640 nulla si sovrapponga.
+The row is positioned above the existing buttons with measured space, not by eye: the check is that on 720×1280 and on 360×640 nothing overlaps.
 
-### 6. Applicazione immediata
+### 6. Immediate application
 
-Il menu scrive il livello sia in `localStorage` sia in un oggetto condiviso letto dalla `TiltSource` della partita successiva (`TiltSource` viene creata dalla scena, quindi legge il valore al momento giusto). Nessun riavvio, nessun ricaricamento: il cambio vale dalla partita dopo il tocco, che è quello che serve.
+The menu writes the level both to `localStorage` and to a shared object read by the `TiltSource` of the next run (`TiltSource` is created by the scene, so it reads the value at the right moment). No restart, no reload: the change applies from the run after the touch, which is what is needed.
 
 ## Risks / Trade-offs
 
-- **Troppo difficile in alto** → tetto a 320 px/s (1,7× l'inizio) e rampa lenta; se in prova risultasse ingestibile, si abbassa `CLIMB_SPEED_MAX` o `CLIMB_SPEED_PER_PX`, due costanti.
-- **Default più sensibile = più errori per chi ha la mano poco ferma** → il livello 1 (22°) riproduce esattamente il comportamento passato, quindi c'è sempre un ritorno indietro. Il default è stato tarato una seconda volta su richiesta: da 16° a 13°, perché 16° risultava ancora docile.
-- **Nemici che "scappano" di più** → con `-(speed - descent)` la discesa relativa resta quella dell'archetipo; se il gioco accelera, il nemico scende più lentamente rispetto allo schermo ma alla stessa velocità nel mondo. Da verificare a occhio in partita veloce.
-- **Persistenza fragile** (`localStorage` negato in incognito) → lettura in `try/catch` con fallback al default, come già fatto per l'audio.
+- **Too hard at the top** → cap at 320 px/s (1.7× the start) and a slow ramp; if in testing it turns out unmanageable, `CLIMB_SPEED_MAX` or `CLIMB_SPEED_PER_PX` is lowered, two constants.
+- **More sensitive default = more errors for those with an unsteady hand** → level 1 (22°) reproduces exactly the past behavior, so there is always a way back. The default was tuned a second time on request: from 16° to 13°, because 16° still felt tame.
+- **Enemies that "escape" more** → with `-(speed - descent)` the relative descent stays the archetype's; if the game accelerates, the enemy descends more slowly relative to the screen but at the same speed in the world. To be verified by eye in a fast run.
+- **Fragile persistence** (`localStorage` denied in incognito) → read in `try/catch` with fallback to the default, as already done for audio.
 
 ## Migration Plan
 
-Nessun dato da migrare: chi non ha impostazioni salvate parte al livello 2 (16°). Chi ha partite in corso non ha nulla da convertire, perché non esistono salvataggi di partita.
+No data to migrate: those without saved settings start at level 2 (16°). Those with runs in progress have nothing to convert, because there are no saved runs.

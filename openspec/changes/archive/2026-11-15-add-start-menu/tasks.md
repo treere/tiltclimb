@@ -1,47 +1,47 @@
 # Tasks
 
-## 1. Sessione condivisa e due scene
+## 1. Shared session and two scenes
 
-- [x] 1.1 Creare `src/game/session.ts` con l'istanza unica di `TiltSource`, `lastScore`, `bestScore` e `sensorPromptDone`, e importarlo nelle scene; verifica: `npm run check` verde e nessuna seconda istanza di `TiltSource` nel codice (grep)
-- [x] 1.2 Togliere `TiltSource` da `ClimbScene` e riceverla dal modulo di sessione; verifica: la partita gioca ancora e la sterzata risponde
-- [x] 1.3 Registrare `MenuScene` e `ClimbScene` sull'engine e rendere `menu` la scena iniziale (scheletro di menu vuoto con solo un titolo); verifica: all'apertura compare il menu e non la partita
-- [x] 1.4 Spostare in `onActivate` di `ClimbScene` il reset di stato, pool e posizioni, e cancellare i timer pendenti in `onDeactivate`; verifica: entrando e uscendo dalla scena due volte la partita riparte sempre pulita
+- [x] 1.1 Create `src/game/session.ts` with the unique instance of `TiltSource`, `lastScore`, `bestScore` and `sensorPromptDone`, and import it in the scenes; check: `npm run check` green and no second instance of `TiltSource` in the code (grep)
+- [x] 1.2 Remove `TiltSource` from `ClimbScene` and receive it from the session module; check: the run still plays and the steering responds
+- [x] 1.3 Register `MenuScene` and `ClimbScene` on the engine and make `menu` the initial scene (empty menu skeleton with only a title); check: on open the menu appears and not the run
+- [x] 1.4 Move into `ClimbScene`'s `onActivate` the reset of state, pool and positions, and clear the pending timers in `onDeactivate`; check: entering and leaving the scene twice the run always restarts clean
 
-## 2. Componente pulsante
+## 2. Button component
 
-- [x] 2.1 Creare `src/ui/button.ts` con sfondo `Rectangle`, etichetta `Text`, eventi pointer dell'attore e stati normale/premuto/disabilitato; verifica: `npm run check` verde e tipi senza `any`
-- [x] 2.2 Aggiungere al pulsante l'API `setEnabled`, `setLabel` e il callback `onPress`; verifica: un pulsante disabilitato non invoca `onPress` al tocco (prova manuale da telefono)
+- [x] 2.1 Create `src/ui/button.ts` with a `Rectangle` background, `Text` label, actor pointer events and normal/pressed/disabled states; check: `npm run check` green and types without `any`
+- [x] 2.2 Add to the button the API `setEnabled`, `setLabel` and the `onPress` callback; check: a disabled button does not invoke `onPress` on touch (manual test from a phone)
 
-## 3. Menu: layout e lettura live
+## 3. Menu: layout and live reading
 
-- [x] 3.1 Compose il layout del menu (titolo, blocco calibrazione, pulsanti in basso) usando `screen.contentArea` come riferimento; verifica: nulla viene tagliato da notch o angoli su telefono
-- [x] 3.2 Mostrare la lettura live dell'inclinazione relativa in gradi, aggiornata a ogni frame dal `TiltSource` di sessione; verifica: inclinando il telefono il numero cambia con il segno atteso e resta fermo a telefono fermo
-- [x] 3.3 Aggiungere la barra orizzontale che rappresenta la stessa inclinazione; verifica: la barra si muove nella stessa direzione del numero e satura agli estremi
+- [x] 3.1 Compose the menu layout (title, calibration block, buttons at the bottom) using `screen.contentArea` as the reference; check: nothing is clipped by notch or corners on a phone
+- [x] 3.2 Show the live reading of the relative tilt in degrees, updated every frame by the session `TiltSource`; check: tilting the phone the number changes with the expected sign and stays still with the phone still
+- [x] 3.3 Add the horizontal bar that represents the same tilt; check: the bar moves in the same direction as the number and saturates at the extremes
 
-## 4. Calibrazione con conferma
+## 4. Calibration with confirmation
 
-- [x] 4.1 Collegare **Calibra** a `tilt.calibrate()` con conferma visibile `Calibrato ✓` per 1,2 s e flash del pulsante; verifica: dopo la pressione la lettura torna a zero nell'assetto tenuto
-- [x] 4.2 Gestire il caso sensore non disponibile: il pulsante mostra `Sensore non disponibile` e non produce conferma; verifica: con sensore negato il menu non mostra il messaggio di calibrazione riuscita
-- [x] 4.3 Verificare che **Inizia gioco** non ricalibri: avviare la partita dopo aver inclinato il telefono e controllare che lo zero resti quello del menu; verifica: il giocatore non deriva all'avvio della partita
+- [x] 4.1 Wire **Calibrate** to `tilt.calibrate()` with a visible `Calibrated ✓` confirmation for 1.2 s and a button flash; check: after pressing, the reading goes back to zero in the held position
+- [x] 4.2 Handle the sensor-unavailable case: the button shows `Sensor unavailable` and produces no confirmation; check: with the sensor denied the menu does not show the calibration successful message
+- [x] 4.3 Check that **Start game** does not recalibrate: start the run after tilting the phone and check that the zero stays the menu's one; check: the player does not drift at the start of the run
 
-## 5. Permessi e avviso nel menu
+## 5. Permissions and warning in the menu
 
-- [x] 5.1 Richiedere il permesso al primo dei due pulsanti premuti, registrando l'esito in sessione e sottoscrivendo `listen()` una volta sola; verifica: la richiesta compare una volta e non si ripete in partita
-- [x] 5.2 Mostrare l'avviso nel menu quando il permesso è negato, il sensore è assente o non arrivano dati; verifica: negando il permesso compare l'avviso e **Inizia gioco** resta attivo
-- [x] 5.3 Nascondere l'avviso quando i dati del sensore tornano disponibili; verifica: dopo aver concesso il permesso l'avviso sparisce senza ricaricare la pagina
+- [x] 5.1 Request the permission on the first of the two buttons pressed, recording the outcome in the session and subscribing `listen()` only once; check: the request appears once and is not repeated during the run
+- [x] 5.2 Show the warning in the menu when the permission is denied, the sensor is missing or no data arrives; check: denying the permission the warning appears and **Start game** stays active
+- [x] 5.3 Hide the warning when the sensor data becomes available again; check: after granting the permission the warning disappears without reloading the page
 
-## 6. Ritorno al menu a fine partita
+## 6. Return to the menu at the end of the run
 
-- [x] 6.1 In `ClimbScene.endRun()` scrivere `lastScore` e aggiornare `bestScore` in sessione, poi tornare a `menu` dopo 500 ms; verifica: morendo si torna al menu e il punteggio mostrato è quello della partita appena finita
-- [x] 6.2 Impedire cambi scena doppi con un flag e cancellare il timer in `onDeactivate`; verifica: due collisioni ravvicinate producono un solo ritorno al menu
-- [x] 6.3 Mostrare nel menu punteggio appena fatto e migliore di sessione, aggiornando il migliore solo se superato; verifica: una partita da 10 punti dopo una da 40 lascia il migliore a 40
+- [x] 6.1 In `ClimbScene.endRun()` write `lastScore` and update `bestScore` in the session, then return to `menu` after 500 ms; check: dying returns to the menu and the score shown is the one of the run just ended
+- [x] 6.2 Prevent double scene changes with a flag and clear the timer in `onDeactivate`; check: two close collisions produce a single return to the menu
+- [x] 6.3 Show in the menu the score just made and the session best, updating the best only if beaten; check: a run of 10 points after one of 40 leaves the best at 40
 
-## 7. Verifica finale
+## 7. Final check
 
-- [x] 7.1 Giro completo su telefono via tunnel HTTPS: menu → calibra → inizia → muori → menu con riepilogo → inizia di nuovo; verifica: nessuno stato bloccato e nessun errore in console
-- [x] 7.2 Prova del fallback: permesso negato, avviso visibile, partita giocabile con drag; verifica: il gioco resta controllabile senza sensore
-- [x] 7.3 Aggiornare `README.md` (menu, calibrazione, riepilogo) ed eseguire `npm run check`; verifica: comando verde e documentazione coerente con il comportamento
+- [x] 7.1 Full round on a phone via HTTPS tunnel: menu → calibrate → start → die → menu with summary → start again; check: no stuck state and no console errors
+- [x] 7.2 Fallback test: permission denied, warning visible, run playable with drag; check: the game stays controllable without a sensor
+- [x] 7.3 Update `README.md` (menu, calibration, summary) and run `npm run check`; check: green command and documentation consistent with the behavior
 
 ## Workflow follow-up
 
-- Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec
+- Archive the change with `openspec-archive-change` after the check, syncing the spec deltas

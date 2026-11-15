@@ -1,40 +1,40 @@
 # Tasks
 
-## 1. Asset audio e licenze
+## 1. Audio assets and licenses
 
-- [x] 1.1 Estrarre dal pacchetto 512 i ~15 effetti scelti, ricodificare le due tracce musicali in OGG mono 80 kbps con gli script in `scripts/`, e salvare tutto in `public/assets/audio/`; verifica: i file esistono, le dimensioni totali stanno sotto i 3 MB e `file` riconosce OGG/WAV validi
-- [x] 1.2 Scrivere `public/assets/audio/LICENSE.md` con autore, URL e licenza CC0 per ciascun pacchetto (effetti Juhani Junkala, musiche da OpenGameArt) e aggiornare i crediti nel `README.md`; verifica: autore, licenza e provenienza ricostruibili senza rete
+- [x] 1.1 Extract the ~15 chosen effects from the 512 package, re-encode the two music tracks to OGG mono 80 kbps with the scripts in `scripts/`, and save everything to `public/assets/audio/`; check: the files exist, the total size stays under 3 MB and `file` recognizes valid OGG/WAV
+- [x] 1.2 Write `public/assets/audio/LICENSE.md` with author, URL and CC0 license for each package (Juhani Junkala effects, music from OpenGameArt) and update the credits in `README.md`; check: author, license and provenance reconstructable offline
 
-## 2. Modulo audio
+## 2. Audio module
 
-- [x] 2.1 Creare `src/audio/audio.ts` con bus musica/effetti, volumi, `muted` persistito in `localStorage`, coda delle richieste prima dello sblocco e `unlock()`; verifica: `npm run check` verde e nessuna chiamata a `play()` riesce prima di `unlock()`
-- [x] 2.2 Caricare le tracce e gli effetti nel loader esistente e verificare che nessun file venga richiesto due volte; verifica: in rete si vedono una sola richiesta per file e nessun 404
-- [x] 2.3 Creare `src/audio/sfx.ts` con la tabella evento → file, comprese le varianti per archetipo; verifica: ogni chiave della tabella punta a un file presente in `public/assets/audio/`
-- [x] 2.4 Implementare il cambio musica con dissolvenza guidata da `onPreUpdate`, senza timer globali; verifica: passando menu → partita → menu non restano due tracce sovrapposte
+- [x] 2.1 Create `src/audio/audio.ts` with music/effects bus, volumes, `muted` persisted in `localStorage`, request queue before unlock and `unlock()`; check: `npm run check` green and no call to `play()` succeeds before `unlock()`
+- [x] 2.2 Load the tracks and the effects into the existing loader and check that no file is requested twice; check: on the network one request per file and no 404
+- [x] 2.3 Create `src/audio/sfx.ts` with the event → file table, including the per-archetype variants; check: every key in the table points to a file present in `public/assets/audio/`
+- [x] 2.4 Implement the music switch with a fade driven by `onPreUpdate`, without global timers; check: going menu → run → menu leaves no two overlapping tracks
 
-## 3. Sblocco e interruttore
+## 3. Unlock and switch
 
-- [x] 3.1 Agganciare `unlock()` al primo gesto (pointer e tastiera) in `main.ts` e far partire la musica di menu solo dopo; verifica: al primo tocco la musica parte e non compaiono errori in console
-- [x] 3.2 Creare `src/ui/audio-toggle.ts` con l'icona a due stati in alto a destra del menu, area di tocco 56×56 (doppia dell'icona); verifica: il tocco cambia stato, zittisce tutto e non sposta il layout dei tre pulsanti
+- [x] 3.1 Hook `unlock()` to the first gesture (pointer and keyboard) in `main.ts` and start the menu music only after that; check: on the first touch the music starts and no console errors appear
+- [x] 3.2 Create `src/ui/audio-toggle.ts` with the two-state icon in the top right of the menu, touch area 56×56 (twice the icon); check: the touch changes state, silences everything and does not move the layout of the three buttons
 
-## 4. Esplosioni animate
+## 4. Animated explosions
 
-- [x] 4.1 Scrivere `scripts/prepare-explosions.py` che estrae 16 frame per foglio a 128 px e li salva in `public/assets/effects/explosion/`; verifica: lo script fallisce su fogli non divisibili e produce frame visivamente corretti
-- [x] 4.2 Creare `src/game/explosion.ts` con pool di 6 animazioni e `burst(x, y, scale)`, rilasciando l'attore a fine animazione; verifica: due esplosioni ravvicinate si vedono entrambe e il numero di actor resta costante
-- [x] 4.3 Agganciare l'esplosione all'abbattimento di una nave e alla morte dell'eroe (scala doppia); verifica: nessuna esplosione quando un colpo attraversa un asteroide
+- [x] 4.1 Write `scripts/prepare-explosions.py` that extracts 16 frames per sheet at 128 px and saves them to `public/assets/effects/explosion/`; check: the script fails on sheets that are not evenly divisible and produces visually correct frames
+- [x] 4.2 Create `src/game/explosion.ts` with a pool of 6 animations and `burst(x, y, scale)`, releasing the actor at the end of the animation; check: two explosions close together are both visible and the number of actors stays constant
+- [x] 4.3 Hook the explosion to the destruction of a ship and to the hero's death (double scale); check: no explosion when a shot passes through an asteroid
 
-## 5. Suoni nei punti giusti
+## 5. Sounds in the right places
 
-- [x] 5.1 Suono dello sparo dell'eroe in `fireHero()` e sparo di ogni archetipo quando la nave spara; verifica: quattro tipi diversi producono quattro timbri distinti
-- [x] 5.2 Suono di abbattimento per tipo, suono di morte dell'eroe, suono di sconfitta e suono di record (quest'ultimo solo se il punteggio supera il migliore precedente); verifica: una partita senza record suona la sconfitta, una con record suona il successo
-- [x] 5.3 Verificare il caso peggiore di sovrapposizione (raffica della torretta + esplosione + musica): nessun suono mancante o distorto; verifica: prova su telefono con volume medio
+- [x] 5.1 Hero shot sound in `fireHero()` and a shot sound for every archetype when the ship fires; check: four different types produce four distinct timbres
+- [x] 5.2 Kill sound per type, hero death sound, defeat sound and best-score sound (the latter only if the score beats the previous best); check: a run without a best score plays the defeat, one with a best score plays the success
+- [x] 5.3 Check the worst case of overlap (turret burst + explosion + music): no missing or distorted sound; check: test on a phone at medium volume
 
-## 6. Documentazione e verifica finale
+## 6. Documentation and final check
 
-- [x] 6.1 Aggiornare `README.md` (audio, crediti, comandi degli script di preparazione) ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
-- [x] 6.2 Giro su telefono via tunnel: musica nel menu, musica in partita, spari, esplosioni, sconfitta, record, interruttore audio e ricaricamento con audio disattivato; verifica: ogni punto della spec si comporta come descritto
-- [x] 6.3 Giudizio sul mix: musica che non copre gli effetti, effetti che non stordiscono, e nessun ritardo percepibile al primo sparo; verifica: tre partite di prova
+- [x] 6.1 Update `README.md` (audio, credits, preparation script commands) and run `npm run check`; check: green command and consistent documentation
+- [x] 6.2 Round on a phone via tunnel: music in the menu, music in the run, shots, explosions, defeat, best score, audio switch and reload with audio disabled; check: every point of the spec behaves as described
+- [x] 6.3 Judgment on the mix: music that does not cover the effects, effects that do not deafen, and no perceptible delay on the first shot; check: three trial runs
 
 ## Workflow follow-up
 
-- Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec
+- Archive the change with `openspec-archive-change` after the check, syncing the spec deltas

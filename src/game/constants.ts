@@ -8,7 +8,7 @@
 export const WORLD_WIDTH = 720;
 export const WORLD_HEIGHT = 1280;
 
-/* La velocita' di salita non e' piu' una costante: vedi `speed.ts` (cresce con l'altezza). */
+/* Climb speed is no longer a constant: see `speed.ts` (it grows with height). */
 
 /** Horizontal speed at full tilt, in logical pixels per second. */
 export const MAX_HORIZONTAL_SPEED = 300;
