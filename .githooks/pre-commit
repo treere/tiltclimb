@@ -12,7 +12,7 @@ fi
 echo "pre-commit: typecheck…"
 npm run --silent typecheck
 
-if git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(ts|tsx|js|jsx|mjs|cjs|json|jsonc|css|html)$'; then
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(ts|tsx|js|jsx|mjs|cjs|json|jsonc|css|html|md)$'; then
   echo "pre-commit: biome sui file in stage…"
   ./node_modules/.bin/biome check --staged --no-errors-on-unmatched
 else
