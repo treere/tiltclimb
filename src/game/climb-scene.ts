@@ -4,14 +4,13 @@ import { Button } from '../ui/button';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
   CLIMB_SPEED,
-  ENEMY_HIT_RADIUS,
-  ENEMY_MAX_ALIVE,
   ENEMY_POOL_SIZE,
   ENEMY_SPAWN_INTERVAL_MS,
-  ENEMY_VISUAL_WIDTH,
+  ENEMY_SPAWN_MARGIN,
   FIRE_BUTTON_HEIGHT,
   FIRE_BUTTON_WIDTH,
   HERO_HIT_RADIUS,
+  HERO_SHOT_SPEED,
   MAX_HORIZONTAL_SPEED,
   OBSTACLE_POOL_SIZE,
   OBSTACLE_RADIUS,
@@ -26,6 +25,7 @@ import {
   WORLD_WIDTH,
 } from './constants';
 import { EnemyPool } from './enemy';
+import { ARCHETYPES, kindsAvailableAt, maxAliveAt } from './enemy-archetypes';
 import { ObstaclePool } from './obstacle-pool';
 import { PlayerShip } from './player';
 import { ProjectilePool } from './projectile';
@@ -60,6 +60,7 @@ export class ClimbScene extends ex.Scene {
   private leaving = false;
   private score = 0;
   private kills = 0;
+  private killPoints = 0;
   private nextSpawnY = 0;
   private enemySpawnAccumulator = 0;
   private lastShotAt = 0;
@@ -153,6 +154,7 @@ export class ClimbScene extends ex.Scene {
 
     this.score = 0;
     this.kills = 0;
+    this.killPoints = 0;
     this.scoreGraphic.text = '0';
     this.bannerGraphic.text = '';
     this.nextSpawnY = -WORLD_HEIGHT * PLAYER_SCREEN_FRACTION - SPAWN_GAP_PX * 0.5;
@@ -188,7 +190,7 @@ export class ClimbScene extends ex.Scene {
   }
 
   private updateScore(): void {
-    const total = climbScore(-this.player.pos.y, this.kills);
+    const total = climbScore(this.climbedHeight(), this.killPoints);
     if (total > this.score) {
       this.score = total;
       this.scoreGraphic.text = String(total);
@@ -196,27 +198,39 @@ export class ClimbScene extends ex.Scene {
   }
 
   private updateEnemies(elapsed: number): void {
+    const context = {
+      heroX: this.player.pos.x,
+      topEdge: this.topEdge(),
+      viewHeight: WORLD_HEIGHT,
+    };
+
     for (const enemy of [...this.enemies.active]) {
-      enemy.weave(elapsed);
-      if (enemy.wantsToFire(elapsed)) {
-        this.projectiles.spawn('enemy', enemy.pos.x, enemy.pos.y + ENEMY_VISUAL_WIDTH / 2);
+      const angles = enemy.behave(elapsed, context);
+      if (angles) {
+        this.projectiles.spawnVolley('enemy', enemy.pos.x, enemy.pos.y + enemy.hitRadius, {
+          speed: ARCHETYPES[enemy.kind].fire.speed,
+          angles,
+        });
       }
     }
 
     this.enemies.recycleBelow(this.cameraBottom());
 
+    const height = this.climbedHeight();
     this.enemySpawnAccumulator += elapsed;
     if (this.enemySpawnAccumulator < ENEMY_SPAWN_INTERVAL_MS) {
       return;
     }
-    if (this.enemies.aliveCount >= ENEMY_MAX_ALIVE) {
+    if (this.enemies.aliveCount >= maxAliveAt(height)) {
       return;
     }
 
     this.enemySpawnAccumulator = 0;
-    const half = ENEMY_VISUAL_WIDTH / 2 + ENEMY_EDGE_MARGIN;
-    const x = half + Math.random() * (WORLD_WIDTH - half * 2);
-    this.enemies.spawn(x, this.topEdge() - ENEMY_VISUAL_WIDTH);
+    const kinds = kindsAvailableAt(height);
+    const kind = kinds[Math.floor(Math.random() * kinds.length)] ?? 'patrol';
+    const margin = ENEMY_SPAWN_MARGIN + ENEMY_EDGE_MARGIN;
+    const x = margin + Math.random() * (WORLD_WIDTH - margin * 2);
+    this.enemies.spawn(kind, x, this.topEdge() - ARCHETYPES[kind].visualWidth);
   }
 
   /**
@@ -231,12 +245,13 @@ export class ClimbScene extends ex.Scene {
 
       if (projectile.faction === 'hero') {
         const target = [...this.enemies.active].find((enemy) =>
-          circlesOverlap(bullet, { x: enemy.pos.x, y: enemy.pos.y, r: ENEMY_HIT_RADIUS }),
+          circlesOverlap(bullet, { x: enemy.pos.x, y: enemy.pos.y, r: enemy.hitRadius }),
         );
         if (target) {
           this.projectiles.release(projectile);
           this.enemies.release(target);
           this.kills += 1;
+          this.killPoints += target.points;
           this.updateScore();
         }
         continue;
@@ -254,7 +269,7 @@ export class ClimbScene extends ex.Scene {
     }
 
     const rammed = [...this.enemies.active].find((enemy) =>
-      circlesOverlap({ x: enemy.pos.x, y: enemy.pos.y, r: ENEMY_HIT_RADIUS }, hero),
+      circlesOverlap({ x: enemy.pos.x, y: enemy.pos.y, r: enemy.hitRadius }, hero),
     );
     if (rammed) {
       this.endRun();
@@ -272,7 +287,9 @@ export class ClimbScene extends ex.Scene {
     }
     this.lastShotAt = now;
 
-    this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT);
+    this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT, {
+      speed: HERO_SHOT_SPEED,
+    });
   }
 
   private setFireEnabled(enabled: boolean): void {
@@ -298,6 +315,11 @@ export class ClimbScene extends ex.Scene {
   /** Top edge of the visible world, given where the camera sits above the ship. */
   private topEdge(): number {
     return this.player.pos.y - WORLD_HEIGHT * PLAYER_SCREEN_FRACTION;
+  }
+
+  /** How far the ship has climbed, in world px. Never negative. */
+  private climbedHeight(): number {
+    return Math.max(0, -this.player.pos.y);
   }
 
   private cameraBottom(): number {

@@ -1,15 +1,23 @@
 import * as ex from 'excalibur';
 import {
-  ENEMY_SHOT_SPEED,
-  HERO_SHOT_SPEED,
   LASER_VISUAL_LENGTH,
   LASER_VISUAL_WIDTH,
   PROJECTILE_HIT_RADIUS,
   WORLD_HEIGHT,
+  WORLD_WIDTH,
 } from './constants';
 import { enemyLaserImage, heroLaserImage } from './sprites';
 
 export type Faction = 'hero' | 'enemy';
+
+export type LaunchOptions = {
+  /** Bullet speed in px/s. */
+  speed: number;
+  /** Direction offset in radians: 0 = straight along the faction's axis, positive = to the right. */
+  angle?: number;
+  /** When set, one bullet per direction is fired at once (a volley). */
+  angles?: number[];
+};
 
 /**
  * A bullet. One class for both sides: the faction decides sprite, direction and who it can
@@ -30,7 +38,7 @@ export class Projectile extends ex.Actor {
     });
   }
 
-  launch(faction: Faction, x: number, y: number): void {
+  launch(faction: Faction, x: number, y: number, options: LaunchOptions): void {
     this.faction = faction;
     this.pos = ex.vec(x, y);
 
@@ -41,18 +49,25 @@ export class Projectile extends ex.Actor {
     sprite.scale = ex.vec(LASER_VISUAL_WIDTH / sprite.width, LASER_VISUAL_LENGTH / sprite.height);
     this.graphics.use(sprite);
 
-    // Kenney lasers point up: enemy bullets are the same sprite turned around.
+    // Kenney lasers point up: enemy bullets are the same sprite turned around. The sprite does
+    // not follow the angle — a 18° rotation makes the bullet harder to read than the trajectory.
     this.rotation = faction === 'enemy' ? Math.PI : 0;
-    this.vel = ex.vec(0, faction === 'hero' ? -HERO_SHOT_SPEED : ENEMY_SHOT_SPEED);
+
+    const angle = options.angle ?? 0;
+    const direction = faction === 'hero' ? -1 : 1;
+    this.vel = ex.vec(Math.sin(angle) * options.speed, Math.cos(angle) * options.speed * direction);
   }
 
   freeze(): void {
     this.vel = ex.Vector.Zero;
   }
 
-  /** True when the bullet has left the visible world range. */
+  /** True when the bullet has left the visible world range, on either axis. */
   isOutside(top: number, bottom: number): boolean {
-    return this.pos.y < top - LASER_VISUAL_LENGTH || this.pos.y > bottom + WORLD_HEIGHT * 0.1;
+    if (this.pos.y < top - LASER_VISUAL_LENGTH || this.pos.y > bottom + WORLD_HEIGHT * 0.1) {
+      return true;
+    }
+    return this.pos.x < -LASER_VISUAL_WIDTH || this.pos.x > WORLD_WIDTH + LASER_VISUAL_WIDTH;
   }
 }
 
@@ -69,16 +84,23 @@ export class ProjectilePool {
     }
   }
 
-  spawn(faction: Faction, x: number, y: number): Projectile | undefined {
+  spawn(faction: Faction, x: number, y: number, options: LaunchOptions): Projectile | undefined {
     const projectile = this.free.pop();
     if (!projectile) {
       return undefined;
     }
 
-    projectile.launch(faction, x, y);
+    projectile.launch(faction, x, y, options);
     this.scene.add(projectile);
     this.inUse.push(projectile);
     return projectile;
+  }
+
+  /** Fires one volley: several bullets at once, one per direction. */
+  spawnVolley(faction: Faction, x: number, y: number, options: LaunchOptions): void {
+    for (const angle of options.angles ?? [0]) {
+      this.spawn(faction, x, y, { speed: options.speed, angle });
+    }
   }
 
   /** Recycles bullets outside the given vertical range. */

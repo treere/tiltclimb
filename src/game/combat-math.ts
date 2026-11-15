@@ -1,4 +1,4 @@
-import { KILL_POINTS, PIXELS_PER_POINT } from './constants';
+import { PIXELS_PER_POINT } from './constants';
 
 /** A body reduced to what collisions need: centre and radius. */
 export type Circle = { x: number; y: number; r: number };
@@ -15,7 +15,7 @@ export function circlesOverlap(a: Circle, b: Circle): boolean {
  * Score for a run: height points plus kills. Both terms only grow, so the total is monotone
  * and the HUD never has to go backwards.
  */
-export function climbScore(climbedPixels: number, kills: number): number {
+export function climbScore(climbedPixels: number, killPoints: number): number {
   const heightPoints = Math.floor(Math.max(0, climbedPixels) / PIXELS_PER_POINT);
-  return heightPoints + kills * KILL_POINTS;
+  return heightPoints + Math.max(0, killPoints);
 }

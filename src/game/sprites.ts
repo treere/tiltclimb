@@ -1,4 +1,5 @@
 import * as ex from 'excalibur';
+import { ARCHETYPE_ORDER, ARCHETYPES, type EnemyKind } from './enemy-archetypes';
 
 /**
  * Every external image lives here, so renaming a file is a one-line change and the loader
@@ -32,13 +33,10 @@ export const starImages: ex.ImageSource[] = [
   image('star3.png'),
 ];
 
-export const enemyImages: ex.ImageSource[] = [
-  image('enemyRed1.png'),
-  image('enemyRed2.png'),
-  image('enemyRed3.png'),
-  image('enemyRed4.png'),
-  image('enemyRed5.png'),
-];
+/** One sprite per archetype: shape and colour are the signature the player learns to read. */
+export const archetypeImages = Object.fromEntries(
+  ARCHETYPE_ORDER.map((kind) => [kind, image(ARCHETYPES[kind].spriteFile)]),
+) as Record<EnemyKind, ex.ImageSource>;
 
 export const heroLaserImage = image('laserBlue01.png');
 export const enemyLaserImage = image('laserRed01.png');
@@ -49,7 +47,7 @@ const allImages = [
   ...flameImages,
   ...meteorImages,
   ...starImages,
-  ...enemyImages,
+  ...Object.values(archetypeImages),
   heroLaserImage,
   enemyLaserImage,
 ];

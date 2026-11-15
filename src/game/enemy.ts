@@ -1,80 +1,163 @@
 import * as ex from 'excalibur';
-import {
-  CLIMB_SPEED,
-  ENEMY_FIRE_INTERVAL_MS,
-  ENEMY_HIT_RADIUS,
-  ENEMY_SCREEN_DESCENT,
-  ENEMY_VISUAL_WIDTH,
-  ENEMY_WEAVE_AMPLITUDE,
-  ENEMY_WEAVE_OMEGA,
-  WORLD_WIDTH,
-} from './constants';
-import { enemyImages } from './sprites';
+import { CLIMB_SPEED, WORLD_WIDTH } from './constants';
+import { ARCHETYPES, type Archetype, type EnemyKind } from './enemy-archetypes';
+import { archetypeImages } from './sprites';
 
 const EDGE_MARGIN = 12;
 
+/** What a moving enemy needs to know about the world around it. */
+export type EnemyContext = {
+  heroX: number;
+  /** World y of the top edge of the view. */
+  topEdge: number;
+  viewHeight: number;
+};
+
 /**
- * An enemy ship: descends slowly across the screen while weaving left and right, and fires
- * straight down on an interval. Like bullets, it does not take part in engine collisions —
- * the scene decides what it hits, which is how enemies can pass through asteroids untouched.
+ * An enemy ship. Its whole personality comes from the archetype table: sprite, descent,
+ * weave / drift / tracking / hover, and the fire pattern. It stays out of the engine's
+ * collision system, so asteroids cannot stop it.
  */
 export class Enemy extends ex.Actor {
+  private archetype: Archetype = ARCHETYPES.patrol;
   private baseX = 0;
   private phase = 0;
   private age = 0;
-  private shotIn = ENEMY_FIRE_INTERVAL_MS;
+  private driftDirection = 1;
+  private hovering = false;
+  private volleysLeft = 0;
+  private stepIn = 0;
 
   constructor() {
     super({
       name: 'enemy',
-      radius: ENEMY_HIT_RADIUS,
+      radius: ARCHETYPES.patrol.hitRadius,
       collisionType: ex.CollisionType.PreventCollision,
       z: 20,
     });
   }
 
-  spawn(x: number, y: number): void {
-    const source = enemyImages[Math.floor(Math.random() * enemyImages.length)];
-    if (source) {
-      const sprite = source.toSprite();
-      const scale = ENEMY_VISUAL_WIDTH / sprite.width;
-      sprite.scale = ex.vec(scale, scale);
-      this.graphics.use(sprite);
-    }
+  get kind(): EnemyKind {
+    return this.archetype.kind;
+  }
+
+  get points(): number {
+    return this.archetype.points;
+  }
+
+  get hitRadius(): number {
+    return this.archetype.hitRadius;
+  }
+
+  spawn(kind: EnemyKind, x: number, y: number): void {
+    const archetype = ARCHETYPES[kind];
+    this.archetype = archetype;
+
+    const sprite = archetypeImages[kind].toSprite();
+    const scale = archetype.visualWidth / sprite.width;
+    sprite.scale = ex.vec(scale, scale);
+    this.graphics.use(sprite);
 
     this.pos = ex.vec(x, y);
     this.baseX = x;
     this.phase = Math.random() * Math.PI * 2;
     this.age = 0;
+    this.hovering = false;
+    this.driftDirection = x < WORLD_WIDTH / 2 ? 1 : -1;
+    this.volleysLeft = 0;
 
-    // The camera rises at CLIMB_SPEED, so this world velocity reads as a slow descent.
-    this.vel = ex.vec(0, -(CLIMB_SPEED - ENEMY_SCREEN_DESCENT));
+    // The camera rises at CLIMB_SPEED, so subtracting it turns world velocity into a slow
+    // screen descent.
+    this.vel = ex.vec(0, -(CLIMB_SPEED - archetype.descent));
 
-    // Stagger the first shot so two ships never fire in the same beat.
-    this.shotIn = ENEMY_FIRE_INTERVAL_MS * (0.6 + Math.random() * 0.8);
+    // Stagger the first shot so two ships never fire on the same beat.
+    this.stepIn = archetype.fire.intervalMs * (0.6 + Math.random() * 0.8);
   }
 
-  /** Sine weave around the spawn column, clamped inside the world. */
-  weave(elapsedMs: number): void {
+  /**
+   * Advances the archetype behaviour for one frame and returns the directions (radians) of
+   * the volley due this frame, or null when the ship is not firing.
+   */
+  behave(elapsedMs: number, context: EnemyContext): number[] | null {
+    const archetype = this.archetype;
+    const dt = elapsedMs / 1000;
     this.age += elapsedMs;
-    const half = ENEMY_VISUAL_WIDTH / 2 + EDGE_MARGIN;
-    const offset =
-      Math.sin(this.phase + (this.age / 1000) * ENEMY_WEAVE_OMEGA) * ENEMY_WEAVE_AMPLITUDE;
-    this.pos.x = Math.min(WORLD_WIDTH - half, Math.max(half, this.baseX + offset));
-  }
 
-  /** Returns true on the frames where the ship should fire. */
-  wantsToFire(elapsedMs: number): boolean {
-    this.shotIn -= elapsedMs;
-    if (this.shotIn > 0) {
-      return false;
-    }
-    this.shotIn = ENEMY_FIRE_INTERVAL_MS;
-    return true;
+    this.applyMovement(archetype, dt, context);
+    this.clampInsideWorld(archetype);
+
+    return this.tickFire(elapsedMs);
   }
 
   freeze(): void {
     this.vel = ex.Vector.Zero;
+  }
+
+  private applyMovement(archetype: Archetype, dt: number, context: EnemyContext): void {
+    if (archetype.weave) {
+      const offset =
+        Math.sin(this.phase + (this.age / 1000) * archetype.weave.omega) *
+        archetype.weave.amplitude;
+      this.pos.x = this.baseX + offset;
+    }
+
+    if (archetype.drift) {
+      this.pos.x += this.driftDirection * archetype.drift * dt;
+    }
+
+    if (archetype.tracking) {
+      const step = archetype.tracking * dt;
+      const delta = Math.max(-step, Math.min(step, context.heroX - this.pos.x));
+      this.pos.x += delta;
+    }
+
+    if (archetype.hover) {
+      const targetScreenY = context.viewHeight * archetype.hover.screenFraction;
+      const screenY = this.pos.y - context.topEdge;
+
+      if (!this.hovering && screenY >= targetScreenY) {
+        this.hovering = true;
+      }
+
+      if (this.hovering) {
+        // Hover means "stay at this height on screen": the world must move with the camera.
+        this.vel.y = 0;
+        this.pos.y =
+          context.topEdge +
+          targetScreenY +
+          Math.sin((this.age / 1000) * archetype.hover.bobOmega) * archetype.hover.bobAmplitude;
+      }
+    }
+  }
+
+  private clampInsideWorld(archetype: Archetype): void {
+    const half = archetype.visualWidth / 2 + EDGE_MARGIN;
+    const min = half;
+    const max = WORLD_WIDTH - half;
+
+    if (this.pos.x < min) {
+      this.pos.x = min;
+      this.driftDirection = 1;
+    } else if (this.pos.x > max) {
+      this.pos.x = max;
+      this.driftDirection = -1;
+    }
+  }
+
+  private tickFire(elapsedMs: number): number[] | null {
+    const fire = this.archetype.fire;
+    this.stepIn -= elapsedMs;
+    if (this.stepIn > 0) {
+      return null;
+    }
+
+    if (this.volleysLeft <= 0) {
+      this.volleysLeft = fire.burst;
+    }
+    this.volleysLeft -= 1;
+    this.stepIn = this.volleysLeft > 0 ? fire.burstGapMs : fire.intervalMs;
+
+    return fire.angles;
   }
 }
 
@@ -91,12 +174,12 @@ export class EnemyPool {
     }
   }
 
-  spawn(x: number, y: number): Enemy | undefined {
+  spawn(kind: EnemyKind, x: number, y: number): Enemy | undefined {
     const enemy = this.free.pop();
     if (!enemy) {
       return undefined;
     }
-    enemy.spawn(x, y);
+    enemy.spawn(kind, x, y);
     this.scene.add(enemy);
     this.inUse.push(enemy);
     return enemy;

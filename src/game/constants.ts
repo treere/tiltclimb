@@ -62,18 +62,14 @@ export const LASER_VISUAL_LENGTH = 46;
 export const HERO_SHOT_SPEED = 620;
 export const ENEMY_SHOT_SPEED = 320;
 export const SHOT_MIN_INTERVAL_MS = 150;
-export const KILL_POINTS = 25;
 
-export const ENEMY_VISUAL_WIDTH = 72;
-export const ENEMY_HIT_RADIUS = 26;
 export const ENEMY_POOL_SIZE = 4;
-export const ENEMY_MAX_ALIVE = 2;
-/** How fast an enemy crosses the screen downwards, once the rising camera is accounted for. */
-export const ENEMY_SCREEN_DESCENT = 120;
-export const ENEMY_WEAVE_AMPLITUDE = 110;
-export const ENEMY_WEAVE_OMEGA = 1.8;
+/** Alive limit: two at the start, three once the hunter is unlocked. */
+export const ENEMY_MAX_ALIVE_EARLY = 2;
+export const ENEMY_MAX_ALIVE_LATE = 3;
 export const ENEMY_SPAWN_INTERVAL_MS = 3500;
-export const ENEMY_FIRE_INTERVAL_MS = 2200;
+/** Horizontal margin kept free when an enemy enters from above. */
+export const ENEMY_SPAWN_MARGIN = 60;
 
 /** Collider used for the hero when cheking bullet and ship hits: forgiving by design. */
 export const HERO_HIT_RADIUS = 20;

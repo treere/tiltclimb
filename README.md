@@ -67,12 +67,21 @@ fallback tastiera/drag.
 
 - **FUOCO**: pulsante in basso; un tocco = un colpo, nessuna raffica (una guardia di 150 ms
   ignora il doppio evento che alcuni browser generano da un tocco solo).
-- **Navi nemiche**: scendono zigzagando e sparano dritto verso il basso. Al massimo due alla
-  volta. Un colpo le abbatte e vale 25 punti.
+- **Navi nemiche**: quattro tipi, ognuno con sprite, movimento e fuoco propri. Compaiono in
+  modo progressivo, in base all'altezza raggiunta:
+
+  | Tipo         | Da       | Movimento                          | Fuoco                     | Punti |
+  | ------------ | -------- | ---------------------------------- | ------------------------- | ----- |
+  | Pattuglia    | subito   | ondeggia scendendo                 | 1 colpo                   | 25    |
+  | Picchiatore  | 2500 px  | scende veloce in diagonale         | raffica di 2              | 35    |
+  | Cacciatore   | 6000 px  | ti segue in orizzontale (150 px/s) | ventaglio di 3 a ±18°     | 45    |
+  | Torretta UFO | 10000 px | staziona a mezza altezza           | raffica di 4, pausa lunga | 60    |
+
+  Il limite di navi contemporanee è 2, e sale a 3 da quando è sbloccato il cacciatore.
 - **Immunità**: i colpi dell'eroe attraversano gli asteroidi e le navi nemiche li attraversano
   a loro volta. Le collisioni di proiettili e navi sono calcolate a mano
   (`src/game/combat-math.ts`), non dal motore: è così che le immunità restano esplicite.
-- **Punteggio**: altezza (1 punto ogni 20 px) più 25 per ogni abbattimento.
+- **Punteggio**: altezza (1 punto ogni 20 px) più i punti del tipo abbattuto: 25, 35, 45 o 60.
 - Morire è istantaneo: asteroide, nave o proiettile nemico chiudono la partita.
 
 ## Aspetto
