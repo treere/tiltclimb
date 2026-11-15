@@ -61,11 +61,21 @@ Il punteggio SHALL essere proporzionale all'altezza massima raggiunta nella part
 - **WHEN** l'utente riavvia la partita dopo una sconfitta
 - **THEN** il punteggio riparte da zero e l'altezza massima viene reimpostata
 
-### Requirement: Ciclo partita con riavvio immediato
+### Requirement: Ciclo partita con ritorno al menu
 
-Il sistema SHALL mostrare lo stato di partita conclusa con il punteggio ottenuto e SHALL permettere di ricominciare con una singola azione, senza ricaricare la pagina.
+Alla fine di una partita il sistema SHALL tornare al menu entro un tempo percepito come immediato, senza ricaricare la pagina, e MUST NOT far ripartire automaticamente il gioco. Nel menu SHALL essere visibile l'esito della partita appena conclusa.
 
-#### Scenario: Ripartenza dopo la sconfitta
+#### Scenario: Ritorno al menu dopo la collisione
 
-- **WHEN** l'utente tocca lo schermo o preme un tasto sulla schermata di fine partita
-- **THEN** una nuova partita inizia immediatamente dallo stato iniziale
+- **WHEN** il giocatore tocca un ostacolo
+- **THEN** la partita si chiude e la schermata diventa il menu, con l'esito appena ottenuto
+
+#### Scenario: Nessuna ripartenza automatica
+
+- **WHEN** il gioco torna al menu dopo una sconfitta
+- **THEN** nessuna nuova partita parte finché l'utente non preme **Inizia gioco**
+
+#### Scenario: Nuova partita pulita
+
+- **WHEN** l'utente preme **Inizia gioco** dopo una sconfitta
+- **THEN** la scena riparte dallo stato iniziale, con punteggio a zero e ostacoli azzerati

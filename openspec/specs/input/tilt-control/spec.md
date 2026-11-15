@@ -19,20 +19,6 @@ Con i sensori attivi, il sistema SHALL tradurre l'inclinazione sinistra/destra d
 - **WHEN** il telefono è tenuto nell'inclinazione neutra
 - **THEN** il giocatore non si muove in orizzontale da solo
 
-### Requirement: Calibrazione dello zero al primo tocco
-
-Il sistema SHALL assumere come inclinazione neutra quella del dispositivo al momento in cui l'utente avvia la partita, e MUST sottrarre questo valore a tutte le letture successive, così che il giocatore non derivi a causa di come il telefono viene impugnato.
-
-#### Scenario: Zero catturato all'avvio
-
-- **WHEN** l'utente avvia la partita con il telefono inclinato di 12 gradi
-- **THEN** quella posizione vale zero e il giocatore resta fermo finché l'inclinazione non cambia
-
-#### Scenario: Ricalibrazione fra una partita e l'altra
-
-- **WHEN** l'utente riavvia la partita con il telefono in una posizione diversa
-- **THEN** il nuovo zero è la posizione assunta al riavvio
-
 ### Requirement: Smorzamento e dead zone
 
 Il sistema SHALL filtrare le letture del sensore per ridurre il tremolio e SHALL ignorare le inclinazioni inferiori a una soglia minima, così che il giocatore non vibri quando il telefono è quasi fermo. Il movimento SHALL risultare fluido e non a scatti alla frequenza di aggiornamento disponibile sul dispositivo.
@@ -63,9 +49,33 @@ Quando il sensore non è disponibile, il permesso è negato o l'utente gioca da 
 
 ### Requirement: Richiesta permessi dentro un gesto utente
 
-Su piattaforme che richiedono un consenso esplicito per i sensori, il sistema SHALL chiedere il permesso solo in risposta a un'azione dell'utente e SHALL gestire l'esito negativo senza interrompere il gioco.
+Su piattaforme che richiedono un consenso esplicito per i sensori, il sistema SHALL chiedere il permesso solo in risposta a un'azione dell'utente compiuta nel menu, e SHALL gestire l'esito negativo senza interrompere il gioco né bloccare il menu.
 
 #### Scenario: Primo tocco su Android o iOS
 
-- **WHEN** l'utente tocca per iniziare la partita
-- **THEN** la richiesta di permesso avviene dentro quel tocco e l'esito viene registrato prima di iniziare lo scorrimento
+- **WHEN** l'utente preme **Calibra** o **Inizia gioco** per la prima volta
+- **THEN** la richiesta di permesso avviene dentro quel tocco e l'esito viene registrato prima di proseguire
+
+#### Scenario: Permesso negato senza bloccare il menu
+
+- **WHEN** l'utente nega il permesso richiesto dal menu
+- **THEN** il menu mostra l'avviso di sensore non disponibile e resta utilizzabile
+
+### Requirement: Calibrazione esplicita comandata dal menu
+
+Il sistema SHALL usare come inclinazione neutra quella fissata dall'ultima calibrazione esplicita, e MUST sottrarre quel valore a tutte le letture successive. In assenza di calibrazione esplicita SHALL usare l'inclinazione rilevata all'apertura del menu. L'avvio di una partita MUST NOT ricalibrare in modo implicito.
+
+#### Scenario: Zero fissato dalla calibrazione
+
+- **WHEN** l'utente preme **Calibra** con il telefono inclinato di 12 gradi
+- **THEN** quella posizione vale zero per la partita successiva e il giocatore non deriva
+
+#### Scenario: Calibrazione mantenuta fra partite diverse
+
+- **WHEN** l'utente gioca, muore e riparte senza premere **Calibra**
+- **THEN** lo zero resta quello dell'ultima calibrazione esplicita
+
+#### Scenario: Zero iniziale senza calibrazione
+
+- **WHEN** l'utente apre il menu e avvia subito la partita senza calibrare
+- **THEN** lo zero è l'inclinazione con cui ha aperto il menu
