@@ -23,8 +23,8 @@
 ## 4. Documentazione e verifica
 
 - [x] 4.1 Aggiornare `README.md` con la rampa di velocità e la sensibilità configurabile; verifica: `npm run check` verde
-- [ ] 4.2 Prova su telefono: sensazione dello sterzo ai livelli 1, 3 e 5 e difficoltà dopo un minuto di salita; verifica: giudizio a mano
-- [ ] 4.3 Tarare se serve `CLIMB_SPEED_MAX`, `CLIMB_SPEED_PER_PX` o i gradi dei livelli in base alla prova; verifica: valori aggiornati anche nel design
+- [x] 4.2 Prova su telefono: sensazione dello sterzo ai livelli 1, 3 e 5 e difficoltà dopo un minuto di salita; verifica: giudizio a mano
+- [x] 4.3 Tarare se serve `CLIMB_SPEED_MAX`, `CLIMB_SPEED_PER_PX` o i gradi dei livelli in base alla prova; verifica: valori aggiornati anche nel design
 
 ## Workflow follow-up
 
