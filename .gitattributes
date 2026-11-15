@@ -2,3 +2,5 @@
 *.png binary
 *.jpg binary
 *.woff2 binary
+# Third-party licence files are kept byte-exact: no line-ending rewriting.
+public/assets/kenney/license.txt -text
