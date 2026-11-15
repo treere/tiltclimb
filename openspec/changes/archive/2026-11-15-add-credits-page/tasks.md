@@ -18,12 +18,12 @@
 ## 4. Layout del menu a tre comandi
 
 - [x] 4.1 Riorganizzare il layout del menu per i tre pulsanti (0.66 / 0.77 / 0.88) spostando lettura, barra, riepilogo e avviso; verifica: i tre comandi sono tutti visibili e non si sovrappongono all'illustrazione né fra loro
-- [ ] 4.2 Verificare il layout su uno schermo basso (simulando un'altezza utile ridotta) e correggere le altezze se serve; verifica: nulla finisce sotto il bordo o sopra la navigazione
+- [x] 4.2 Verificare il layout su uno schermo basso (simulando un'altezza utile ridotta) e correggere le altezze se serve; verifica: nulla finisce sotto il bordo o sopra la navigazione
 
 ## 5. Verifica finale
 
-- [ ] 5.1 Giro su telefono: menu a tre pulsanti, crediti leggibili, ritorno al menu, partita avviabile dopo il ritorno; verifica: nessuno stato bloccato e nessun testo tagliato
-- [ ] 5.2 Giudizio sulla leggibilità: scritte leggibili sopra le stelle in menu, crediti e HUD; verifica: giudizio a occhio su schermo piccolo
+- [x] 5.1 Giro su telefono: menu a tre pulsanti, crediti leggibili, ritorno al menu, partita avviabile dopo il ritorno; verifica: nessuno stato bloccato e nessun testo tagliato
+- [x] 5.2 Giudizio sulla leggibilità: scritte leggibili sopra le stelle in menu, crediti e HUD; verifica: giudizio a occhio su schermo piccolo
 - [x] 5.3 Aggiornare `README.md` (pagina crediti, storia, crediti) ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
 
 ## Workflow follow-up
