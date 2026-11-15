@@ -23,8 +23,9 @@ rules:
     - Documentare le costanti di gioco (gravità, velocità di salita, sensibilità tilt, dead zone) con i valori iniziali
     - Spiegare la matematica del tilt (gamma, calibrazione dello zero, smoothing) e il perché del fallback
   tasks:
-    - Ogni task deve avere una verifica eseguibile (npm run build, npm run typecheck, o prova sul telefono)
+    - Ogni task deve avere una verifica eseguibile (npm run check, o prova sul telefono)
     - Task da massimo 30 minuti l'uno
+    - Il gate standard di ogni task è `npm run check`: typecheck + Biome (lint e format) + build
 
 operations:
   apply:

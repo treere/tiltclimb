@@ -13,7 +13,16 @@ npm run dev        # dev server su http://127.0.0.1:5173
 npm run build      # typecheck + build in dist/
 npm run preview    # serve la build su http://127.0.0.1:4173
 npm run typecheck
+npm run lint       # Biome: lint + format + import order, senza modificare
+npm run lint:fix   # Biome: applica le correzioni
+npm run format     # solo formattazione
+npm run check      # typecheck + lint + build: il gate prima di ogni commit
 ```
+
+Tooling che tiene bassa l'entropia: **Biome** (formatter e linter in un unico binario, niente
+ESLint+Prettier da far litigare), TypeScript in `strict` con `noUncheckedIndexedAccess`,
+`.editorconfig`, `.gitattributes` con LF. Biome non tocca `.agents/`, `.hermes/` e `openspec/`:
+sono file generati dalla CLI OpenSpec e riformattarli crea solo rumore nei diff.
 
 ## Provarlo sul telefono
 

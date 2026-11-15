@@ -12,11 +12,11 @@ export default defineConfig({
     allowedHosts: ['.trycloudflare.com', '.ngrok-free.app'],
     hmr: {
       protocol: 'wss',
-      clientPort: 443
-    }
+      clientPort: 443,
+    },
   },
   build: {
     target: 'es2022',
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
 });

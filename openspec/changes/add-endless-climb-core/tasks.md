@@ -40,7 +40,7 @@
 
 - [ ] 7.1 Tarare `CLIMB_SPEED`, `MAX_HORIZONTAL_SPEED`, `TILT_RANGE`, `TILT_DEAD_ZONE` e `SMOOTH_TAU` giocando almeno tre partite da telefono; verifica: la sterzata è controllabile e la salita non è né noiosa né ingestibile
 - [ ] 7.2 Eseguire il giro completo su telefono via quick tunnel: primo tocco, permesso, partita, morte, riavvio; verifica: nessun errore in console e nessuno stato bloccato
-- [ ] 7.3 Verificare `npm run build` e `npm run typecheck` puliti e aggiornare `README.md` con i comandi di avvio e la nota sul tunnel HTTPS
+- [ ] 7.3 Eseguire `npm run check` (typecheck + Biome + build) e aggiornare `README.md` con i comandi di avvio e la nota sul tunnel HTTPS; verifica: comando verde e nessun warning
 
 ## Workflow follow-up
 
