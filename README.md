@@ -112,6 +112,24 @@ forma**: la nave usa un collisore 56×34 (lo sprite è 112×75, quindi più gran
 gli asteroidi un cerchio di raggio 33 px su uno sprite largo 90, con area paragonabile alla
 vecchia barra 120×28.
 
+## Schermata di caricamento
+
+Il loader predefinito di Excalibur (fondo blu, logo del motore) è sostituito da
+`src/ui/loading-screen.ts`: campo stellato, due navi che si inseguono con la scia, barra di
+avanzamento e percentuale legate ai progressi reali del caricamento.
+
+Due dettagli che valgono la pena di sapere:
+
+- La schermata è disegnata **solo con primitive 2D**: le immagini del gioco sono esattamente ciò
+  che sta caricando, quindi non può usarle.
+- Resta visibile almeno 700 ms anche con gli asset in cache (altrimenti lampeggerebbe) e la
+  dissolvenza verso il menu è un sipario nero in `menu-scene.ts`, non un effetto del loader: quando
+  il caricamento finisce l'engine smette di disegnare la schermata del loader, quindi una
+  dissolvenza lì sfumerebbe verso lo sfondo vuoto, non verso il menu.
+
+Con `prefers-reduced-motion` navi e stelle stanno ferme. Su schermo orizzontale vale l'avviso
+"ruota il telefono" già presente in `index.html`.
+
 ## Audio
 
 - **Musica**: una traccia per il menu e una per la partita, in loop, con cambio di scena.

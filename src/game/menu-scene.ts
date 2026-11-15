@@ -26,6 +26,9 @@ const BAR_HEIGHT = 18;
 const NEEDLE_WIDTH = 10;
 
 const CONFIRM_MS = 1200;
+/** Fade-in when the menu appears: the loading screen stops being drawn by the engine, so the
+ *  curtain lives here and goes from black to transparent over the menu. */
+const CURTAIN_MS = 320;
 
 /**
  * First screen of the game: what the sensor is reading, the calibration command, and the two
@@ -44,6 +47,8 @@ export class MenuScene extends ex.Scene {
   private calibrateButton!: Button;
   private starfield!: Starfield;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
+  private curtain!: ex.ScreenElement;
+  private curtainLeft = 0;
   private sensorPromptInFlight = false;
 
   override onInitialize(engine: ex.Engine): void {
@@ -144,6 +149,18 @@ export class MenuScene extends ex.Scene {
 
     this.confirmText = new UiText(this, { x: centerX, y: at(0.96), size: 28, color: OK });
 
+    // Full-screen black cover, faded out on activation so the menu does not pop in.
+    this.curtain = new ex.ScreenElement({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      z: 200,
+    });
+    this.curtain.graphics.use(new ex.Rectangle({ width, height, color: ex.Color.Black }));
+    this.curtain.graphics.opacity = 0;
+    this.add(this.curtain);
+
     // Any tap on the menu counts as the gesture that can ask for sensor permission.
     engine.input.pointers.primary.on('down', () => {
       void this.ensureSensor();
@@ -151,6 +168,8 @@ export class MenuScene extends ex.Scene {
   }
 
   override onActivate(_context: SceneContext): void {
+    this.curtainLeft = CURTAIN_MS;
+    this.curtain.graphics.opacity = 1;
     audio.syncMusic('menu');
     this.refreshResult();
     this.refreshWarning();
@@ -163,6 +182,7 @@ export class MenuScene extends ex.Scene {
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
     this.starfield.update(elapsed);
+    this.updateCurtain(elapsed);
 
     if (session.sensorPromptDone) {
       session.tilt.tick();
@@ -170,6 +190,14 @@ export class MenuScene extends ex.Scene {
 
     this.refreshWarning();
     this.refreshReadout(elapsed);
+  }
+
+  private updateCurtain(elapsed: number): void {
+    if (this.curtainLeft <= 0) {
+      return;
+    }
+    this.curtainLeft = Math.max(0, this.curtainLeft - elapsed);
+    this.curtain.graphics.opacity = this.curtainLeft / CURTAIN_MS;
   }
 
   private refreshReadout(elapsed: number): void {

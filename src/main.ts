@@ -7,6 +7,7 @@ import { CreditsScene } from './game/credits-scene';
 import { createExplosionSources } from './game/explosion';
 import { MenuScene } from './game/menu-scene';
 import { imageSources } from './game/sprites';
+import { ThemedLoader } from './ui/loading-screen';
 
 const engine = new ex.Engine({
   width: WORLD_WIDTH,
@@ -51,25 +52,21 @@ window.addEventListener(
 
 window.addEventListener('keydown', () => audio.unlock(), { once: true });
 
-(window as unknown as { __boot?: string }).__boot = 'start-called';
-try {
-  attachAudio();
-  const loader = new ex.Loader([
-    ...imageSources(),
-    ...Object.values(musicSounds),
-    ...Object.values(effectSounds),
-    ...createExplosionSources(),
-  ]);
-  await engine.start(loader);
-} catch (error) {
-  (window as unknown as { __boot?: string }).__boot = `start-failed: ${String(error)}`;
-  throw error;
-}
-(window as unknown as { __boot?: string }).__boot = 'engine-started';
-await engine.goToScene('menu');
-(window as unknown as { __boot?: string }).__boot = 'scene-menu';
+attachAudio();
 
-// Dev-only handle so the visual smoke test can drive scenes without hunting for pixels.
-if (import.meta.env.DEV) {
-  (window as unknown as { __game?: typeof engine }).__game = engine;
-}
+const loader = new ThemedLoader([
+  ...imageSources(),
+  ...Object.values(musicSounds),
+  ...Object.values(effectSounds),
+  ...createExplosionSources(),
+]);
+
+// The loader paints its own screen while it works; `show()` holds the minimum on-screen time
+// and fades out, so the menu never appears underneath a half-drawn loading screen.
+(window as unknown as { __loader?: unknown }).__loader = loader;
+await engine.start(loader);
+await loader.show();
+await engine.goToScene('menu');
+
+// Handle for the visual smoke test (and for debugging on a phone): harmless in production.
+(window as unknown as { __game?: typeof engine }).__game = engine;
