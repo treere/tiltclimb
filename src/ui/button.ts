@@ -1,24 +1,26 @@
 import * as ex from 'excalibur';
 
-// Space palette: dark translucent hull inside a glowing edge, so a button reads as a panel
-// floating on the star field rather than a bright solid block.
-const FILL_IDLE = new ex.Color(14, 26, 43, 0.88);
-const FILL_HOVER = new ex.Color(20, 44, 68, 0.92);
-const FILL_PRESSED = new ex.Color(30, 66, 100, 0.95);
-const FILL_DISABLED = new ex.Color(14, 19, 26, 0.75);
+// Space palette: an opaque hull inside a glowing edge. Opaque on purpose — a translucent
+// plate lets the star field show through and the label loses contrast in patches.
+const FILL_IDLE = ex.Color.fromHex('#0b1a2e');
+const FILL_HOVER = ex.Color.fromHex('#16324e');
+const FILL_PRESSED = ex.Color.fromHex('#1f4a6e');
+const FILL_DISABLED = ex.Color.fromHex('#131a22');
 
-const EDGE_IDLE = ex.Color.fromHex('#2f6f9e');
-const EDGE_HOVER = ex.Color.fromHex('#4fb3ff');
-const EDGE_PRESSED = ex.Color.fromHex('#8fdcff');
+const EDGE_IDLE = ex.Color.fromHex('#7fd4ff');
+const EDGE_HOVER = ex.Color.fromHex('#a8e4ff');
+const EDGE_PRESSED = ex.Color.fromHex('#ffffff');
 const EDGE_DISABLED = ex.Color.fromHex('#2a3442');
 
-const TEXT_COLOR = ex.Color.fromHex('#dbeafe');
+const TEXT_COLOR = ex.Color.fromHex('#ffffff');
 const TEXT_HOVER = ex.Color.fromHex('#ffffff');
-const TEXT_DISABLED = ex.Color.fromHex('#5d6b7d');
+// Disabled text stays light enough to keep 7:1 on the disabled fill.
+const TEXT_DISABLED = ex.Color.fromHex('#93a7bb');
 
-/** Border thickness in logical pixels. Excalibur rasters only expose a stroke colour,
- *  so the border is a second rectangle inset inside the first. */
 const EDGE_WIDTH = 3;
+
+/** Default label size: large enough to read on a phone without leaning in. */
+const DEFAULT_FONT_SIZE = 38;
 
 export type ButtonOptions = {
   x: number;
@@ -67,9 +69,11 @@ export class Button extends ex.ScreenElement {
       text: options.label,
       color: TEXT_COLOR,
       font: new ex.Font({
-        size: options.fontSize ?? 34,
+        size: options.fontSize ?? DEFAULT_FONT_SIZE,
         family: 'sans-serif',
         color: TEXT_COLOR,
+        // The shadow keeps the label readable even if the plate is bleached by a star behind it.
+        shadow: { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 },
       }),
     });
 

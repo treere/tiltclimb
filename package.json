@@ -12,7 +12,8 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "check": "npm run typecheck && npm run lint && npm run build",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check": "npm run typecheck && npm run lint && npm run check:contrast && npm run build",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {

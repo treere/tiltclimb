@@ -16,11 +16,14 @@ const TRACK_COLOR = ex.Color.fromHex('#232b36');
 const NEEDLE_COLOR = ex.Color.fromHex('#4fb3ff');
 
 const BUTTON_WIDTH = 440;
-const BUTTON_HEIGHT = 96;
+const BUTTON_HEIGHT = 92;
 const BAR_WIDTH = 520;
 const BAR_HEIGHT = 18;
 
 const CONFIRM_MS = 1200;
+
+/** Shadow behind text drawn straight on the star field. */
+const TEXT_SHADOW = { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 };
 
 /**
  * First screen of the game: shows what the sensor is reading, lets the player fix the
@@ -35,6 +38,7 @@ export class MenuScene extends ex.Scene {
   private needle!: ex.ScreenElement;
   private calibrateButton!: Button;
   private startButton!: Button;
+  private creditsButton!: Button;
   private starfield!: Starfield;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
   private sensorPromptInFlight = false;
@@ -54,37 +58,57 @@ export class MenuScene extends ex.Scene {
 
     const ship = createMenuShip();
     ship.pos.x = centerX;
-    ship.pos.y = at(0.235);
+    ship.pos.y = at(0.2);
     ship.z = 6;
     this.add(ship);
 
     const title = new ex.Text({
       text: 'TILTCLIMB',
       color: TITLE_COLOR,
-      font: new ex.Font({ size: 72, family: 'sans-serif', color: TITLE_COLOR }),
+      font: new ex.Font({
+        size: 72,
+        family: 'sans-serif',
+        color: TITLE_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
     this.addCenteredText(title, centerX, at(0.1));
 
     const subtitle = new ex.Text({
       text: 'inclina il telefono per sterzare',
       color: MUTED_COLOR,
-      font: new ex.Font({ size: 28, family: 'sans-serif', color: MUTED_COLOR }),
+      font: new ex.Font({
+        size: 28,
+        family: 'sans-serif',
+        color: MUTED_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
     this.addCenteredText(subtitle, centerX, at(0.17));
 
     const label = new ex.Text({
       text: 'INCLINAZIONE',
       color: MUTED_COLOR,
-      font: new ex.Font({ size: 26, family: 'sans-serif', color: MUTED_COLOR }),
+      font: new ex.Font({
+        size: 26,
+        family: 'sans-serif',
+        color: MUTED_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
     this.addCenteredText(label, centerX, at(0.28));
 
     this.angleGraphic = new ex.Text({
       text: '—',
       color: TITLE_COLOR,
-      font: new ex.Font({ size: 88, family: 'sans-serif', color: TITLE_COLOR }),
+      font: new ex.Font({
+        size: 88,
+        family: 'sans-serif',
+        color: TITLE_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
-    this.addCenteredText(this.angleGraphic, centerX, at(0.34));
+    this.addCenteredText(this.angleGraphic, centerX, at(0.36));
 
     const track = new ex.ScreenElement({
       x: centerX,
@@ -108,21 +132,31 @@ export class MenuScene extends ex.Scene {
     this.resultGraphic = new ex.Text({
       text: '',
       color: TITLE_COLOR,
-      font: new ex.Font({ size: 34, family: 'sans-serif', color: TITLE_COLOR }),
+      font: new ex.Font({
+        size: 34,
+        family: 'sans-serif',
+        color: TITLE_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
-    this.addCenteredText(this.resultGraphic, centerX, at(0.53));
+    this.addCenteredText(this.resultGraphic, centerX, at(0.5));
 
     this.warningGraphic = new ex.Text({
       text: '',
       color: WARN_COLOR,
       maxWidth: BUTTON_WIDTH + 120,
-      font: new ex.Font({ size: 26, family: 'sans-serif', color: WARN_COLOR }),
+      font: new ex.Font({
+        size: 26,
+        family: 'sans-serif',
+        color: WARN_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
-    this.addCenteredText(this.warningGraphic, centerX, at(0.62));
+    this.addCenteredText(this.warningGraphic, centerX, at(0.56));
 
     this.calibrateButton = new Button({
       x: centerX,
-      y: at(0.73),
+      y: at(0.66),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Calibra',
@@ -134,7 +168,7 @@ export class MenuScene extends ex.Scene {
 
     this.startButton = new Button({
       x: centerX,
-      y: at(0.85),
+      y: at(0.77),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Inizia gioco',
@@ -144,12 +178,29 @@ export class MenuScene extends ex.Scene {
     });
     this.add(this.startButton);
 
+    this.creditsButton = new Button({
+      x: centerX,
+      y: at(0.88),
+      width: BUTTON_WIDTH,
+      height: BUTTON_HEIGHT,
+      label: 'CREDITI',
+      onPress: () => {
+        void this.engine.goToScene('credits');
+      },
+    });
+    this.add(this.creditsButton);
+
     this.confirmGraphic = new ex.Text({
       text: '',
       color: OK_COLOR,
-      font: new ex.Font({ size: 30, family: 'sans-serif', color: OK_COLOR }),
+      font: new ex.Font({
+        size: 30,
+        family: 'sans-serif',
+        color: OK_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
-    this.addCenteredText(this.confirmGraphic, centerX, at(0.93));
+    this.addCenteredText(this.confirmGraphic, centerX, at(0.95));
 
     // Any tap on the menu counts as the gesture that can ask for sensor permission.
     engine.input.pointers.primary.on('down', () => {

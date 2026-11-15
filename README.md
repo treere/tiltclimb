@@ -16,8 +16,12 @@ npm run typecheck
 npm run lint       # Biome: lint + format + import order, senza modificare
 npm run lint:fix   # Biome: applica le correzioni
 npm run format     # solo formattazione
-npm run check      # typecheck + lint + build: il gate prima di ogni commit
+npm run check      # typecheck + lint + contrasto + build: il gate prima di ogni commit
 ```
+
+`npm run check:contrast` legge i colori da `src/ui/button.ts` e verifica il rapporto WCAG:
+almeno 7:1 per il testo su ogni fondo, 3:1 per i bordi. Non è un'opinione sul gusto, è un
+numero che si può far fallire.
 
 Tooling che tiene bassa l'entropia: **Biome** (formatter e linter in un unico binario, niente
 ESLint+Prettier da far litigare), TypeScript in `strict` con `noUncheckedIndexedAccess`,
@@ -62,6 +66,9 @@ fallback tastiera/drag.
   funziona anche sul telefono se il permesso viene negato.
 - **Fine partita**: si torna al menu con il punteggio appena fatto, il migliore di sessione e
   il numero di navi abbattute.
+- **CREDITI**: terzo pulsante del menu. Racconta la storia dell'eroe (salto andato storto,
+  squadra dispersa, salita come unica rotta), elenca gli asset con licenza e l'autore.
+  `INDIETRO` riporta al menu senza toccare la calibrazione.
 
 ## Combattimento
 

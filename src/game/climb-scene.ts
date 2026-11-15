@@ -35,6 +35,8 @@ import { Starfield } from './starfield';
 type SceneContext = ex.SceneActivationContext<unknown>;
 
 const TEXT_COLOR = ex.Color.fromHex('#e6edf3');
+/** Shadow behind HUD text: it sits on the scrolling star field, so it needs its own edge. */
+const TEXT_SHADOW = { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 };
 const MARGIN_X = 24;
 const OBSTACLE_EDGE_MARGIN = 48;
 const EXIT_DELAY_MS = 500;
@@ -335,7 +337,12 @@ export class ClimbScene extends ex.Scene {
     this.scoreGraphic = new ex.Text({
       text: '0',
       color: TEXT_COLOR,
-      font: new ex.Font({ size: 44, family: 'sans-serif', color: TEXT_COLOR }),
+      font: new ex.Font({
+        size: 44,
+        family: 'sans-serif',
+        color: TEXT_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
 
     const scoreHolder = new ex.ScreenElement({ x: MARGIN_X, y: MARGIN_X });
@@ -346,7 +353,12 @@ export class ClimbScene extends ex.Scene {
     this.bannerGraphic = new ex.Text({
       text: '',
       color: TEXT_COLOR,
-      font: new ex.Font({ size: 96, family: 'sans-serif', color: TEXT_COLOR }),
+      font: new ex.Font({
+        size: 96,
+        family: 'sans-serif',
+        color: TEXT_COLOR,
+        shadow: TEXT_SHADOW,
+      }),
     });
 
     const bannerHolder = new ex.ScreenElement({

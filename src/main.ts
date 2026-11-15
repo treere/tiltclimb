@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
 import { ClimbScene } from './game/climb-scene';
 import { BACKGROUND_COLOR, WORLD_HEIGHT, WORLD_WIDTH } from './game/constants';
+import { CreditsScene } from './game/credits-scene';
 import { MenuScene } from './game/menu-scene';
 import { createLoader } from './game/sprites';
 
@@ -18,6 +19,7 @@ const engine = new ex.Engine({
 
 engine.add('menu', new MenuScene());
 engine.add('climb', new ClimbScene());
+engine.add('credits', new CreditsScene());
 
 /**
  * Fullscreen and portrait lock are best effort: both can be refused (iOS ignores the
