@@ -16,6 +16,11 @@ With the sensors active, the system SHALL translate the device's left/right tilt
 - **WHEN** the phone is held at the neutral tilt
 - **THEN** the player does not move horizontally on its own
 
+#### Scenario: More responsive default
+
+- **WHEN** the game is started without saved settings
+- **THEN** the ship reaches full scale at a lower tilt than in versions before the sensitivity setting
+
 #### Scenario: Crossing the screen
 
 - **WHEN** the phone is held at full scale for one direction
