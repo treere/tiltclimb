@@ -6,6 +6,7 @@ import { BACKGROUND_COLOR, WORLD_HEIGHT, WORLD_WIDTH } from './game/constants';
 import { CreditsScene } from './game/credits-scene';
 import { createExplosionSources } from './game/explosion';
 import { MenuScene } from './game/menu-scene';
+import { renderPixelRatio } from './game/render-density';
 import { imageSources } from './game/sprites';
 import { ThemedLoader } from './ui/loading-screen';
 
@@ -14,9 +15,20 @@ const engine = new ex.Engine({
   height: WORLD_HEIGHT,
   canvasElementId: 'game',
   displayMode: ex.DisplayMode.FitScreen,
-  // Physics and movement run on a fixed 60 Hz step: climb speed must not depend on
-  // whether the phone refreshes at 60, 90 or 120 Hz.
-  fixedUpdateFps: 60,
+  // Drawn at the device density, capped: the logical world stays 720×1280, only the number of
+  // pixels changes. Without this the 720 px buffer is stretched 1.6× on a 3× phone.
+  pixelRatio: renderPixelRatio(
+    window.innerWidth,
+    window.innerHeight,
+    window.devicePixelRatio || 1,
+    WORLD_WIDTH,
+    WORLD_HEIGHT,
+  ),
+  // Nearest-neighbour sampling, so the pixel-art sprites keep hard edges.
+  antialiasing: false,
+  pixelArt: true,
+  // Motion runs on the real elapsed time, so a 90 or 120 Hz phone draws that many distinct
+  // frames. Every speed in the game is per second, so the movement does not depend on the fps.
   backgroundColor: ex.Color.fromHex(BACKGROUND_COLOR),
   suppressPlayButton: true,
 });

@@ -96,6 +96,20 @@ keyboard/drag fallback.
   as the game accelerates they become farther apart in time, not closer in space. The game becomes
   faster, not more unfair.
 
+## Feel and rendering
+
+- **Rendered at device density**: the canvas backing store is computed so it matches the physical
+  pixels of the painted area (capped at 2.5×), instead of a 720 px buffer stretched over a 1080 px
+  screen. `antialiasing: false` plus `pixelArt: true` keeps the pixel-art edges hard.
+- **Frame pacing follows the screen**: no fixed 60 Hz step, motion runs on the real elapsed time,
+  so a 90 or 120 Hz phone draws that many distinct frames. Every speed is per second, so the
+  movement is the same on any refresh rate.
+- **Steering**: dead zone 1.5° as a **continuous ramp** (the response starts from zero at the
+  threshold instead of jumping), smoothing tau 45 ms, full-scale horizontal speed 380 px/s — about
+  1.9 s to cross the screen.
+- **Background**: the near layer travels at 0.55× the climb speed, i.e. ~105 px/s at the start and
+  ~176 px/s at the cap, so the world visibly moves.
+
 ## Combat
 
 - **FIRE**: button at the bottom; one tap = one shot, no bursts (a 150 ms guard

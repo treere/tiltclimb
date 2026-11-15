@@ -10,17 +10,20 @@ export const WORLD_HEIGHT = 1280;
 
 /* Climb speed is no longer a constant: see `speed.ts` (it grows with height). */
 
-/** Horizontal speed at full tilt, in logical pixels per second. */
-export const MAX_HORIZONTAL_SPEED = 300;
+/** Horizontal speed at full tilt, in logical pixels per second: 720 px in ~1.9 s. */
+export const MAX_HORIZONTAL_SPEED = 380;
 
-/** Tilt below this many degrees is treated as zero, so a still hand does not drift. */
-export const TILT_DEAD_ZONE_DEG = 3;
+/**
+ * Tilt below this many degrees is ignored, so a still hand does not drift. The response grows
+ * continuously from here instead of jumping, which is why the threshold can stay this small.
+ */
+export const TILT_DEAD_ZONE_DEG = 1.5;
 
 /** Fallback saturation angle. The live value comes from `input/tilt-settings.ts`. */
 export const TILT_RANGE_DEG = 13;
 
 /** Time constant of the exponential smoothing applied to the tilt axis (ms). */
-export const TILT_SMOOTH_TAU_MS = 90;
+export const TILT_SMOOTH_TAU_MS = 45;
 
 /** If no deviceorientation event arrives within this window, the sensor is written off. */
 export const TILT_TIMEOUT_MS = 1500;
@@ -79,7 +82,7 @@ export const FIRE_BUTTON_HEIGHT = 84;
 export const BACKGROUND_COLOR = '#0e1116';
 
 /** Parallax speed factors, relative to the current climb speed. */
-export const STARFIELD_TILE_FACTOR = 0.25;
+export const STARFIELD_TILE_FACTOR = 0.55;
 export const STARFIELD_NEAR_FACTOR = 1;
 export const STARFIELD_FAR_FACTOR = 0.6;
 export const MENU_STARFIELD_FACTOR = 0.12;

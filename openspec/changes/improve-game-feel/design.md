@@ -25,9 +25,16 @@ See `proposal.md`. Current values, from `src/game/constants.ts`, `src/game/speed
 ### 1. Render at device density, capped
 
 ```ts
-const pixelRatio = Math.min(window.devicePixelRatio || 1, 2.5);
-new ex.Engine({ width: WORLD_WIDTH, height: WORLD_HEIGHT, pixelRatio, antialiasing: false, pixelArt: true, ... });
+// src/game/render-density.ts — pure, so it is testable without a browser
+const paintedWidth = Math.min(viewportWidth, viewportHeight * (worldWidth / worldHeight));
+const ratio = (paintedWidth * devicePixelRatio) / worldWidth; // clamped to [1, 2.5]
+new ex.Engine({ width: WORLD_WIDTH, height: WORLD_HEIGHT, pixelRatio: ratio, antialiasing: false, pixelArt: true, ... });
 ```
+
+The ratio is computed from the painted area, not taken as `devicePixelRatio`: on a 393 pt @3×
+phone it comes out at 1.64, which makes the buffer exactly 1179 px wide — the physical width. Using
+the raw density would render 1800 px for the same screen, i.e. 2.3× the fragments for no visible
+gain.
 
 Excalibur multiplies the backing store by `pixelRatio` and keeps the logical resolution at 720×1280, so all the existing geometry — hitboxes, positions, constants — stays valid; only the number of pixels changes. The cap exists because cost grows with the square: at 3× the fragment count is 1.44× that of 2.5×, and a phone that drops frames looks worse than one that is slightly less sharp.
 

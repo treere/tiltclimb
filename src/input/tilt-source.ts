@@ -148,8 +148,13 @@ export class TiltSource {
     }
 
     const relative = this.gamma - this.zero;
-    const deadZoned = Math.abs(relative) < TILT_DEAD_ZONE_DEG ? 0 : relative;
-    const normalized = clamp(deadZoned / this.rangeDeg, -1, 1);
+
+    // The threshold decides where the response starts, not how big the first step is: the
+    // magnitude is reduced by the dead zone and grows from zero, so there is no jump at the
+    // boundary and a deliberate small correction still registers.
+    const usableRange = Math.max(1, this.rangeDeg - TILT_DEAD_ZONE_DEG);
+    const magnitude = Math.max(0, Math.abs(relative) - TILT_DEAD_ZONE_DEG);
+    const normalized = clamp((Math.sign(relative) * magnitude) / usableRange, -1, 1);
 
     // Frame-rate independent smoothing: the time to settle depends on tau, not on fps.
     const alpha = 1 - Math.exp(-clamp(deltaMs, 0, 100) / TILT_SMOOTH_TAU_MS);
