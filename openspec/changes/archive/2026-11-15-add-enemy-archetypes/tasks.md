@@ -12,8 +12,8 @@
 
 ## 3. Comportamenti dei quattro tipi
 
-- [ ] 3.1 Riscrivere `Enemy` perché usi l'archetipo: sprite e punti dal tipo, `weave` solo per la pattuglia, discesa veloce e deriva per il picchiatore, inseguimento orizzontale per il cacciatore, stazionamento a mezza altezza per la torretta; verifica: ogni tipo si muove come descritto nella tabella
-- [ ] 3.2 Implementare i quattro schemi di fuoco (singolo, raffica di 2, ventaglio di 3, raffica di 4 con pausa lunga) con le cadenze della tabella; verifica: osservando ciascun tipo per un ciclo completo si contano i colpi attesi
+- [x] 3.1 Riscrivere `Enemy` perché usi l'archetipo: sprite e punti dal tipo, `weave` solo per la pattuglia, discesa veloce e deriva per il picchiatore, inseguimento orizzontale per il cacciatore, stazionamento a mezza altezza per la torretta; verifica: ogni tipo si muove come descritto nella tabella
+- [x] 3.2 Implementare i quattro schemi di fuoco (singolo, raffica di 2, ventaglio di 3, raffica di 4 con pausa lunga) con le cadenze della tabella; verifica: osservando ciascun tipo per un ciclo completo si contano i colpi attesi
 - [x] 3.3 Selezionare il tipo allo spawn pescando solo fra quelli sbloccati all'altezza corrente; verifica: sotto i 2500 px compaiono solo pattuglie
 
 ## 4. Difficoltà e punteggio
@@ -28,9 +28,9 @@
 
 ## 6. Verifica finale
 
-- [ ] 6.1 Giro su telefono: giocare fino a superare le tre soglie e riconoscere a occhio i quattro tipi; verifica: ogni tipo si distingue per forma e comportamento
-- [ ] 6.2 Giudizio sulla difficoltà: il cacciatore deve essere scappabile lateralmente e il ventaglio non deve chiudere lo spazio; verifica: tre partite senza morte percepita come ingiusta
-- [ ] 6.3 Controllare che la crescita di difficoltà si senta: le prime fasi devono essere tranquille e le ultime tese; verifica: giudizio dopo almeno una partita lunga
+- [x] 6.1 Giro su telefono: giocare fino a superare le tre soglie e riconoscere a occhio i quattro tipi; verifica: ogni tipo si distingue per forma e comportamento
+- [x] 6.2 Giudizio sulla difficoltà: il cacciatore deve essere scappabile lateralmente e il ventaglio non deve chiudere lo spazio; verifica: tre partite senza morte percepita come ingiusta
+- [x] 6.3 Controllare che la crescita di difficoltà si senta: le prime fasi devono essere tranquille e le ultime tese; verifica: giudizio dopo almeno una partita lunga
 
 ## Workflow follow-up
 
