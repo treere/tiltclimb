@@ -1,0 +1,36 @@
+schema: spec-driven
+
+context: |
+  Tiltclimb è un gioco 2D per browser: scroll verticale infinito (il giocatore sale),
+  si sterza inclinando il telefono a sinistra/destra. Deve girare su Android Chrome
+  da telefono e su desktop con tastiera; nessuna app nativa, nessun account, nessun backend.
+  Stack fisso: Excalibur 1.0.1, TypeScript, Vite 8. Nessuna dipendenza UI aggiuntiva.
+  L'input tilt usa le API del browser (deviceorientation, gamma) perché Excalibur non
+  ha supporto ai sensori; serve sempre un fallback senza sensori (tastiera su desktop,
+  drag sul touch).
+  Il giocatore è Andrea: tech lead, leggere italiano discorsivo, niente documenti non
+  richiesti. Gli artefatti OpenSpec sono in italiano; identificatori, commenti e chiavi
+  nel codice sono in inglese.
+  Anteprima su telefono solo via quick tunnel cloudflared (HTTPS obbligatorio per i sensori),
+  quindi il dev server deve accettare host .trycloudflare.com e HMR su wss:443.
+  Nessun asset grafico esterno nella prima iterazione: forme disegnate via codice.
+
+rules:
+  proposal:
+    - Scrivere in italiano, max 400 parole
+    - Dichiarare sempre cosa è fuori scope
+  design:
+    - Documentare le costanti di gioco (gravità, velocità di salita, sensibilità tilt, dead zone) con i valori iniziali
+    - Spiegare la matematica del tilt (gamma, calibrazione dello zero, smoothing) e il perché del fallback
+  tasks:
+    - Ogni task deve avere una verifica eseguibile (npm run build, npm run typecheck, o prova sul telefono)
+    - Task da massimo 30 minuti l'uno
+
+operations:
+  apply:
+    guidance:
+      - Mantieni il gioco giocabile dopo ogni task, non solo alla fine
+      - Verifica con npm run build prima di dichiarare un task chiuso
+  archive:
+    guidance:
+      - Sincronizza gli delta spec prima di archiviare
