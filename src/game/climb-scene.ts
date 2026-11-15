@@ -1,19 +1,34 @@
 import * as ex from 'excalibur';
 import { InputRouter } from '../input/input-router';
+import { Button } from '../ui/button';
+import { circlesOverlap, climbScore } from './combat-math';
 import {
   CLIMB_SPEED,
+  ENEMY_HIT_RADIUS,
+  ENEMY_MAX_ALIVE,
+  ENEMY_POOL_SIZE,
+  ENEMY_SPAWN_INTERVAL_MS,
+  ENEMY_VISUAL_WIDTH,
+  FIRE_BUTTON_HEIGHT,
+  FIRE_BUTTON_WIDTH,
+  HERO_HIT_RADIUS,
   MAX_HORIZONTAL_SPEED,
   OBSTACLE_POOL_SIZE,
   OBSTACLE_RADIUS,
-  PIXELS_PER_POINT,
   PLAYER_HITBOX_WIDTH,
   PLAYER_SCREEN_FRACTION,
+  PLAYER_VISUAL_HEIGHT,
+  PROJECTILE_HIT_RADIUS,
+  PROJECTILE_POOL_SIZE,
+  SHOT_MIN_INTERVAL_MS,
   SPAWN_GAP_PX,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants';
+import { EnemyPool } from './enemy';
 import { ObstaclePool } from './obstacle-pool';
 import { PlayerShip } from './player';
+import { ProjectilePool } from './projectile';
 import { session } from './session';
 import { Starfield } from './starfield';
 
@@ -23,23 +38,31 @@ const TEXT_COLOR = ex.Color.fromHex('#e6edf3');
 const MARGIN_X = 24;
 const OBSTACLE_EDGE_MARGIN = 48;
 const EXIT_DELAY_MS = 500;
+const FIRE_BUTTON_Y = WORLD_HEIGHT - 96;
+const ENEMY_EDGE_MARGIN = 24;
 
 /**
- * The run itself: the ship climbs through an asteroid field, obstacles are recycled, the
- * camera follows one axis and the star field scrolls behind. The scene has no menu of its
- * own — it starts on activation and hands control back to the menu scene on a hit.
+ * The run: the ship climbs through an asteroid field while enemy ships weave downwards and
+ * shoot. Bullets and ships stay out of the engine's collision system on purpose — the scene
+ * resolves them by hand, which is what keeps asteroids immune to gunfire.
  */
 export class ClimbScene extends ex.Scene {
   private inputRouter!: InputRouter;
-  private pool!: ObstaclePool;
+  private obstacles!: ObstaclePool;
+  private projectiles!: ProjectilePool;
+  private enemies!: EnemyPool;
   private player!: PlayerShip;
   private starfield!: Starfield;
   private scoreGraphic!: ex.Text;
   private bannerGraphic!: ex.Text;
+  private fireButton!: Button;
   private running = false;
   private leaving = false;
   private score = 0;
+  private kills = 0;
   private nextSpawnY = 0;
+  private enemySpawnAccumulator = 0;
+  private lastShotAt = 0;
   private exitTimer: ReturnType<typeof setTimeout> | null = null;
 
   override onInitialize(engine: ex.Engine): void {
@@ -54,8 +77,12 @@ export class ClimbScene extends ex.Scene {
     // not in the middle, and the offset has to stay constant while the world scrolls.
     this.alignCamera();
 
-    this.pool = new ObstaclePool(this, OBSTACLE_POOL_SIZE);
+    this.obstacles = new ObstaclePool(this, OBSTACLE_POOL_SIZE);
+    this.projectiles = new ProjectilePool(this, PROJECTILE_POOL_SIZE);
+    this.enemies = new EnemyPool(this, ENEMY_POOL_SIZE);
     this.inputRouter = new InputRouter(engine, session.tilt);
+    // Dragging must not start on the fire button, or steering would fight the thumb.
+    this.inputRouter.setDragStartLimit(FIRE_BUTTON_Y - FIRE_BUTTON_HEIGHT / 2 - 12);
 
     this.player.on('collisionstart', () => {
       this.endRun();
@@ -93,7 +120,10 @@ export class ClimbScene extends ex.Scene {
     }
 
     this.spawnAhead();
-    this.pool.recycleBelow(this.cameraBottom());
+    this.obstacles.recycleBelow(this.cameraBottom());
+    this.updateEnemies(elapsed);
+    this.projectiles.recycleOutside(this.topEdge() - 200, this.cameraBottom());
+    this.resolveHits();
     this.updateScore();
   }
 
@@ -111,7 +141,9 @@ export class ClimbScene extends ex.Scene {
   }
 
   private startRun(): void {
-    this.pool.releaseAll();
+    this.obstacles.releaseAll();
+    this.projectiles.releaseAll();
+    this.enemies.releaseAll();
 
     this.player.pos.x = WORLD_WIDTH / 2;
     this.player.pos.y = 0;
@@ -120,12 +152,16 @@ export class ClimbScene extends ex.Scene {
     this.player.startExhaust();
 
     this.score = 0;
+    this.kills = 0;
     this.scoreGraphic.text = '0';
     this.bannerGraphic.text = '';
-    this.nextSpawnY = -WORLD_HEIGHT / 2 - SPAWN_GAP_PX * 0.5;
+    this.nextSpawnY = -WORLD_HEIGHT * PLAYER_SCREEN_FRACTION - SPAWN_GAP_PX * 0.5;
+    this.enemySpawnAccumulator = 0;
+    this.lastShotAt = 0;
 
     this.leaving = false;
     this.running = true;
+    this.setFireEnabled(true);
   }
 
   private endRun(): void {
@@ -137,9 +173,12 @@ export class ClimbScene extends ex.Scene {
     this.running = false;
     this.player.vel = ex.Vector.Zero;
     this.player.stopExhaust();
+    this.projectiles.freezeAll();
+    this.enemies.freezeAll();
 
-    session.recordScore(this.score);
+    session.recordScore(this.score, this.kills);
     this.bannerGraphic.text = `${this.score}`;
+    this.setFireEnabled(false);
 
     // Short pause so the collision is readable before the scene changes.
     this.exitTimer = setTimeout(() => {
@@ -149,19 +188,102 @@ export class ClimbScene extends ex.Scene {
   }
 
   private updateScore(): void {
-    const climbed = Math.max(0, -this.player.pos.y);
-    const points = Math.floor(climbed / PIXELS_PER_POINT);
-    if (points > this.score) {
-      this.score = points;
-      this.scoreGraphic.text = String(points);
+    const total = climbScore(-this.player.pos.y, this.kills);
+    if (total > this.score) {
+      this.score = total;
+      this.scoreGraphic.text = String(total);
     }
+  }
+
+  private updateEnemies(elapsed: number): void {
+    for (const enemy of [...this.enemies.active]) {
+      enemy.weave(elapsed);
+      if (enemy.wantsToFire(elapsed)) {
+        this.projectiles.spawn('enemy', enemy.pos.x, enemy.pos.y + ENEMY_VISUAL_WIDTH / 2);
+      }
+    }
+
+    this.enemies.recycleBelow(this.cameraBottom());
+
+    this.enemySpawnAccumulator += elapsed;
+    if (this.enemySpawnAccumulator < ENEMY_SPAWN_INTERVAL_MS) {
+      return;
+    }
+    if (this.enemies.aliveCount >= ENEMY_MAX_ALIVE) {
+      return;
+    }
+
+    this.enemySpawnAccumulator = 0;
+    const half = ENEMY_VISUAL_WIDTH / 2 + ENEMY_EDGE_MARGIN;
+    const x = half + Math.random() * (WORLD_WIDTH - half * 2);
+    this.enemies.spawn(x, this.topEdge() - ENEMY_VISUAL_WIDTH);
+  }
+
+  /**
+   * Hand-rolled collisions: hero bullets hit enemy ships, enemy bullets and ships hit the hero,
+   * asteroids hit nobody. Explicit beats three layers of collision groups.
+   */
+  private resolveHits(): void {
+    const hero = { x: this.player.pos.x, y: this.player.pos.y, r: HERO_HIT_RADIUS };
+
+    for (const projectile of [...this.projectiles.active]) {
+      const bullet = { x: projectile.pos.x, y: projectile.pos.y, r: PROJECTILE_HIT_RADIUS };
+
+      if (projectile.faction === 'hero') {
+        const target = [...this.enemies.active].find((enemy) =>
+          circlesOverlap(bullet, { x: enemy.pos.x, y: enemy.pos.y, r: ENEMY_HIT_RADIUS }),
+        );
+        if (target) {
+          this.projectiles.release(projectile);
+          this.enemies.release(target);
+          this.kills += 1;
+          this.updateScore();
+        }
+        continue;
+      }
+
+      if (circlesOverlap(bullet, hero)) {
+        this.projectiles.release(projectile);
+        this.endRun();
+        return;
+      }
+    }
+
+    if (!this.running) {
+      return;
+    }
+
+    const rammed = [...this.enemies.active].find((enemy) =>
+      circlesOverlap({ x: enemy.pos.x, y: enemy.pos.y, r: ENEMY_HIT_RADIUS }, hero),
+    );
+    if (rammed) {
+      this.endRun();
+    }
+  }
+
+  private fireHero(): void {
+    if (!this.running) {
+      return;
+    }
+
+    const now = performance.now();
+    if (now - this.lastShotAt < SHOT_MIN_INTERVAL_MS) {
+      return;
+    }
+    this.lastShotAt = now;
+
+    this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT);
+  }
+
+  private setFireEnabled(enabled: boolean): void {
+    this.fireButton.setEnabled(enabled);
   }
 
   /** Keeps asteroids waiting above the viewport, one SPAWN_GAP apart. */
   private spawnAhead(): void {
-    const topEdge = this.player.pos.y - WORLD_HEIGHT * PLAYER_SCREEN_FRACTION;
+    const topEdge = this.topEdge();
     while (this.nextSpawnY > topEdge - SPAWN_GAP_PX) {
-      this.pool.acquire(this.randomObstacleX(), this.nextSpawnY);
+      this.obstacles.acquire(this.randomObstacleX(), this.nextSpawnY);
       this.nextSpawnY -= SPAWN_GAP_PX;
     }
   }
@@ -171,6 +293,11 @@ export class ClimbScene extends ex.Scene {
     const min = half + OBSTACLE_EDGE_MARGIN;
     const max = WORLD_WIDTH - half - OBSTACLE_EDGE_MARGIN;
     return min + Math.random() * (max - min);
+  }
+
+  /** Top edge of the visible world, given where the camera sits above the ship. */
+  private topEdge(): number {
+    return this.player.pos.y - WORLD_HEIGHT * PLAYER_SCREEN_FRACTION;
   }
 
   private cameraBottom(): number {
@@ -208,5 +335,18 @@ export class ClimbScene extends ex.Scene {
     bannerHolder.graphics.use(this.bannerGraphic);
     bannerHolder.z = 100;
     this.add(bannerHolder);
+
+    this.fireButton = new Button({
+      x: WORLD_WIDTH / 2,
+      y: FIRE_BUTTON_Y,
+      width: FIRE_BUTTON_WIDTH,
+      height: FIRE_BUTTON_HEIGHT,
+      label: 'FUOCO',
+      onPress: () => {
+        this.fireHero();
+      },
+    });
+    this.fireButton.z = 100;
+    this.add(this.fireButton);
   }
 }

@@ -16,6 +16,8 @@ export class InputRouter {
   private dragging = false;
   private lastPointerX = 0;
   private pendingDrag = 0;
+  /** Screen y below which a touch should not start a drag (the fire button lives there). */
+  private dragStartLimit = Number.POSITIVE_INFINITY;
 
   constructor(engine: ex.Engine, tilt: TiltSource) {
     this.engine = engine;
@@ -23,6 +25,10 @@ export class InputRouter {
     const pointer = engine.input.pointers.primary;
 
     pointer.on('down', (event: ex.PointerEvent) => {
+      if (event.screenPos.y > this.dragStartLimit) {
+        this.dragging = false;
+        return;
+      }
       this.dragging = true;
       this.lastPointerX = event.screenPos.x;
     });
@@ -68,6 +74,11 @@ export class InputRouter {
 
   get isDragging(): boolean {
     return this.dragging;
+  }
+
+  /** Touches starting below `maxY` are left to the UI instead of steering the ship. */
+  setDragStartLimit(maxY: number): void {
+    this.dragStartLimit = maxY;
   }
 
   private keyboardAxis(): number {

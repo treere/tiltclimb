@@ -60,7 +60,20 @@ fallback tastiera/drag.
   l'assetto con cui hai aperto il menu.
 - **In partita**: inclina a sinistra/destra. Da desktop frecce ← → o A/D; il trascinamento
   funziona anche sul telefono se il permesso viene negato.
-- **Fine partita**: si torna al menu con il punteggio appena fatto e il migliore di sessione.
+- **Fine partita**: si torna al menu con il punteggio appena fatto, il migliore di sessione e
+  il numero di navi abbattute.
+
+## Combattimento
+
+- **FUOCO**: pulsante in basso; un tocco = un colpo, nessuna raffica (una guardia di 150 ms
+  ignora il doppio evento che alcuni browser generano da un tocco solo).
+- **Navi nemiche**: scendono zigzagando e sparano dritto verso il basso. Al massimo due alla
+  volta. Un colpo le abbatte e vale 25 punti.
+- **Immunità**: i colpi dell'eroe attraversano gli asteroidi e le navi nemiche li attraversano
+  a loro volta. Le collisioni di proiettili e navi sono calcolate a mano
+  (`src/game/combat-math.ts`), non dal motore: è così che le immunità restano esplicite.
+- **Punteggio**: altezza (1 punto ogni 20 px) più 25 per ogni abbattimento.
+- Morire è istantaneo: asteroide, nave o proiettile nemico chiudono la partita.
 
 ## Aspetto
 

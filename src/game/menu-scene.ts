@@ -220,7 +220,7 @@ export class MenuScene extends ex.Scene {
       this.resultGraphic.text = '';
       return;
     }
-    this.resultGraphic.text = `Ultimo: ${session.lastScore}   Migliore: ${session.bestScore}`;
+    this.resultGraphic.text = `Ultimo: ${session.lastScore}   Migliore: ${session.bestScore}   Abbattuti: ${session.lastKills}`;
   }
 
   private async ensureSensor(): Promise<void> {

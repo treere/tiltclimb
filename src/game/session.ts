@@ -1,10 +1,9 @@
 import { TiltSource } from '../input/tilt-source';
 
 /**
- * State that outlives a single run: the calibrated sensor and the two score numbers
- * shown by the menu. It is deliberately a module singleton — if every scene built its
- * own TiltSource, the zero calibrated in the menu would be lost the moment the game
- * scene starts, which is the bug this design exists to prevent.
+ * State that outlives a single run: the calibrated sensor and the numbers shown by the menu.
+ * It is deliberately a module singleton — if every scene built its own TiltSource, the zero
+ * calibrated in the menu would be lost the moment the game scene starts.
  */
 class Session {
   readonly tilt = new TiltSource();
@@ -15,9 +14,11 @@ class Session {
   hasPlayed = false;
   lastScore = 0;
   bestScore = 0;
+  lastKills = 0;
 
-  recordScore(points: number): void {
+  recordScore(points: number, kills: number): void {
     this.lastScore = points;
+    this.lastKills = kills;
     this.hasPlayed = true;
     if (points > this.bestScore) {
       this.bestScore = points;

@@ -53,6 +53,31 @@ export const PLAYER_SCREEN_FRACTION = 0.72;
 /** World pixels per score point. */
 export const PIXELS_PER_POINT = 20;
 
+/** Combat. All speeds in world px/s, all intervals in ms. */
+export const PROJECTILE_POOL_SIZE = 40;
+export const PROJECTILE_HIT_RADIUS = 6;
+export const HERO_SHOT_SPEED = 620;
+export const ENEMY_SHOT_SPEED = 320;
+export const SHOT_MIN_INTERVAL_MS = 150;
+export const KILL_POINTS = 25;
+
+export const ENEMY_VISUAL_WIDTH = 72;
+export const ENEMY_HIT_RADIUS = 26;
+export const ENEMY_POOL_SIZE = 4;
+export const ENEMY_MAX_ALIVE = 2;
+/** How fast an enemy crosses the screen downwards, once the rising camera is accounted for. */
+export const ENEMY_SCREEN_DESCENT = 120;
+export const ENEMY_WEAVE_AMPLITUDE = 110;
+export const ENEMY_WEAVE_OMEGA = 1.8;
+export const ENEMY_SPAWN_INTERVAL_MS = 3500;
+export const ENEMY_FIRE_INTERVAL_MS = 2200;
+
+/** Collider used for the hero when cheking bullet and ship hits: forgiving by design. */
+export const HERO_HIT_RADIUS = 20;
+
+export const FIRE_BUTTON_WIDTH = 200;
+export const FIRE_BUTTON_HEIGHT = 84;
+
 export const BACKGROUND_COLOR = '#0e1116';
 
 /** Parallax speed factors, relative to CLIMB_SPEED. */

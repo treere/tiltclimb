@@ -32,7 +32,27 @@ export const starImages: ex.ImageSource[] = [
   image('star3.png'),
 ];
 
-const allImages = [shipImage, backgroundImage, ...flameImages, ...meteorImages, ...starImages];
+export const enemyImages: ex.ImageSource[] = [
+  image('enemyRed1.png'),
+  image('enemyRed2.png'),
+  image('enemyRed3.png'),
+  image('enemyRed4.png'),
+  image('enemyRed5.png'),
+];
+
+export const heroLaserImage = image('laserBlue01.png');
+export const enemyLaserImage = image('laserRed01.png');
+
+const allImages = [
+  shipImage,
+  backgroundImage,
+  ...flameImages,
+  ...meteorImages,
+  ...starImages,
+  ...enemyImages,
+  heroLaserImage,
+  enemyLaserImage,
+];
 
 /** Shared loader: nothing is drawn before these images are decoded. */
 export function createLoader(): ex.Loader {
