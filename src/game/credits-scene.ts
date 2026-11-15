@@ -1,5 +1,6 @@
 import * as ex from 'excalibur';
 import { Button } from '../ui/button';
+import { UiText } from '../ui/ui-text';
 import { MENU_STARFIELD_FACTOR, WORLD_HEIGHT, WORLD_WIDTH } from './constants';
 import { CREDITS, STORY } from './credits-text';
 import { createMenuShip } from './player';
@@ -7,12 +8,9 @@ import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
 
-const TITLE_COLOR = ex.Color.fromHex('#e6edf3');
-const BODY_COLOR = ex.Color.fromHex('#d6e2ef');
-const MUTED_COLOR = ex.Color.fromHex('#8b98a8');
-
-/** Shadow behind text shown over the star field: without it the glyphs lose their edges. */
-const TEXT_SHADOW = { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 };
+const TITLE = '#e6edf3';
+const BODY = '#d6e2ef';
+const MUTED = '#8b98a8';
 
 /**
  * The credits page: the story that explains the climb, then who made what. It only reads
@@ -36,52 +34,34 @@ export class CreditsScene extends ex.Scene {
     ship.z = 6;
     this.add(ship);
 
-    const title = new ex.Text({
-      text: 'CREDITI',
-      color: TITLE_COLOR,
-      font: new ex.Font({
-        size: 60,
-        family: 'sans-serif',
-        color: TITLE_COLOR,
-        textAlign: ex.TextAlign.Center,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCentered(title, centerX, at(0.21));
+    new UiText(this, { x: centerX, y: at(0.2), size: 56, color: TITLE, weight: 700 }).setText(
+      'CREDITI',
+    );
 
-    const story = new ex.Text({
-      text: STORY.join('\n\n'),
-      color: BODY_COLOR,
-      maxWidth: Math.min(width - 80, 620),
-      font: new ex.Font({
-        size: 28,
-        family: 'sans-serif',
-        color: BODY_COLOR,
-        lineHeight: 38,
-        textAlign: ex.TextAlign.Center,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCentered(story, centerX, at(0.4));
+    const wrap = Math.min(width - 80, 620);
+    new UiText(this, {
+      x: centerX,
+      y: at(0.42),
+      size: 26,
+      color: BODY,
+      weight: 400,
+      lineHeight: 36,
+      maxWidth: wrap,
+    }).setLines(STORY);
 
-    const credits = new ex.Text({
-      text: CREDITS.map((line) => `${line.label}: ${line.value}`).join('\n'),
-      color: MUTED_COLOR,
-      maxWidth: Math.min(width - 80, 620),
-      font: new ex.Font({
-        size: 24,
-        family: 'sans-serif',
-        color: MUTED_COLOR,
-        lineHeight: 34,
-        textAlign: ex.TextAlign.Center,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCentered(credits, centerX, at(0.68));
+    new UiText(this, {
+      x: centerX,
+      y: at(0.7),
+      size: 22,
+      color: MUTED,
+      weight: 500,
+      lineHeight: 32,
+      maxWidth: wrap,
+    }).setLines(CREDITS.map((line) => `${line.label}: ${line.value}`));
 
     const back = new Button({
       x: centerX,
-      y: at(0.87),
+      y: at(0.88),
       width: 300,
       height: 92,
       label: 'INDIETRO',
@@ -99,12 +79,5 @@ export class CreditsScene extends ex.Scene {
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
     this.starfield.update(elapsed);
-  }
-
-  private addCentered(graphic: ex.Text, x: number, y: number): void {
-    const holder = new ex.ScreenElement({ x, y, anchor: ex.Vector.Half });
-    holder.graphics.use(graphic);
-    holder.z = 5;
-    this.add(holder);
   }
 }

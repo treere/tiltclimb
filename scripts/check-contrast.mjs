@@ -12,11 +12,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'src/ui/button.ts'), 'utf8');
 
-/** Reads `const NAME = ex.Color.fromHex('#rrggbb');` from the button source. */
+/** Reads `const NAME = '#rrggbb';` from the button source. */
 function palette(name) {
-  const match = new RegExp(`const ${name} = ex\\.Color\\.fromHex\\('(#[0-9a-fA-F]{6})'\\)`).exec(
-    source,
-  );
+  const match = new RegExp(`const ${name} = '(#[0-9a-fA-F]{6})';`).exec(source);
   if (!match) {
     throw new Error(`colore ${name} non trovato in src/ui/button.ts`);
   }

@@ -45,5 +45,18 @@ window.addEventListener(
   { once: true },
 );
 
-await engine.start(createLoader());
+(window as unknown as { __boot?: string }).__boot = 'start-called';
+try {
+  await engine.start(createLoader());
+} catch (error) {
+  (window as unknown as { __boot?: string }).__boot = `start-failed: ${String(error)}`;
+  throw error;
+}
+(window as unknown as { __boot?: string }).__boot = 'engine-started';
 await engine.goToScene('menu');
+(window as unknown as { __boot?: string }).__boot = 'scene-menu';
+
+// Dev-only handle so the visual smoke test can drive scenes without hunting for pixels.
+if (import.meta.env.DEV) {
+  (window as unknown as { __game?: typeof engine }).__game = engine;
+}

@@ -1,6 +1,8 @@
 import * as ex from 'excalibur';
 import { requestSensorPermission } from '../input/tilt-source';
 import { Button } from '../ui/button';
+import { addCenteredGraphic } from '../ui/placement';
+import { UiText } from '../ui/ui-text';
 import { MENU_STARFIELD_FACTOR, WORLD_HEIGHT, WORLD_WIDTH } from './constants';
 import { createMenuShip } from './player';
 import { session } from './session';
@@ -8,37 +10,36 @@ import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
 
-const TITLE_COLOR = ex.Color.fromHex('#e6edf3');
-const MUTED_COLOR = ex.Color.fromHex('#8b98a8');
-const WARN_COLOR = ex.Color.fromHex('#ffb4a2');
-const OK_COLOR = ex.Color.fromHex('#7ee787');
-const TRACK_COLOR = ex.Color.fromHex('#232b36');
-const NEEDLE_COLOR = ex.Color.fromHex('#4fb3ff');
+const TEXT = '#e6edf3';
+const MUTED = '#8b98a8';
+const WARN = '#ffb4a2';
+const OK = '#7ee787';
+const TRACK = '#232b36';
+const NEEDLE = '#4fb3ff';
 
 const BUTTON_WIDTH = 440;
 const BUTTON_HEIGHT = 92;
 const BAR_WIDTH = 520;
 const BAR_HEIGHT = 18;
+const NEEDLE_WIDTH = 10;
 
 const CONFIRM_MS = 1200;
 
-/** Shadow behind text drawn straight on the star field. */
-const TEXT_SHADOW = { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 };
-
 /**
- * First screen of the game: shows what the sensor is reading, lets the player fix the
- * neutral inclination, and starts a run. It also receives the player back after a run,
- * with the score of that run and the best of the session.
+ * First screen of the game: what the sensor is reading, the calibration command, and the two
+ * ways out — start a run or read the credits. It also receives the player back after a run.
+ *
+ * All text goes through `UiText` (canvas-drawn, measured), so nothing depends on Excalibur's
+ * lazily measured text bounds.
  */
 export class MenuScene extends ex.Scene {
-  private angleGraphic!: ex.Text;
-  private resultGraphic!: ex.Text;
-  private warningGraphic!: ex.Text;
-  private confirmGraphic!: ex.Text;
+  private angleText!: UiText;
+  private resultText!: UiText;
+  private warningText!: UiText;
+  private confirmText!: UiText;
   private needle!: ex.ScreenElement;
+  private needleCenterX = 0;
   private calibrateButton!: Button;
-  private startButton!: Button;
-  private creditsButton!: Button;
   private starfield!: Starfield;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
   private sensorPromptInFlight = false;
@@ -50,113 +51,59 @@ export class MenuScene extends ex.Scene {
 
     const safe = engine.screen.contentArea;
     const height = safe.height > 0 ? safe.height : WORLD_HEIGHT;
-    const top = safe.top;
-    const centerX = (safe.width > 0 ? safe.width : WORLD_WIDTH) / 2;
-    const at = (fraction: number): number => top + height * fraction;
+    const width = safe.width > 0 ? safe.width : WORLD_WIDTH;
+    const centerX = width / 2;
+    const at = (fraction: number): number => safe.top + height * fraction;
 
     this.starfield = new Starfield(this, MENU_STARFIELD_FACTOR);
 
     const ship = createMenuShip();
     ship.pos.x = centerX;
-    ship.pos.y = at(0.2);
+    ship.pos.y = at(0.19);
     ship.z = 6;
     this.add(ship);
 
-    const title = new ex.Text({
-      text: 'TILTCLIMB',
-      color: TITLE_COLOR,
-      font: new ex.Font({
-        size: 72,
-        family: 'sans-serif',
-        color: TITLE_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(title, centerX, at(0.1));
-
-    const subtitle = new ex.Text({
-      text: 'inclina il telefono per sterzare',
-      color: MUTED_COLOR,
-      font: new ex.Font({
-        size: 28,
-        family: 'sans-serif',
-        color: MUTED_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(subtitle, centerX, at(0.17));
-
-    const label = new ex.Text({
-      text: 'INCLINAZIONE',
-      color: MUTED_COLOR,
-      font: new ex.Font({
-        size: 26,
-        family: 'sans-serif',
-        color: MUTED_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(label, centerX, at(0.28));
-
-    this.angleGraphic = new ex.Text({
-      text: '—',
-      color: TITLE_COLOR,
-      font: new ex.Font({
-        size: 88,
-        family: 'sans-serif',
-        color: TITLE_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(this.angleGraphic, centerX, at(0.36));
-
-    const track = new ex.ScreenElement({
-      x: centerX,
-      y: at(0.44),
-      anchor: ex.Vector.Half,
-    });
-    track.graphics.use(
-      new ex.Rectangle({ width: BAR_WIDTH, height: BAR_HEIGHT, color: TRACK_COLOR }),
+    new UiText(this, { x: centerX, y: at(0.09), size: 72, color: TEXT, weight: 700 }).setText(
+      'TILTCLIMB',
     );
-    this.add(track);
+    new UiText(this, { x: centerX, y: at(0.15), size: 26, color: MUTED, weight: 400 }).setText(
+      'inclina il telefono per sterzare',
+    );
+    new UiText(this, { x: centerX, y: at(0.27), size: 24, color: MUTED, weight: 500 }).setText(
+      'INCLINAZIONE',
+    );
 
-    this.needle = new ex.ScreenElement({
+    this.angleText = new UiText(this, { x: centerX, y: at(0.34), size: 84, color: TEXT });
+
+    addCenteredGraphic(
+      this,
+      new ex.Rectangle({ width: BAR_WIDTH, height: BAR_HEIGHT, color: ex.Color.fromHex(TRACK) }),
+      centerX,
+      at(0.43),
+      2,
+    );
+
+    const needleGraphic = new ex.Rectangle({
+      width: NEEDLE_WIDTH,
+      height: 44,
+      color: ex.Color.fromHex(NEEDLE),
+    });
+    this.needle = addCenteredGraphic(this, needleGraphic, centerX, at(0.43), 10);
+    this.needleCenterX = centerX;
+
+    this.resultText = new UiText(this, { x: centerX, y: at(0.5), size: 32, color: TEXT });
+    this.warningText = new UiText(this, {
       x: centerX,
-      y: at(0.44),
-      anchor: ex.Vector.Half,
+      y: at(0.57),
+      size: 24,
+      color: WARN,
+      weight: 500,
+      maxWidth: BUTTON_WIDTH + 100,
     });
-    this.needle.graphics.use(new ex.Rectangle({ width: 10, height: 44, color: NEEDLE_COLOR }));
-    this.needle.z = 10;
-    this.add(this.needle);
-
-    this.resultGraphic = new ex.Text({
-      text: '',
-      color: TITLE_COLOR,
-      font: new ex.Font({
-        size: 34,
-        family: 'sans-serif',
-        color: TITLE_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(this.resultGraphic, centerX, at(0.5));
-
-    this.warningGraphic = new ex.Text({
-      text: '',
-      color: WARN_COLOR,
-      maxWidth: BUTTON_WIDTH + 120,
-      font: new ex.Font({
-        size: 26,
-        family: 'sans-serif',
-        color: WARN_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(this.warningGraphic, centerX, at(0.56));
 
     this.calibrateButton = new Button({
       x: centerX,
-      y: at(0.66),
+      y: at(0.67),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Calibra',
@@ -166,9 +113,9 @@ export class MenuScene extends ex.Scene {
     });
     this.add(this.calibrateButton);
 
-    this.startButton = new Button({
+    const startButton = new Button({
       x: centerX,
-      y: at(0.77),
+      y: at(0.78),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Inizia gioco',
@@ -176,11 +123,11 @@ export class MenuScene extends ex.Scene {
         void this.onStart();
       },
     });
-    this.add(this.startButton);
+    this.add(startButton);
 
-    this.creditsButton = new Button({
+    const creditsButton = new Button({
       x: centerX,
-      y: at(0.88),
+      y: at(0.89),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'CREDITI',
@@ -188,19 +135,9 @@ export class MenuScene extends ex.Scene {
         void this.engine.goToScene('credits');
       },
     });
-    this.add(this.creditsButton);
+    this.add(creditsButton);
 
-    this.confirmGraphic = new ex.Text({
-      text: '',
-      color: OK_COLOR,
-      font: new ex.Font({
-        size: 30,
-        family: 'sans-serif',
-        color: OK_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-    this.addCenteredText(this.confirmGraphic, centerX, at(0.95));
+    this.confirmText = new UiText(this, { x: centerX, y: at(0.96), size: 28, color: OK });
 
     // Any tap on the menu counts as the gesture that can ask for sensor permission.
     engine.input.pointers.primary.on('down', () => {
@@ -211,7 +148,7 @@ export class MenuScene extends ex.Scene {
   override onActivate(_context: SceneContext): void {
     this.refreshResult();
     this.refreshWarning();
-    this.confirmGraphic.text = '';
+    this.confirmText.setText('');
   }
 
   override onDeactivate(_context: SceneContext): void {
@@ -229,49 +166,41 @@ export class MenuScene extends ex.Scene {
     this.refreshReadout(elapsed);
   }
 
-  private addCenteredText(graphic: ex.Text, x: number, y: number): void {
-    const holder = new ex.ScreenElement({ x, y, anchor: ex.Vector.Half });
-    holder.graphics.use(graphic);
-    holder.z = 5;
-    this.add(holder);
-  }
-
   private refreshReadout(elapsed: number): void {
     const available = session.tilt.isAvailable;
 
-    this.angleGraphic.text = available
-      ? `${session.tilt.relativeDegrees >= 0 ? '+' : ''}${session.tilt.relativeDegrees.toFixed(1)}°`
-      : '—';
+    this.angleText.setText(
+      available
+        ? `${session.tilt.relativeDegrees >= 0 ? '+' : ''}${session.tilt.relativeDegrees.toFixed(1)}°`
+        : '—',
+    );
 
     const axis = available ? session.tilt.axis(elapsed) : 0;
-    const safe = this.engine.screen.contentArea;
-    const centerX = (safe.width > 0 ? safe.width : WORLD_WIDTH) / 2;
-    this.needle.pos.x = centerX + (axis * (BAR_WIDTH - 20)) / 2;
+    // The needle is drawn from its top-left corner, so subtract half its width.
+    this.needle.pos.x = this.needleCenterX + (axis * (BAR_WIDTH - 20)) / 2 - NEEDLE_WIDTH / 2;
   }
 
   private refreshWarning(): void {
-    const available = session.tilt.isAvailable;
-    if (available) {
-      this.warningGraphic.text = '';
+    if (session.tilt.isAvailable) {
+      this.warningText.setText('');
       this.calibrateButton.setLabel('Calibra');
       return;
     }
 
     this.calibrateButton.setLabel('Sensore non disponibile');
-    if (session.sensorPromptDone) {
-      this.warningGraphic.text =
-        'Sensore non disponibile: si gioca con il trascinamento o con le frecce.';
-    } else {
-      this.warningGraphic.text = 'Tocca lo schermo per attivare i sensori.';
-    }
+    this.warningText.setText(
+      session.sensorPromptDone
+        ? 'Sensore non disponibile: si gioca con il trascinamento o con le frecce.'
+        : 'Tocca lo schermo per attivare i sensori.',
+    );
   }
 
   private refreshResult(): void {
-    if (!session.hasPlayed) {
-      this.resultGraphic.text = '';
-      return;
-    }
-    this.resultGraphic.text = `Ultimo: ${session.lastScore}   Migliore: ${session.bestScore}   Abbattuti: ${session.lastKills}`;
+    this.resultText.setText(
+      session.hasPlayed
+        ? `Ultimo: ${session.lastScore}   Migliore: ${session.bestScore}   Abbattuti: ${session.lastKills}`
+        : '',
+    );
   }
 
   private async ensureSensor(): Promise<void> {
@@ -294,13 +223,15 @@ export class MenuScene extends ex.Scene {
     await this.ensureSensor();
 
     if (!session.tilt.isAvailable) {
-      this.showConfirm('Niente da calibrare: sensore non disponibile', WARN_COLOR);
+      this.confirmText.setColor(WARN);
+      this.showConfirm('Niente da calibrare: sensore non disponibile');
       return;
     }
 
     session.tilt.calibrate();
     this.calibrateButton.flash();
-    this.showConfirm('Calibrato ✓', OK_COLOR);
+    this.confirmText.setColor(OK);
+    this.showConfirm('Calibrato ✓');
   }
 
   private async onStart(): Promise<void> {
@@ -308,13 +239,12 @@ export class MenuScene extends ex.Scene {
     await this.engine.goToScene('climb');
   }
 
-  private showConfirm(text: string, color: ex.Color): void {
+  private showConfirm(text: string): void {
     this.clearConfirmTimer();
-    this.confirmGraphic.text = text;
-    this.confirmGraphic.color = color;
+    this.confirmText.setText(text);
     this.confirmTimer = setTimeout(() => {
       this.confirmTimer = null;
-      this.confirmGraphic.text = '';
+      this.confirmText.setText('');
     }, CONFIRM_MS);
   }
 

@@ -28,6 +28,16 @@ ESLint+Prettier da far litigare), TypeScript in `strict` con `noUncheckedIndexed
 `.editorconfig`, `.gitattributes` con LF. Biome non tocca `.agents/`, `.hermes/` e `openspec/`:
 sono file generati dalla CLI OpenSpec e riformattarli crea solo rumore nei diff.
 
+### Testi e pulsanti
+
+Testi e pulsanti dell'interfaccia sono disegnati con l'API canvas 2D dentro `ex.Canvas`
+(`src/ui/ui-text.ts`, `src/ui/button.ts`), con la dimensione misurata prima di disegnare e
+`textAlign: center` per le etichette. Non è una preferenza estetica: i grafici di Excalibur si
+disegnano dall'angolo in alto a sinistra e l'ancora dell'attore sposta il disegno di mezza
+dimensione, mentre `ex.Text` si misura in modo lazy — combinandoli, un blocco di testo lungo
+finiva diverse centinaia di pixel fuori schermo. Con il canvas la scatola e l'inchiostro
+coincidono per costruzione.
+
 ### Hook pre-commit
 
 `.githooks/pre-commit` esegue `tsc --noEmit` sull'intero progetto e `biome check --staged`

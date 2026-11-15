@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
 import { InputRouter } from '../input/input-router';
 import { Button } from '../ui/button';
+import { UiText } from '../ui/ui-text';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
   CLIMB_SPEED,
@@ -34,9 +35,6 @@ import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
 
-const TEXT_COLOR = ex.Color.fromHex('#e6edf3');
-/** Shadow behind HUD text: it sits on the scrolling star field, so it needs its own edge. */
-const TEXT_SHADOW = { offset: ex.vec(2, 2), color: ex.Color.Black, blur: 0 };
 const MARGIN_X = 24;
 const OBSTACLE_EDGE_MARGIN = 48;
 const EXIT_DELAY_MS = 500;
@@ -55,8 +53,8 @@ export class ClimbScene extends ex.Scene {
   private enemies!: EnemyPool;
   private player!: PlayerShip;
   private starfield!: Starfield;
-  private scoreGraphic!: ex.Text;
-  private bannerGraphic!: ex.Text;
+  private scoreText!: UiText;
+  private bannerText!: UiText;
   private fireButton!: Button;
   private running = false;
   private leaving = false;
@@ -157,8 +155,8 @@ export class ClimbScene extends ex.Scene {
     this.score = 0;
     this.kills = 0;
     this.killPoints = 0;
-    this.scoreGraphic.text = '0';
-    this.bannerGraphic.text = '';
+    this.scoreText.setText('0');
+    this.bannerText.setText('');
     this.nextSpawnY = -WORLD_HEIGHT * PLAYER_SCREEN_FRACTION - SPAWN_GAP_PX * 0.5;
     this.enemySpawnAccumulator = 0;
     this.lastShotAt = 0;
@@ -181,7 +179,7 @@ export class ClimbScene extends ex.Scene {
     this.enemies.freezeAll();
 
     session.recordScore(this.score, this.kills);
-    this.bannerGraphic.text = `${this.score}`;
+    this.bannerText.setText(`${this.score}`);
     this.setFireEnabled(false);
 
     // Short pause so the collision is readable before the scene changes.
@@ -195,7 +193,7 @@ export class ClimbScene extends ex.Scene {
     const total = climbScore(this.climbedHeight(), this.killPoints);
     if (total > this.score) {
       this.score = total;
-      this.scoreGraphic.text = String(total);
+      this.scoreText.setText(String(total));
     }
   }
 
@@ -334,41 +332,25 @@ export class ClimbScene extends ex.Scene {
   }
 
   private createHud(): void {
-    this.scoreGraphic = new ex.Text({
-      text: '0',
-      color: TEXT_COLOR,
-      font: new ex.Font({
-        size: 44,
-        family: 'sans-serif',
-        color: TEXT_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
+    this.scoreText = new UiText(this, {
+      x: MARGIN_X,
+      y: MARGIN_X,
+      size: 44,
+      color: '#e6edf3',
+      align: 'left',
+      valign: 'top',
+      z: 100,
     });
+    this.scoreText.setText('0');
 
-    const scoreHolder = new ex.ScreenElement({ x: MARGIN_X, y: MARGIN_X });
-    scoreHolder.graphics.use(this.scoreGraphic);
-    scoreHolder.z = 100;
-    this.add(scoreHolder);
-
-    this.bannerGraphic = new ex.Text({
-      text: '',
-      color: TEXT_COLOR,
-      font: new ex.Font({
-        size: 96,
-        family: 'sans-serif',
-        color: TEXT_COLOR,
-        shadow: TEXT_SHADOW,
-      }),
-    });
-
-    const bannerHolder = new ex.ScreenElement({
+    this.bannerText = new UiText(this, {
       x: WORLD_WIDTH / 2,
       y: WORLD_HEIGHT / 2,
-      anchor: ex.Vector.Half,
+      size: 96,
+      color: '#e6edf3',
+      z: 100,
     });
-    bannerHolder.graphics.use(this.bannerGraphic);
-    bannerHolder.z = 100;
-    this.add(bannerHolder);
+    this.bannerText.setText('');
 
     this.fireButton = new Button({
       x: WORLD_WIDTH / 2,
