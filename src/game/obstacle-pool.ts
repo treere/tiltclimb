@@ -26,6 +26,7 @@ export class ObstaclePool {
 
     obstacle.pos.x = x;
     obstacle.pos.y = y;
+    obstacle.randomize();
     this.scene.add(obstacle);
     this.inUse.push(obstacle);
     return obstacle;

@@ -62,6 +62,26 @@ fallback tastiera/drag.
   funziona anche sul telefono se il permesso viene negato.
 - **Fine partita**: si torna al menu con il punteggio appena fatto e il migliore di sessione.
 
+## Aspetto
+
+Astronave con scia animata, campo di asteroidi che ruotano, sfondo stellato in parallasse
+(tasselli 256×256 riciclati + stelle a due profondità). Il menu usa lo stesso sfondo a
+velocità ridotta con la nave come illustrazione.
+
+Gli sprite sostituiscono le forme disegnate via codice; **le hitbox non sono cambiate di
+forma**: la nave usa un collisore 56×34 (lo sprite è 112×75, quindi più grande del collisore),
+gli asteroidi un cerchio di raggio 33 px su uno sprite largo 90, con area paragonabile alla
+vecchia barra 120×28.
+
+## Crediti
+
+Asset grafici: **Kenney — «Space Shooter Redux»**, licenza **CC0 1.0** (public domain).
+Autore: Kenney Vleugels, <https://kenney.nl>. Il testo di licenza originale è in
+`public/assets/kenney/license.txt`, accanto ai file usati.
+
+CC0 non richiede attribuzione: il credito è qui perché è giusto darlo, e perché il giorno in
+cui arriverà un asset CC-BY la sua licenza dovrà essere elencata allo stesso modo.
+
 ## OpenSpec
 
 ```bash

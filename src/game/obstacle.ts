@@ -1,27 +1,35 @@
 import * as ex from 'excalibur';
-import { HITBOX_SCALE, OBSTACLE_HEIGHT, OBSTACLE_WIDTH } from './constants';
-
-const OBSTACLE_COLOR = ex.Color.fromHex('#e05b4a');
+import { OBSTACLE_RADIUS, OBSTACLE_VISUAL_WIDTH } from './constants';
+import { meteorImages } from './sprites';
 
 /**
- * One obstacle. Instances are created once by the pool and reused: the actor's
- * collider is intentionally smaller than the sprite so near misses read as fair.
+ * One asteroid. The pool creates these once; `randomize()` gives each reuse a different
+ * rock, a different angle and a slow spin, so the field never looks like a repeated stamp.
+ *
+ * The collider is a circle smaller than the sprite: near misses read as near misses, and
+ * its area is comparable to the old rectangular obstacle so difficulty does not shift.
  */
 export class Obstacle extends ex.Actor {
   constructor() {
     super({
       name: 'obstacle',
-      width: OBSTACLE_WIDTH * HITBOX_SCALE,
-      height: OBSTACLE_HEIGHT * HITBOX_SCALE,
+      radius: OBSTACLE_RADIUS,
       collisionType: ex.CollisionType.Active,
     });
+    this.randomize();
+  }
 
-    this.graphics.use(
-      new ex.Rectangle({
-        width: OBSTACLE_WIDTH,
-        height: OBSTACLE_HEIGHT,
-        color: OBSTACLE_COLOR,
-      }),
-    );
+  randomize(): void {
+    const source = meteorImages[Math.floor(Math.random() * meteorImages.length)];
+    if (source) {
+      const sprite = source.toSprite();
+      const scale = OBSTACLE_VISUAL_WIDTH / sprite.width;
+      sprite.scale = ex.vec(scale, scale);
+      this.graphics.use(sprite);
+    }
+
+    this.rotation = Math.random() * Math.PI * 2;
+    const spin = 0.25 + Math.random() * 0.6;
+    this.angularVelocity = Math.random() < 0.5 ? -spin : spin;
   }
 }

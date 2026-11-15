@@ -2,6 +2,7 @@ import * as ex from 'excalibur';
 import { ClimbScene } from './game/climb-scene';
 import { BACKGROUND_COLOR, WORLD_HEIGHT, WORLD_WIDTH } from './game/constants';
 import { MenuScene } from './game/menu-scene';
+import { createLoader } from './game/sprites';
 
 const engine = new ex.Engine({
   width: WORLD_WIDTH,
@@ -42,5 +43,5 @@ window.addEventListener(
   { once: true },
 );
 
-await engine.start();
+await engine.start(createLoader());
 await engine.goToScene('menu');

@@ -1,8 +1,10 @@
 import * as ex from 'excalibur';
 import { requestSensorPermission } from '../input/tilt-source';
 import { Button } from '../ui/button';
-import { WORLD_HEIGHT, WORLD_WIDTH } from './constants';
+import { MENU_STARFIELD_FACTOR, WORLD_HEIGHT, WORLD_WIDTH } from './constants';
+import { createMenuShip } from './player';
 import { session } from './session';
+import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
 
@@ -33,6 +35,7 @@ export class MenuScene extends ex.Scene {
   private needle!: ex.ScreenElement;
   private calibrateButton!: Button;
   private startButton!: Button;
+  private starfield!: Starfield;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
   private sensorPromptInFlight = false;
 
@@ -46,6 +49,14 @@ export class MenuScene extends ex.Scene {
     const top = safe.top;
     const centerX = (safe.width > 0 ? safe.width : WORLD_WIDTH) / 2;
     const at = (fraction: number): number => top + height * fraction;
+
+    this.starfield = new Starfield(this, MENU_STARFIELD_FACTOR);
+
+    const ship = createMenuShip();
+    ship.pos.x = centerX;
+    ship.pos.y = at(0.235);
+    ship.z = 6;
+    this.add(ship);
 
     const title = new ex.Text({
       text: 'TILTCLIMB',
@@ -157,6 +168,8 @@ export class MenuScene extends ex.Scene {
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
+    this.starfield.update(elapsed);
+
     if (session.sensorPromptDone) {
       session.tilt.tick();
     }

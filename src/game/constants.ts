@@ -1,7 +1,7 @@
 /**
- * Tunable constants for Tiltclimb. Values come from the design document
- * (openspec/changes/add-endless-climb-core/design.md) and are meant to be
- * adjusted by playing on a real phone, not by reasoning about them.
+ * Tunable constants for Tiltclimb. Values come from the design documents
+ * (openspec/changes/…/design.md) and are meant to be adjusted by playing on a real
+ * phone, not by reasoning about them.
  */
 
 /** Logical resolution. The engine scales it to the screen via DisplayMode.FitScreen. */
@@ -31,17 +31,26 @@ export const OBSTACLE_POOL_SIZE = 24;
 /** World distance between two consecutive obstacle rows. */
 export const SPAWN_GAP_PX = 260;
 
-export const PLAYER_WIDTH = 44;
-export const PLAYER_HEIGHT = 56;
+/**
+ * The ship sprite is 112×75, i.e. wider than tall, so the collider follows that shape
+ * instead of the old vertical bar. The collider is slightly smaller than the sprite.
+ */
+export const PLAYER_VISUAL_WIDTH = 64;
+export const PLAYER_VISUAL_HEIGHT = 43;
+export const PLAYER_HITBOX_WIDTH = 56;
+export const PLAYER_HITBOX_HEIGHT = 34;
 
-export const OBSTACLE_WIDTH = 120;
-export const OBSTACLE_HEIGHT = 28;
-
-/** Collider smaller than the sprite, so near misses feel fair. */
-export const HITBOX_SCALE = 0.8;
+/** Asteroids are drawn 90 px wide; the circular collider is smaller, so near misses forgive. */
+export const OBSTACLE_VISUAL_WIDTH = 90;
+export const OBSTACLE_RADIUS = 33;
 
 /** World pixels per score point. */
 export const PIXELS_PER_POINT = 20;
 
-/** Legacy favicon-less canvas background, keeps the frame from flashing white. */
 export const BACKGROUND_COLOR = '#0e1116';
+
+/** Parallax speed factors, relative to CLIMB_SPEED. */
+export const STARFIELD_TILE_FACTOR = 0.25;
+export const STARFIELD_NEAR_FACTOR = 1;
+export const STARFIELD_FAR_FACTOR = 0.6;
+export const MENU_STARFIELD_FACTOR = 0.12;

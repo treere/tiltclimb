@@ -60,7 +60,8 @@ export class Button extends ex.ScreenElement {
     this.group = new ex.GraphicsGroup({
       members: [
         { graphic: this.plate, offset: ex.vec(0, 0) },
-        { graphic: this.caption, offset: ex.vec(0, 0) },
+        // useBounds: false keeps a long label from widening the group and shifting the plate.
+        { graphic: this.caption, offset: ex.vec(0, 0), useBounds: false },
       ],
     });
     this.graphics.use(this.group);
