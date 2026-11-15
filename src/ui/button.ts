@@ -55,10 +55,9 @@ export class Button extends ex.ScreenElement {
       }),
     });
 
-    // Both graphics default to a centred origin, so zero offsets stack them on the same
-    // point: adding half-width offsets here is what used to push the label off-centre.
+    // Graphic origins are centred by default and the group anchors the combined bounds,
+    // so zero offsets make the caption concentric with the plate.
     this.group = new ex.GraphicsGroup({
-      useAnchor: false,
       members: [
         { graphic: this.plate, offset: ex.vec(0, 0) },
         { graphic: this.caption, offset: ex.vec(0, 0) },
