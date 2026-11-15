@@ -1,0 +1,30 @@
+name: check
+
+# Ogni push e ogni pull request passano typecheck, Biome, controlli di contrasto e build.
+# Non pubblica niente: serve a sapere subito se il codice è in ordine.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Typecheck, lint, contrasti e build
+        run: npm run check
