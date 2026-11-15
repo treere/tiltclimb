@@ -1,4 +1,8 @@
 import * as ex from 'excalibur';
+// Gli sprite veri del gioco, incorporati nel bundle come data URL: costano pochi KB ciascuno e
+// sono disponibili subito, mentre le immagini caricate dal loader non lo sono ancora.
+import enemyShipUrl from '../assets/ships/enemyRed1.png?inline';
+import heroShipUrl from '../assets/ships/playerShip2_blue.png?inline';
 
 /** How long the screen stays even when everything is already cached. */
 const MIN_VISIBLE_MS = 700;
@@ -15,6 +19,11 @@ const MUTED = '#8b98a8';
 const FAMILY = 'ui-sans-serif, system-ui, sans-serif';
 
 const STAR_COUNT = 40;
+
+const HERO_SPRITE = new Image();
+HERO_SPRITE.src = heroShipUrl;
+const ENEMY_SPRITE = new Image();
+ENEMY_SPRITE.src = enemyShipUrl;
 
 type Star = { x: number; y: number; size: number; speed: number };
 
@@ -114,36 +123,67 @@ export class ThemedLoader extends ex.Loader {
     time: number,
   ): void {
     const baseY = height * 0.44;
-    const swing = Math.min(width * 0.26, 210);
+    const swing = Math.min(width * 0.3, 240);
+    // Il nemico è avanti di quasi un quarto d'onda e più in alto: con gli sprite veri, larghi
+    // come sono, un anticipo più corto li farebbe sembrare un'unica nave.
     const enemyX = width / 2 + Math.sin(time * 0.9) * swing;
-    const enemyY = baseY + Math.sin(time * 1.4) * height * 0.03;
-    const heroX = width / 2 + Math.sin(time * 0.9 - 0.55) * swing;
-    const heroY = baseY + Math.sin(time * 1.4 - 0.55) * height * 0.03 + height * 0.05;
+    const enemyY = baseY - height * 0.05 + Math.sin(time * 1.4) * height * 0.02;
+    const heroX = width / 2 + Math.sin(time * 0.9 - 0.85) * swing;
+    const heroY = baseY + height * 0.05 + Math.sin(time * 1.4 - 0.85) * height * 0.02;
 
-    // Scia: due copie sempre più tenui dietro ogni nave, così l'inseguimento si legge anche
-    // in un fotogramma fermo.
-    const heroDir = Math.cos(time * 0.9 - 0.55);
+    // Scia e beccheggio seguono la derivata della sinusoide, così le navi si inclinano
+    // nell'onda invece di scivolare rigide.
+    const heroDir = Math.cos(time * 0.9 - 0.85);
     const enemyDir = Math.cos(time * 0.9);
-    this.drawTrail(ctx, heroX, heroY, 30, HERO, heroDir);
-    this.drawTrail(ctx, enemyX, enemyY, 20, ENEMY, enemyDir);
+    const heroWidth = Math.min(width * 0.4, 170);
+    const enemyWidth = heroWidth * 0.66;
 
-    this.drawChevron(ctx, heroX, heroY, 30, HERO);
-    this.drawChevron(ctx, enemyX, enemyY, 20, ENEMY);
+    this.drawShip(ctx, heroX, heroY, heroWidth, HERO_SPRITE, HERO, -heroDir * 0.18);
+    this.drawShip(ctx, enemyX, enemyY, enemyWidth, ENEMY_SPRITE, ENEMY, -enemyDir * 0.18);
   }
 
-  private drawTrail(
+  /**
+   * Draws the game sprite, tilted and with two faint copies trailing behind. Until the inlined
+   * image has decoded (a few milliseconds) it falls back to the plain chevron, so the screen is
+   * never empty.
+   */
+  private drawShip(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    size: number,
-    color: string,
-    direction: number,
+    width: number,
+    sprite: HTMLImageElement,
+    fallbackColor: string,
+    angle: number,
   ): void {
-    for (let step = 1; step <= 2; step++) {
-      ctx.globalAlpha = 0.16 / step;
-      this.drawChevron(ctx, x - direction * step * size * 0.9, y + step * size * 0.25, size, color);
+    const ready = sprite.complete && sprite.naturalWidth > 0;
+    const trailOffset = width * 0.16;
+
+    for (let step = 2; step >= 1; step--) {
+      ctx.save();
+      ctx.globalAlpha = 0.22 / step;
+      ctx.translate(x + Math.sin(angle) * step * trailOffset * 4, y + step * trailOffset);
+      ctx.rotate(angle);
+      if (ready) {
+        const height = (width * sprite.naturalHeight) / sprite.naturalWidth;
+        ctx.drawImage(sprite, -width / 2, -height / 2, width, height);
+      } else {
+        this.drawChevron(ctx, 0, 0, width * 0.32, fallbackColor);
+      }
+      ctx.restore();
     }
+
+    ctx.save();
     ctx.globalAlpha = 1;
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    if (ready) {
+      const height = (width * sprite.naturalHeight) / sprite.naturalWidth;
+      ctx.drawImage(sprite, -width / 2, -height / 2, width, height);
+    } else {
+      this.drawChevron(ctx, 0, 0, width * 0.32, fallbackColor);
+    }
+    ctx.restore();
   }
 
   private drawChevron(

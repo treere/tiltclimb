@@ -3,6 +3,7 @@
 ## 1. Schermata a tema
 
 - [x] 1.1 Creare `src/ui/loading-screen.ts` con `ThemedLoader extends ex.Loader` e un `onDraw(ctx)` che disegna sfondo, campo stellato e i due chevron che si inseguono; verifica: `npm run check` verde e nessuna dipendenza da asset nel file
+- [x] 1.4 Usare gli sprite reali del gioco incorporati con `?inline` (data URL nel bundle) al posto dei chevron, con fallback a chevron finché l'immagine non è decodificata; verifica: a schermo si vedono la nave azzurra e il nemico arancione, separati
 - [x] 1.2 Aggiungere barra di avanzamento e percentuale legate a `this.progress`; verifica: la percentuale cresce durante il caricamento e arriva a 100 solo alla fine
 - [x] 1.3 Comporre il layout a frazioni dell'altezza utile con barra al massimo al 70% della larghezza; verifica: in verticale e in orizzontale nulla esce dallo schermo
 

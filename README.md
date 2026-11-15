@@ -120,8 +120,11 @@ avanzamento e percentuale legate ai progressi reali del caricamento.
 
 Due dettagli che valgono la pena di sapere:
 
-- La schermata è disegnata **solo con primitive 2D**: le immagini del gioco sono esattamente ciò
-  che sta caricando, quindi non può usarle.
+- Le **navi sono gli sprite veri** del gioco (`playerShip2_blue`, `enemyRed1`): copiati in
+  `src/assets/ships/` e importati con `?inline`, così finiscono nel bundle come data URL e sono
+  disponibili prima che qualsiasi asset di rete arrivi. Costo: ~7 KB di base64.
+- Tutto il resto è disegnato con primitive 2D, e finché le immagini inline non sono decodificate
+  (pochi millisecondi) c'è un fallback a chevron: la schermata non può restare vuota.
 - Resta visibile almeno 700 ms anche con gli asset in cache (altrimenti lampeggerebbe) e la
   dissolvenza verso il menu è un sipario nero in `menu-scene.ts`, non un effetto del loader: quando
   il caricamento finisce l'engine smette di disegnare la schermata del loader, quindi una
