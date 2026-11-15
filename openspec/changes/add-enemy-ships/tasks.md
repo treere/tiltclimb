@@ -40,6 +40,10 @@
 - [ ] 7.2 Giudizio sulla difficoltà: due nemici insieme devono essere impegnativi ma gestibili, e le navi devono essere abbattibili mentre ondeggiano; verifica: tre partite di prova senza sensazione di ingiocabilità
 - [ ] 7.3 Controllare che il pulsante di fuoco non rubi spazio al gioco e resti comodo col pollice della mano che tiene il telefono; verifica: giudizio a occhio su schermo piccolo
 
+## 8. Ritocchi chiesti dopo la prova
+
+- [x] 8.1 Rendere i proiettili leggibili su telefono: i laser Kenney (9×54) erano scalati a 28 px di lunghezza e 4,7 px di larghezza, invisibili su schermo piccolo; verifica: ora sono 46×12 px logici con collisore a raggio 7 e si vedono in partita
+
 ## Workflow follow-up
 
 - Archiviare la change con `openspec-archive-change` dopo la verifica, sincronizzando gli delta spec

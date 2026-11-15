@@ -2,14 +2,14 @@ import * as ex from 'excalibur';
 import {
   ENEMY_SHOT_SPEED,
   HERO_SHOT_SPEED,
+  LASER_VISUAL_LENGTH,
+  LASER_VISUAL_WIDTH,
   PROJECTILE_HIT_RADIUS,
   WORLD_HEIGHT,
 } from './constants';
 import { enemyLaserImage, heroLaserImage } from './sprites';
 
 export type Faction = 'hero' | 'enemy';
-
-const LASER_LENGTH = 28;
 
 /**
  * A bullet. One class for both sides: the faction decides sprite, direction and who it can
@@ -36,8 +36,9 @@ export class Projectile extends ex.Actor {
 
     const source = faction === 'hero' ? heroLaserImage : enemyLaserImage;
     const sprite = source.toSprite();
-    const scale = LASER_LENGTH / sprite.height;
-    sprite.scale = ex.vec(scale, scale);
+    // Kenney's laser is tall and skinny (9×54): scaling it unevenly keeps it readable
+    // without turning into a thin line that disappears on a phone.
+    sprite.scale = ex.vec(LASER_VISUAL_WIDTH / sprite.width, LASER_VISUAL_LENGTH / sprite.height);
     this.graphics.use(sprite);
 
     // Kenney lasers point up: enemy bullets are the same sprite turned around.
@@ -51,7 +52,7 @@ export class Projectile extends ex.Actor {
 
   /** True when the bullet has left the visible world range. */
   isOutside(top: number, bottom: number): boolean {
-    return this.pos.y < top - LASER_LENGTH || this.pos.y > bottom + WORLD_HEIGHT * 0.1;
+    return this.pos.y < top - LASER_VISUAL_LENGTH || this.pos.y > bottom + WORLD_HEIGHT * 0.1;
   }
 }
 

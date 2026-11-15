@@ -55,7 +55,10 @@ export const PIXELS_PER_POINT = 20;
 
 /** Combat. All speeds in world px/s, all intervals in ms. */
 export const PROJECTILE_POOL_SIZE = 40;
-export const PROJECTILE_HIT_RADIUS = 6;
+export const PROJECTILE_HIT_RADIUS = 7;
+/** Laser sprite drawn size. Kenney's laser is 9×54, so it gets scaled unevenly to read on a phone. */
+export const LASER_VISUAL_WIDTH = 12;
+export const LASER_VISUAL_LENGTH = 46;
 export const HERO_SHOT_SPEED = 620;
 export const ENEMY_SHOT_SPEED = 320;
 export const SHOT_MIN_INTERVAL_MS = 150;
