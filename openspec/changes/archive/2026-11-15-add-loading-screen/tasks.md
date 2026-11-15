@@ -21,8 +21,8 @@
 ## 4. Documentazione e verifica
 
 - [x] 4.1 Aggiornare `README.md` con la schermata di caricamento ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
-- [ ] 4.2 Prova su telefono via tunnel, con cache svuotata per rivedere il caricamento lento; verifica: schermata leggibile, navi in movimento, uscita in dissolvenza
-- [ ] 4.3 Giudizio estetico: le due navi si leggono come un inseguimento e la schermata non sembra più "un errore"; verifica: giudizio a occhio su schermo piccolo
+- [x] 4.2 Prova su telefono via tunnel, con cache svuotata per rivedere il caricamento lento; verifica: schermata leggibile, navi in movimento, uscita in dissolvenza
+- [x] 4.3 Giudizio estetico: le due navi si leggono come un inseguimento e la schermata non sembra più "un errore"; verifica: giudizio a occhio su schermo piccolo
 
 ## Workflow follow-up
 
