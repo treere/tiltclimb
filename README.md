@@ -47,18 +47,20 @@ Il tunnel è temporaneo: l'URL cambia a ogni avvio.
 
 ## Stato
 
-Primo nucleo giocabile implementato: salita infinita, ostacoli con pool, punteggio, morte,
-riavvio, input tilt con calibrazione e fallback tastiera/drag. Restano da tarare le costanti
-sul dispositivo reale (`openspec/.../tasks.md`, task 7.1 e 7.2).
+Primo nucleo giocabile implementato: menu con calibrazione visibile, salita infinita,
+ostacoli con pool, punteggio, morte, ritorno al menu con riepilogo, input tilt con
+fallback tastiera/drag.
 
 ## Come si gioca
 
-- **Telefono**: apri il link HTTPS, tocca lo schermo (chiede il permesso sensori, entra in
-  fullscreen), poi inclina a sinistra/destra per sterzare. Inclinazione neutra = quella che
-  avevi al primo tocco.
-- **Desktop**: frecce ← → oppure A/D. Il drag col mouse funziona anche sul telefono se il
-  permesso viene negato.
-- Si muore toccando un ostacolo; un tocco riavvia.
+- **Menu**: all'apertura vedi l'inclinazione rilevata (valore e barra). Il primo tocco chiede
+  il permesso dei sensori.
+- **Calibra** fissa come zero l'assetto che tieni in quel momento e mostra `Calibrato ✓`.
+- **Inizia gioco** parte con lo zero dell'ultima calibrazione; se non hai calibrato vale
+  l'assetto con cui hai aperto il menu.
+- **In partita**: inclina a sinistra/destra. Da desktop frecce ← → o A/D; il trascinamento
+  funziona anche sul telefono se il permesso viene negato.
+- **Fine partita**: si torna al menu con il punteggio appena fatto e il migliore di sessione.
 
 ## OpenSpec
 

@@ -1,6 +1,5 @@
 import * as ex from 'excalibur';
 import { InputRouter } from '../input/input-router';
-import { requestSensorPermission, TiltSource } from '../input/tilt-source';
 import {
   CLIMB_SPEED,
   HITBOX_SCALE,
@@ -15,32 +14,32 @@ import {
   WORLD_WIDTH,
 } from './constants';
 import { ObstaclePool } from './obstacle-pool';
+import { session } from './session';
 
-type GameState = 'idle' | 'playing' | 'gameover';
+type SceneContext = ex.SceneActivationContext<unknown>;
 
 const PLAYER_COLOR = ex.Color.fromHex('#4fb3ff');
 const TEXT_COLOR = ex.Color.fromHex('#e6edf3');
-const MUTED_COLOR = ex.Color.fromHex('#8b98a8');
 const MARGIN_X = 24;
 const OBSTACLE_EDGE_MARGIN = 48;
+const EXIT_DELAY_MS = 500;
 
 /**
- * The whole game: a player that climbs forever, obstacles recycled from a pool, and a
- * single explicit state machine (idle -> playing -> gameover). Input arrives through
- * InputRouter, so nothing here knows whether the tilt, the keyboard or a drag produced
- * the movement.
+ * The run itself: the player climbs, obstacles are recycled, the camera follows one axis.
+ * The scene has no menu of its own — it starts on activation and hands control back to the
+ * menu scene when the player hits something.
  */
 export class ClimbScene extends ex.Scene {
-  private readonly tilt = new TiltSource();
   private inputRouter!: InputRouter;
   private pool!: ObstaclePool;
   private player!: ex.Actor;
   private scoreGraphic!: ex.Text;
   private bannerGraphic!: ex.Text;
-  private state: GameState = 'idle';
+  private running = false;
+  private leaving = false;
   private score = 0;
   private nextSpawnY = 0;
-  private permissionResolved = false;
+  private exitTimer: ReturnType<typeof setTimeout> | null = null;
 
   override onInitialize(engine: ex.Engine): void {
     this.player = new ex.Actor({
@@ -60,28 +59,34 @@ export class ClimbScene extends ex.Scene {
     );
     this.add(this.player);
 
-    // The camera only follows the vertical axis: horizontal movement must not drag the world.
+    // Vertical only: horizontal movement must not drag the world along.
     this.camera.strategy.lockToActorAxis(this.player, ex.Axis.Y);
 
     this.pool = new ObstaclePool(this, OBSTACLE_POOL_SIZE);
-    this.inputRouter = new InputRouter(engine, this.tilt);
+    this.inputRouter = new InputRouter(engine, session.tilt);
 
     this.player.on('collisionstart', () => {
       this.endRun();
     });
 
     this.createHud();
-    engine.input.pointers.primary.on('down', () => {
-      void this.handleTap();
-    });
+  }
 
-    this.enterIdle();
+  override onActivate(_context: SceneContext): void {
+    this.startRun();
+  }
+
+  override onDeactivate(_context: SceneContext): void {
+    this.running = false;
+    this.leaving = false;
+    if (this.exitTimer !== null) {
+      clearTimeout(this.exitTimer);
+      this.exitTimer = null;
+    }
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
-    this.tilt.tick();
-
-    if (this.state !== 'playing') {
+    if (!this.running) {
       return;
     }
 
@@ -98,42 +103,13 @@ export class ClimbScene extends ex.Scene {
   }
 
   override onPostUpdate(): void {
-    if (this.state === 'playing') {
+    if (this.running) {
       this.player.pos.x = this.clampX(this.player.pos.x);
     }
   }
 
-  /** Called by main on load, and by nothing else: the scene owns its own input wiring. */
-  get tiltSource(): TiltSource {
-    return this.tilt;
-  }
-
-  private async handleTap(): Promise<void> {
-    if (this.state === 'playing') {
-      return;
-    }
-
-    if (!this.permissionResolved) {
-      this.permissionResolved = true;
-      // Must be inside the gesture: the browser refuses the prompt otherwise.
-      const granted = await requestSensorPermission();
-      if (granted) {
-        this.tilt.listen();
-      }
-    }
-
-    this.startRun();
-  }
-
-  private enterIdle(): void {
-    this.state = 'idle';
-    this.player.vel = ex.Vector.Zero;
-    this.showBanner('Tocca per iniziare');
-  }
-
   private startRun(): void {
     this.pool.releaseAll();
-    this.tilt.calibrate();
 
     this.player.pos.x = WORLD_WIDTH / 2;
     this.player.pos.y = 0;
@@ -142,19 +118,30 @@ export class ClimbScene extends ex.Scene {
 
     this.score = 0;
     this.scoreGraphic.text = '0';
+    this.bannerGraphic.text = '';
     this.nextSpawnY = -WORLD_HEIGHT / 2 - SPAWN_GAP_PX * 0.5;
 
-    this.state = 'playing';
-    this.hideBanner();
+    this.leaving = false;
+    this.running = true;
   }
 
   private endRun(): void {
-    if (this.state !== 'playing') {
+    if (!this.running || this.leaving) {
       return;
     }
-    this.state = 'gameover';
+
+    this.leaving = true;
+    this.running = false;
     this.player.vel = ex.Vector.Zero;
-    this.showBanner(`Sei arrivato a ${this.score} · tocca per riprovare`);
+
+    session.recordScore(this.score);
+    this.bannerGraphic.text = `${this.score}`;
+
+    // Short pause so the collision is readable before the scene changes.
+    this.exitTimer = setTimeout(() => {
+      this.exitTimer = null;
+      void this.engine.goToScene('menu');
+    }, EXIT_DELAY_MS);
   }
 
   private updateScore(): void {
@@ -166,12 +153,11 @@ export class ClimbScene extends ex.Scene {
     }
   }
 
-  /** Keeps a fresh obstacle waiting above the viewport, one SPAWN_GAP apart. */
+  /** Keeps obstacles waiting above the viewport, one SPAWN_GAP apart. */
   private spawnAhead(): void {
     const topEdge = this.player.pos.y - WORLD_HEIGHT / 2;
     while (this.nextSpawnY > topEdge - SPAWN_GAP_PX) {
-      const x = this.randomObstacleX();
-      this.pool.acquire(x, this.nextSpawnY);
+      this.pool.acquire(this.randomObstacleX(), this.nextSpawnY);
       this.nextSpawnY -= SPAWN_GAP_PX;
     }
   }
@@ -206,8 +192,8 @@ export class ClimbScene extends ex.Scene {
 
     this.bannerGraphic = new ex.Text({
       text: '',
-      color: MUTED_COLOR,
-      font: new ex.Font({ size: 34, family: 'sans-serif', color: MUTED_COLOR }),
+      color: TEXT_COLOR,
+      font: new ex.Font({ size: 96, family: 'sans-serif', color: TEXT_COLOR }),
     });
 
     const bannerHolder = new ex.ScreenElement({
@@ -218,13 +204,5 @@ export class ClimbScene extends ex.Scene {
     bannerHolder.graphics.use(this.bannerGraphic);
     bannerHolder.z = 100;
     this.add(bannerHolder);
-  }
-
-  private showBanner(text: string): void {
-    this.bannerGraphic.text = text;
-  }
-
-  private hideBanner(): void {
-    this.bannerGraphic.text = '';
   }
 }

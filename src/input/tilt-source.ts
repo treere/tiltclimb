@@ -109,6 +109,19 @@ export class TiltSource {
     }
   }
 
+  /** Inclination relative to the calibrated zero, in degrees. 0 when unavailable. */
+  get relativeDegrees(): number {
+    if (this.gamma === null) {
+      return 0;
+    }
+    return this.gamma - (this.zero ?? 0);
+  }
+
+  /** Marks the sensor as unusable, e.g. after the permission was denied. */
+  markUnavailable(): void {
+    this.status = 'unavailable';
+  }
+
   /** Current steering axis in [-1, 1], smoothed and dead-zoned. */
   axis(deltaMs: number): number {
     if (this.status !== 'active' || this.gamma === null) {

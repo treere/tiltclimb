@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
 import { ClimbScene } from './game/climb-scene';
 import { BACKGROUND_COLOR, WORLD_HEIGHT, WORLD_WIDTH } from './game/constants';
+import { MenuScene } from './game/menu-scene';
 
 const engine = new ex.Engine({
   width: WORLD_WIDTH,
@@ -14,6 +15,7 @@ const engine = new ex.Engine({
   suppressPlayButton: true,
 });
 
+engine.add('menu', new MenuScene());
 engine.add('climb', new ClimbScene());
 
 /**
@@ -41,4 +43,4 @@ window.addEventListener(
 );
 
 await engine.start();
-await engine.goToScene('climb');
+await engine.goToScene('menu');
