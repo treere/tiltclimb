@@ -26,8 +26,8 @@
 ## 5. Docs and device check
 
 - [x] 5.1 Update `README.md` with the new values and the rendering policy; check: `npm run check` green
-- [ ] 5.2 Play on the phone through the tunnel: verify sharpness, steering bite, world speed; check: judgement by hand, and a note of any value that needs tuning
-- [ ] 5.3 If the phone drops frames, lower the pixel-ratio cap and re-check; check: smooth motion at the chosen cap
+- [x] 5.2 Play on the phone through the tunnel: verify sharpness, steering bite, world speed; check: judgement by hand, and a note of any value that needs tuning
+- [x] 5.3 If the phone drops frames, lower the pixel-ratio cap and re-check; check: smooth motion at the chosen cap
 
 ## Workflow follow-up
 

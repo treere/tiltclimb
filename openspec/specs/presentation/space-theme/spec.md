@@ -35,7 +35,7 @@ Every obstacle SHALL be represented by an asteroid sprite and MUST have a random
 
 ### Requirement: Scrolling starfield
 
-The background SHALL be a starfield scrolling downward while the player climbs, with at least two layers at different speeds to give depth. The background MUST always cover the whole visible area, with no empty edges or visible seams while scrolling.
+The background SHALL be a starfield scrolling downward while the player climbs, with at least two layers at different speeds to give depth. The background MUST always cover the whole visible area, with no empty edges or visible seams while scrolling. The near layer — the background tiles — MUST travel at a meaningful fraction of the climb speed, at least half of it, so the climb reads as fast motion instead of a slow drift.
 
 #### Scenario: Continuous scrolling
 
@@ -46,6 +46,11 @@ The background SHALL be a starfield scrolling downward while the player climbs, 
 
 - **WHEN** the background scrolls
 - **THEN** the farther elements move more slowly than the near ones
+
+#### Scenario: Sense of speed
+
+- **WHEN** a run starts, with the climb at its initial speed
+- **THEN** the near background layer moves at no less than half the climb speed, and it accelerates with it
 
 ### Requirement: Menu consistent with the theme
 
