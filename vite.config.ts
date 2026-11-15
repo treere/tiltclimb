@@ -18,5 +18,7 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: true,
+    // Excalibur alone is ~500 kB: one vendor bundle is expected, not a regression.
+    chunkSizeWarningLimit: 700,
   },
 });

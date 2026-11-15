@@ -47,8 +47,18 @@ Il tunnel è temporaneo: l'URL cambia a ogni avvio.
 
 ## Stato
 
-Impalcatura pronta (motore, toolchain, tunnel). Il gioco è descritto in OpenSpec e non è
-ancora implementato: vedi `openspec/changes/add-endless-climb-core/`.
+Primo nucleo giocabile implementato: salita infinita, ostacoli con pool, punteggio, morte,
+riavvio, input tilt con calibrazione e fallback tastiera/drag. Restano da tarare le costanti
+sul dispositivo reale (`openspec/.../tasks.md`, task 7.1 e 7.2).
+
+## Come si gioca
+
+- **Telefono**: apri il link HTTPS, tocca lo schermo (chiede il permesso sensori, entra in
+  fullscreen), poi inclina a sinistra/destra per sterzare. Inclinazione neutra = quella che
+  avevi al primo tocco.
+- **Desktop**: frecce ← → oppure A/D. Il drag col mouse funziona anche sul telefono se il
+  permesso viene negato.
+- Si muore toccando un ostacolo; un tocco riavvia.
 
 ## OpenSpec
 

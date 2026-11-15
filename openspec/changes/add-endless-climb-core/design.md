@@ -46,7 +46,7 @@ Alternativa scartata: creare un `Obstacle` a ogni spawn e lasciarlo raccogliere 
 
 ### 4. Timestep fisso per la fisica
 
-`new ex.Engine({ fixedUpdateFps: 60, displayMode: ex.DisplayMode.FullScreen, ... })`, così la velocità di salita non dipende dal refresh dello schermo (60, 90 o 120 Hz).
+`new ex.Engine({ fixedUpdateFps: 60, displayMode: ex.DisplayMode.FitScreen, ... })`, così la velocità di salita non dipende dal refresh dello schermo (60, 90 o 120 Hz).
 
 ### 5. Matematica del tilt
 
@@ -62,7 +62,7 @@ Il gamma si legge in un handler passivo che salva solo l'ultimo valore; la conve
 
 Costanti iniziali, da tarare in mano (in `src/game/constants.ts`):
 
-- `WORLD_WIDTH = 720`, `WORLD_HEIGHT = 1280` (risoluzione logica, scala gestita da `DisplayMode.FullScreen`)
+- `WORLD_WIDTH = 720`, `WORLD_HEIGHT = 1280` (risoluzione logica, scala gestita da `DisplayMode.FitScreen` (in 1.0.1 `FullScreen` non esiste: il valore si chiama `FitScreen`, che mantiene le proporzioni con bande nere))
 - `CLIMB_SPEED = 190` px/s (velocità di salita del mondo)
 - `MAX_HORIZONTAL_SPEED = 300` px/s
 - `TILT_DEAD_ZONE = 3` °
