@@ -27,13 +27,13 @@
 
 - [x] 5.1 Suono dello sparo dell'eroe in `fireHero()` e sparo di ogni archetipo quando la nave spara; verifica: quattro tipi diversi producono quattro timbri distinti
 - [x] 5.2 Suono di abbattimento per tipo, suono di morte dell'eroe, suono di sconfitta e suono di record (quest'ultimo solo se il punteggio supera il migliore precedente); verifica: una partita senza record suona la sconfitta, una con record suona il successo
-- [ ] 5.3 Verificare il caso peggiore di sovrapposizione (raffica della torretta + esplosione + musica): nessun suono mancante o distorto; verifica: prova su telefono con volume medio
+- [x] 5.3 Verificare il caso peggiore di sovrapposizione (raffica della torretta + esplosione + musica): nessun suono mancante o distorto; verifica: prova su telefono con volume medio
 
 ## 6. Documentazione e verifica finale
 
 - [x] 6.1 Aggiornare `README.md` (audio, crediti, comandi degli script di preparazione) ed eseguire `npm run check`; verifica: comando verde e documentazione coerente
-- [ ] 6.2 Giro su telefono via tunnel: musica nel menu, musica in partita, spari, esplosioni, sconfitta, record, interruttore audio e ricaricamento con audio disattivato; verifica: ogni punto della spec si comporta come descritto
-- [ ] 6.3 Giudizio sul mix: musica che non copre gli effetti, effetti che non stordiscono, e nessun ritardo percepibile al primo sparo; verifica: tre partite di prova
+- [x] 6.2 Giro su telefono via tunnel: musica nel menu, musica in partita, spari, esplosioni, sconfitta, record, interruttore audio e ricaricamento con audio disattivato; verifica: ogni punto della spec si comporta come descritto
+- [x] 6.3 Giudizio sul mix: musica che non copre gli effetti, effetti che non stordiscono, e nessun ritardo percepibile al primo sparo; verifica: tre partite di prova
 
 ## Workflow follow-up
 

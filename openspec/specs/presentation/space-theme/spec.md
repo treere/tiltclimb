@@ -72,17 +72,17 @@ Il testo di un pulsante SHALL restare centrato rispetto al proprio fondo indipen
 
 ### Requirement: Provenienza e licenza degli asset documentate
 
-Ogni asset grafico esterno SHALL essere accompagnato nel repository dal file di licenza originale e SHALL essere elencato con autore, licenza e provenienza in una sezione crediti del `README.md`. Asset di licenza sconosciuta o non ridistribuibile MUST NOT essere usati.
+Ogni asset esterno, grafico, audio o di altra natura, SHALL essere accompagnato nel repository dal file di licenza originale o da una nota di licenza equivalente, e SHALL essere elencato con autore, licenza e provenienza in una sezione crediti del `README.md`. Asset di licenza sconosciuta o non ridistribuibile MUST NOT essere usati.
 
 #### Scenario: Nuovo asset aggiunto
 
-- **WHEN** viene introdotto un nuovo file grafico
+- **WHEN** viene introdotto un nuovo file grafico o audio
 - **THEN** la sua licenza è presente nel repository e il credito è nel README
 
 #### Scenario: Verifica della provenienza
 
 - **WHEN** si controlla il repository senza rete
-- **THEN** è possibile ricostruire da dove viene ogni immagine e con quale licenza
+- **THEN** è possibile ricostruire da dove viene ogni immagine e ogni suono, e con quale licenza
 
 ### Requirement: Il giocatore sta nella parte bassa dello schermo
 
@@ -125,3 +125,22 @@ Le scritte del menu, dell'HUD e della pagina crediti SHALL restare leggibili sop
 
 - **WHEN** la pagina crediti mostra il racconto
 - **THEN** le righe sono leggibili senza ambiguità e il testo va a capo invece di uscire dallo schermo
+
+### Requirement: Le collisioni sono animate
+
+Quando una nave nemica viene abbattuta o l'eroe muore, il sistema SHALL mostrare un'animazione di esplosione a frame nel punto dell'impatto, di durata breve e senza bloccare il gioco. Gli asteroidi, immuni ai colpi, MUST NOT esplodere.
+
+#### Scenario: Nave nemica abbattuta
+
+- **WHEN** un colpo dell'eroe distrugge una nave nemica
+- **THEN** al suo posto appare un'esplosione animata che si spegne da sola
+
+#### Scenario: Morte dell'eroe
+
+- **WHEN** l'eroe viene colpito
+- **THEN** appare un'esplosione più grande e la partita termina
+
+#### Scenario: Asteroide colpito
+
+- **WHEN** un colpo attraversa un asteroide
+- **THEN** non appare alcuna esplosione
