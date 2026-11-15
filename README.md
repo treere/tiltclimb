@@ -112,11 +112,37 @@ forma**: la nave usa un collisore 56×34 (lo sprite è 112×75, quindi più gran
 gli asteroidi un cerchio di raggio 33 px su uno sprite largo 90, con area paragonabile alla
 vecchia barra 120×28.
 
+## Audio
+
+- **Musica**: una traccia per il menu e una per la partita, in loop, con cambio di scena.
+- **Effetti**: sparo dell'eroe, sparo diverso per ognuno dei quattro archetipi, esplosione diversa
+  per tipo quando una nave viene abbattuta, esplosione grande e impatto alla morte dell'eroe.
+- **Fine partita**: suono di sconfitta, sostituito da un suono di successo se il punteggio batte
+  il migliore della sessione (la prima partita non conta come record).
+- **Silenziamento**: icona in alto a destra nel menu, stato ricordato sul dispositivo
+  (`localStorage`, chiave `tiltclimb.muted`).
+- **Niente audio prima di un gesto**: i browser bloccano la riproduzione automatica, quindi le
+  tracce partono al primo tocco o tasto. Se l'audio resta bloccato, il gioco funziona zitto.
+
+Gli asset si rigenerano dai sorgenti CC0 con:
+
+```bash
+FFMPEG=/percorso/ffmpeg python3 scripts/prepare-audio.py      # effetti + musica (OGG mono)
+python3 scripts/prepare-explosions.py                          # frame delle esplosioni (Pillow)
+```
+
 ## Crediti
 
 Asset grafici: **Kenney — «Space Shooter Redux»**, licenza **CC0 1.0** (public domain).
 Autore: Kenney Vleugels, <https://kenney.nl>. Il testo di licenza originale è in
 `public/assets/kenney/license.txt`, accanto ai file usati.
+
+Asset audio: **Juhani Junkala**, «The Essential Retro Video Game Sound Effects Collection»,
+**CC0 1.0** — <https://opengameart.org/content/512-sound-effects-8-bit-style>.
+Musiche: «Background Space Track» e «Space Music: Out There», **CC0 1.0**, da OpenGameArt.
+Esplosioni animate: «Free - 2D Explosion Animations», **CC0 1.0**.
+Le note di licenza complete stanno accanto ai file (`public/assets/audio/LICENSE.md`,
+`public/assets/effects/explosion/LICENSE.md`).
 
 CC0 non richiede attribuzione: il credito è qui perché è giusto darlo, e perché il giorno in
 cui arriverà un asset CC-BY la sua licenza dovrà essere elencata allo stesso modo.

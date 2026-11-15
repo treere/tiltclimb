@@ -1,5 +1,7 @@
 import * as ex from 'excalibur';
+import { audio } from '../audio/audio';
 import { requestSensorPermission } from '../input/tilt-source';
+import { AudioToggle } from '../ui/audio-toggle';
 import { Button } from '../ui/button';
 import { addCenteredGraphic } from '../ui/placement';
 import { UiText } from '../ui/ui-text';
@@ -56,6 +58,9 @@ export class MenuScene extends ex.Scene {
     const at = (fraction: number): number => safe.top + height * fraction;
 
     this.starfield = new Starfield(this, MENU_STARFIELD_FACTOR);
+
+    // Speaker toggle in the corner: a big touch area without a fourth row of buttons.
+    this.add(new AudioToggle(width - 56, safe.top + 56));
 
     const ship = createMenuShip();
     ship.pos.x = centerX;
@@ -146,6 +151,7 @@ export class MenuScene extends ex.Scene {
   }
 
   override onActivate(_context: SceneContext): void {
+    audio.syncMusic('menu');
     this.refreshResult();
     this.refreshWarning();
     this.confirmText.setText('');

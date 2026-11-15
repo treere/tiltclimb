@@ -1,4 +1,6 @@
 import * as ex from 'excalibur';
+import { audio } from '../audio/audio';
+import { KILL_BY_KIND, SHOT_BY_KIND } from '../audio/sounds';
 import { InputRouter } from '../input/input-router';
 import { Button } from '../ui/button';
 import { UiText } from '../ui/ui-text';
@@ -27,6 +29,7 @@ import {
 } from './constants';
 import { EnemyPool } from './enemy';
 import { ARCHETYPES, kindsAvailableAt, maxAliveAt } from './enemy-archetypes';
+import { ExplosionPool } from './explosion';
 import { ObstaclePool } from './obstacle-pool';
 import { PlayerShip } from './player';
 import { ProjectilePool } from './projectile';
@@ -40,6 +43,9 @@ const OBSTACLE_EDGE_MARGIN = 48;
 const EXIT_DELAY_MS = 500;
 const FIRE_BUTTON_Y = WORLD_HEIGHT - 96;
 const ENEMY_EDGE_MARGIN = 24;
+
+/** Which blast sheet belongs to which ship: patrol, diver, hunter, ufo. */
+const BLAST_BY_KIND = { patrol: 0, diver: 1, hunter: 2, ufo: 3 } as const;
 
 /**
  * The run: the ship climbs through an asteroid field while enemy ships weave downwards and
@@ -56,6 +62,8 @@ export class ClimbScene extends ex.Scene {
   private scoreText!: UiText;
   private bannerText!: UiText;
   private fireButton!: Button;
+  private explosions!: ExplosionPool;
+  private stingTimer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
   private leaving = false;
   private score = 0;
@@ -90,9 +98,11 @@ export class ClimbScene extends ex.Scene {
     });
 
     this.createHud();
+    this.explosions = new ExplosionPool(this);
   }
 
   override onActivate(_context: SceneContext): void {
+    audio.syncMusic('game');
     this.startRun();
   }
 
@@ -104,6 +114,10 @@ export class ClimbScene extends ex.Scene {
       clearTimeout(this.exitTimer);
       this.exitTimer = null;
     }
+    if (this.stingTimer !== null) {
+      clearTimeout(this.stingTimer);
+      this.stingTimer = null;
+    }
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
@@ -112,6 +126,7 @@ export class ClimbScene extends ex.Scene {
     }
 
     this.starfield.update(elapsed);
+    this.explosions.tick(elapsed);
 
     this.player.vel.x = this.inputRouter.axis(elapsed) * MAX_HORIZONTAL_SPEED;
 
@@ -178,8 +193,18 @@ export class ClimbScene extends ex.Scene {
     this.projectiles.freezeAll();
     this.enemies.freezeAll();
 
-    session.recordScore(this.score, this.kills);
+    const isRecord = session.recordScore(this.score, this.kills);
     this.bannerText.setText(`${this.score}`);
+
+    this.explosions.burst(this.player.pos.x, this.player.pos.y, 0, 2.2);
+    audio.playSfx('death-hero');
+    audio.playSfx('death-impact');
+
+    // The verdict lands after the explosion, not on top of it.
+    this.stingTimer = setTimeout(() => {
+      this.stingTimer = null;
+      audio.playSfx(isRecord ? 'record' : 'lose');
+    }, 420);
     this.setFireEnabled(false);
 
     // Short pause so the collision is readable before the scene changes.
@@ -207,6 +232,7 @@ export class ClimbScene extends ex.Scene {
     for (const enemy of [...this.enemies.active]) {
       const angles = enemy.behave(elapsed, context);
       if (angles) {
+        audio.playSfx(SHOT_BY_KIND[enemy.kind]);
         this.projectiles.spawnVolley('enemy', enemy.pos.x, enemy.pos.y + enemy.hitRadius, {
           speed: ARCHETYPES[enemy.kind].fire.speed,
           angles,
@@ -250,6 +276,8 @@ export class ClimbScene extends ex.Scene {
         if (target) {
           this.projectiles.release(projectile);
           this.enemies.release(target);
+          audio.playSfx(KILL_BY_KIND[target.kind]);
+          this.explosions.burst(target.pos.x, target.pos.y, BLAST_BY_KIND[target.kind]);
           this.kills += 1;
           this.killPoints += target.points;
           this.updateScore();
@@ -286,6 +314,7 @@ export class ClimbScene extends ex.Scene {
       return;
     }
     this.lastShotAt = now;
+    audio.playSfx('shot-hero');
 
     this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT, {
       speed: HERO_SHOT_SPEED,

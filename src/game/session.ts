@@ -16,13 +16,20 @@ class Session {
   bestScore = 0;
   lastKills = 0;
 
-  recordScore(points: number, kills: number): void {
+  /** Stores the run result and reports whether it beat the previous session best. */
+  recordScore(points: number, kills: number): boolean {
+    const previousBest = this.bestScore;
+    // The first run of a session is not a record: there was no best to beat yet.
+    const isRecord = this.hasPlayed && points > previousBest;
+
     this.lastScore = points;
     this.lastKills = kills;
     this.hasPlayed = true;
-    if (points > this.bestScore) {
+    if (isRecord) {
       this.bestScore = points;
     }
+
+    return isRecord;
   }
 }
 

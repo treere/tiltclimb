@@ -1,9 +1,12 @@
 import * as ex from 'excalibur';
+import { audio } from './audio/audio';
+import { attachAudio, effectSounds, musicSounds } from './audio/sounds';
 import { ClimbScene } from './game/climb-scene';
 import { BACKGROUND_COLOR, WORLD_HEIGHT, WORLD_WIDTH } from './game/constants';
 import { CreditsScene } from './game/credits-scene';
+import { createExplosionSources } from './game/explosion';
 import { MenuScene } from './game/menu-scene';
-import { createLoader } from './game/sprites';
+import { imageSources } from './game/sprites';
 
 const engine = new ex.Engine({
   width: WORLD_WIDTH,
@@ -41,13 +44,23 @@ window.addEventListener(
   'pointerdown',
   () => {
     requestImmersiveMode();
+    audio.unlock();
   },
   { once: true },
 );
 
+window.addEventListener('keydown', () => audio.unlock(), { once: true });
+
 (window as unknown as { __boot?: string }).__boot = 'start-called';
 try {
-  await engine.start(createLoader());
+  attachAudio();
+  const loader = new ex.Loader([
+    ...imageSources(),
+    ...Object.values(musicSounds),
+    ...Object.values(effectSounds),
+    ...createExplosionSources(),
+  ]);
+  await engine.start(loader);
 } catch (error) {
   (window as unknown as { __boot?: string }).__boot = `start-failed: ${String(error)}`;
   throw error;

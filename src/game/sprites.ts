@@ -52,9 +52,9 @@ const allImages = [
   enemyLaserImage,
 ];
 
-/** Shared loader: nothing is drawn before these images are decoded. */
-export function createLoader(): ex.Loader {
-  return new ex.Loader(allImages);
+/** Every image the game needs, for the single shared loader. */
+export function imageSources(): ex.ImageSource[] {
+  return allImages;
 }
 
 /** Exhaust plume, 10 frames at 60 ms, looping. */

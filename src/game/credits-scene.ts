@@ -1,4 +1,5 @@
 import * as ex from 'excalibur';
+import { audio } from '../audio/audio';
 import { Button } from '../ui/button';
 import { UiText } from '../ui/ui-text';
 import { MENU_STARFIELD_FACTOR, WORLD_HEIGHT, WORLD_WIDTH } from './constants';
@@ -74,7 +75,7 @@ export class CreditsScene extends ex.Scene {
   }
 
   override onActivate(_context: SceneContext): void {
-    // Nothing to reset: the page is read-only by design.
+    audio.syncMusic('menu');
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
