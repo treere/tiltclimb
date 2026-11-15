@@ -25,7 +25,7 @@ Con i sensori attivi, il sistema SHALL tradurre l'inclinazione sinistra/destra d
 
 ### Requirement: Sensibilità regolabile e persistente
 
-La sensibilità SHALL essere espressa come inclinazione necessaria a raggiungere il fondo scala e SHALL essere selezionabile fra livelli, dal più morbido al più nervoso. Il valore scelto MUST restare memorizzato sul dispositivo, MUST essere applicato dalla partita successiva e MUST NOT invalidare la calibrazione già effettuata.
+La sensibilità SHALL essere espressa come inclinazione necessaria a raggiungere il fondo scala e SHALL essere selezionabile fra cinque livelli, da 22° (morbido) a 8° (nervoso), con 13° come default. Il valore scelto MUST restare memorizzato sul dispositivo, MUST essere applicato dalla partita successiva e MUST NOT invalidare la calibrazione già effettuata.
 
 #### Scenario: Livello nervoso
 

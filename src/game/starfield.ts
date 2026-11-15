@@ -1,19 +1,19 @@
 import * as ex from 'excalibur';
 import {
-  CLIMB_SPEED,
   STARFIELD_FAR_FACTOR,
   STARFIELD_NEAR_FACTOR,
   STARFIELD_TILE_FACTOR,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants';
+import { CLIMB_SPEED_START } from './speed';
 import { backgroundImage, starImages } from './sprites';
 
 const STAR_COUNT = 26;
 const TILE_ROWS = 3;
 
 type Tile = { actor: ex.ScreenElement; size: number };
-type Star = { actor: ex.ScreenElement; speed: number; half: number };
+type Star = { actor: ex.ScreenElement; depth: number; half: number };
 
 /**
  * Scrolling star field. Everything lives in screen space and is scrolled by hand, so it
@@ -33,10 +33,14 @@ export class Starfield {
     this.buildStars(scene);
   }
 
-  update(elapsedMs: number): void {
+  /**
+   * `speed` is the current climb speed: the field has to follow the game when it accelerates,
+   * otherwise the background and the ship drift apart and the world looks like it is sliding.
+   */
+  update(elapsedMs: number, speed = CLIMB_SPEED_START): void {
     const dt = (elapsedMs / 1000) * this.factor;
 
-    const tileTravel = CLIMB_SPEED * STARFIELD_TILE_FACTOR * dt;
+    const tileTravel = speed * STARFIELD_TILE_FACTOR * dt;
     for (const tile of this.tiles) {
       tile.actor.pos.y += tileTravel;
       if (tile.actor.pos.y - tile.size / 2 > WORLD_HEIGHT) {
@@ -45,7 +49,7 @@ export class Starfield {
     }
 
     for (const star of this.stars) {
-      star.actor.pos.y += star.speed * dt;
+      star.actor.pos.y += speed * star.depth * dt;
       if (star.actor.pos.y - star.half > WORLD_HEIGHT) {
         star.actor.pos.y = -star.half;
         star.actor.pos.x = Math.random() * WORLD_WIDTH;
@@ -100,7 +104,7 @@ export class Starfield {
 
       this.stars.push({
         actor,
-        speed: CLIMB_SPEED * depth,
+        depth,
         half: (sprite.height * scale) / 2,
       });
     }

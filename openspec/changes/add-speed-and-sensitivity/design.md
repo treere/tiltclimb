@@ -63,8 +63,8 @@ La generazione già lavora a passi di `SPAWN_GAP_PX` sull'asse Y del mondo, quin
 `src/input/tilt-settings.ts`:
 
 ```ts
-export const TILT_RANGES_DEG = [22, 19, 16, 13, 10]; // dal più morbido al più nervoso
-export const DEFAULT_TILT_LEVEL = 2;                 // 16°, il default più reattivo
+export const TILT_RANGES_DEG = [22, 17, 13, 10, 8]; // dal più morbido al più nervoso
+export const DEFAULT_TILT_LEVEL = 2;                // 13°, il default più reattivo
 export function rangeForLevel(level: number): number;
 export function loadTiltLevel(): number;             // localStorage, con clamp
 export function saveTiltLevel(level: number): void;
@@ -76,7 +76,7 @@ La sensibilità è solo l'ampiezza (`TILT_RANGE_DEG`), applicata dentro `TiltSou
 
 ### 5. Controllo nel menu: `−` e `+` con etichetta centrale
 
-Il menu ha già `Button` (Canvas 2D) e `addCenteredGraphic`. Il controllo è una riga: pulsante `−` a sinistra, testo centrale `Sensibilità 3/5 · 16°`, pulsante `+` a destra. Ai limiti il pulsante corrispondente va in stato disabilitato, che `Button` già supporta.
+Il menu ha già `Button` (Canvas 2D) e `addCenteredGraphic`. Il controllo è una riga: pulsante `−` a sinistra, valore centrale, pulsante `+` a destra, con la didascalia `SENSIBILITÀ · 13°` sopra. Ai limiti il pulsante corrispondente va in stato disabilitato, che `Button` già supporta.
 
 Alternativa scartata: uno slider. Su schermo piccolo richiede un trascinamento preciso, e con cinque valori discreti i due pulsanti sono più affidabili (e più semplici da centrare, visto il pregresso).
 
@@ -89,7 +89,7 @@ Il menu scrive il livello sia in `localStorage` sia in un oggetto condiviso lett
 ## Risks / Trade-offs
 
 - **Troppo difficile in alto** → tetto a 320 px/s (1,7× l'inizio) e rampa lenta; se in prova risultasse ingestibile, si abbassa `CLIMB_SPEED_MAX` o `CLIMB_SPEED_PER_PX`, due costanti.
-- **Default più sensibile = più errori per chi ha la mano poco ferma** → il livello 1 (22°) riproduce esattamente il comportamento attuale, quindi c'è sempre un ritorno al passato.
+- **Default più sensibile = più errori per chi ha la mano poco ferma** → il livello 1 (22°) riproduce esattamente il comportamento passato, quindi c'è sempre un ritorno indietro. Il default è stato tarato una seconda volta su richiesta: da 16° a 13°, perché 16° risultava ancora docile.
 - **Nemici che "scappano" di più** → con `-(speed - descent)` la discesa relativa resta quella dell'archetipo; se il gioco accelera, il nemico scende più lentamente rispetto allo schermo ma alla stessa velocità nel mondo. Da verificare a occhio in partita veloce.
 - **Persistenza fragile** (`localStorage` negato in incognito) → lettura in `try/catch` con fallback al default, come già fatto per l'audio.
 

@@ -4,6 +4,7 @@ import {
   TILT_SMOOTH_TAU_MS,
   TILT_TIMEOUT_MS,
 } from '../game/constants';
+import { tiltSettings } from './tilt-settings';
 
 /** Lifecycle of the tilt source as the scene sees it. */
 export type TiltStatus = 'pending' | 'active' | 'unavailable';
@@ -41,9 +42,13 @@ export async function requestSensorPermission(): Promise<boolean> {
 /**
  * Reads device orientation and turns left/right tilt into an axis in [-1, 1].
  *
- * The pipeline is: subtract the calibrated zero, apply the dead zone, normalise on
- * TILT_RANGE_DEG, then smooth with a time constant so the result behaves the same at
- * 30 Hz and 120 Hz. Raw sensor values never reach the game loop.
+ * The pipeline is: subtract the calibrated zero, apply the dead zone, normalise on the
+ * configured range (the sensitivity), then smooth with a time constant so the result behaves
+ * the same at 30 Hz and 120 Hz. Raw sensor values never reach the game loop.
+ *
+ * Sensitivity is only the range: the dead zone and the smoothing are fixed, so a nervous
+ * setting does not make the ship twitch around the centre, and the calibrated zero stays
+ * valid when the range changes.
  */
 export class TiltSource {
   private gamma: number | null = null;
@@ -53,6 +58,7 @@ export class TiltSource {
   private status: TiltStatus = 'pending';
   private startedAt = 0;
   private listening = false;
+  private rangeDeg = tiltSettings.rangeDeg;
 
   private readonly onOrientation = (event: DeviceOrientationEvent): void => {
     if (event.gamma === null) {
@@ -66,6 +72,15 @@ export class TiltSource {
 
   get currentStatus(): TiltStatus {
     return this.status;
+  }
+
+  /** Degrees needed for full scale. Changing it keeps the calibrated zero untouched. */
+  get sensitivityDeg(): number {
+    return this.rangeDeg;
+  }
+
+  setSensitivityDeg(degrees: number): void {
+    this.rangeDeg = degrees > 0 ? degrees : TILT_RANGE_DEG;
   }
 
   get isAvailable(): boolean {
@@ -134,7 +149,7 @@ export class TiltSource {
 
     const relative = this.gamma - this.zero;
     const deadZoned = Math.abs(relative) < TILT_DEAD_ZONE_DEG ? 0 : relative;
-    const normalized = clamp(deadZoned / TILT_RANGE_DEG, -1, 1);
+    const normalized = clamp(deadZoned / this.rangeDeg, -1, 1);
 
     // Frame-rate independent smoothing: the time to settle depends on tau, not on fps.
     const alpha = 1 - Math.exp(-clamp(deltaMs, 0, 100) / TILT_SMOOTH_TAU_MS);

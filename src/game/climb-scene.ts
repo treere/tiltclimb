@@ -6,7 +6,6 @@ import { Button } from '../ui/button';
 import { UiText } from '../ui/ui-text';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
-  CLIMB_SPEED,
   ENEMY_POOL_SIZE,
   ENEMY_SPAWN_INTERVAL_MS,
   ENEMY_SPAWN_MARGIN,
@@ -34,6 +33,7 @@ import { ObstaclePool } from './obstacle-pool';
 import { PlayerShip } from './player';
 import { ProjectilePool } from './projectile';
 import { session } from './session';
+import { CLIMB_SPEED_START, climbSpeedAt } from './speed';
 import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
@@ -71,6 +71,8 @@ export class ClimbScene extends ex.Scene {
   private killPoints = 0;
   private nextSpawnY = 0;
   private enemySpawnAccumulator = 0;
+  /** Current climb speed: grows with the height climbed, and everything that scrolls uses it. */
+  private speed = CLIMB_SPEED_START;
   private lastShotAt = 0;
   private exitTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -125,7 +127,10 @@ export class ClimbScene extends ex.Scene {
       return;
     }
 
-    this.starfield.update(elapsed);
+    this.speed = climbSpeedAt(this.climbedHeight());
+    this.player.vel.y = -this.speed;
+
+    this.starfield.update(elapsed, this.speed);
     this.explosions.tick(elapsed);
 
     this.player.vel.x = this.inputRouter.axis(elapsed) * MAX_HORIZONTAL_SPEED;
@@ -164,7 +169,8 @@ export class ClimbScene extends ex.Scene {
     this.player.pos.x = WORLD_WIDTH / 2;
     this.player.pos.y = 0;
     this.player.vel.x = 0;
-    this.player.vel.y = -CLIMB_SPEED;
+    this.speed = climbSpeedAt(0);
+    this.player.vel.y = -this.speed;
     this.player.startExhaust();
 
     this.score = 0;
@@ -227,6 +233,7 @@ export class ClimbScene extends ex.Scene {
       heroX: this.player.pos.x,
       topEdge: this.topEdge(),
       viewHeight: WORLD_HEIGHT,
+      speed: this.speed,
     };
 
     for (const enemy of [...this.enemies.active]) {

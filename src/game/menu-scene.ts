@@ -1,5 +1,6 @@
 import * as ex from 'excalibur';
 import { audio } from '../audio/audio';
+import { tiltSettings } from '../input/tilt-settings';
 import { requestSensorPermission } from '../input/tilt-source';
 import { AudioToggle } from '../ui/audio-toggle';
 import { Button } from '../ui/button';
@@ -46,6 +47,10 @@ export class MenuScene extends ex.Scene {
   private needleCenterX = 0;
   private calibrateButton!: Button;
   private starfield!: Starfield;
+  private sensitivityCaption!: UiText;
+  private sensitivityValue!: UiText;
+  private decreaseButton!: Button;
+  private increaseButton!: Button;
   private confirmTimer: ReturnType<typeof setTimeout> | null = null;
   private curtain!: ex.ScreenElement;
   private curtainLeft = 0;
@@ -79,17 +84,17 @@ export class MenuScene extends ex.Scene {
     new UiText(this, { x: centerX, y: at(0.15), size: 26, color: MUTED, weight: 400 }).setText(
       'inclina il telefono per sterzare',
     );
-    new UiText(this, { x: centerX, y: at(0.27), size: 24, color: MUTED, weight: 500 }).setText(
+    new UiText(this, { x: centerX, y: at(0.25), size: 24, color: MUTED, weight: 500 }).setText(
       'INCLINAZIONE',
     );
 
-    this.angleText = new UiText(this, { x: centerX, y: at(0.34), size: 84, color: TEXT });
+    this.angleText = new UiText(this, { x: centerX, y: at(0.32), size: 84, color: TEXT });
 
     addCenteredGraphic(
       this,
       new ex.Rectangle({ width: BAR_WIDTH, height: BAR_HEIGHT, color: ex.Color.fromHex(TRACK) }),
       centerX,
-      at(0.43),
+      at(0.39),
       2,
     );
 
@@ -98,22 +103,60 @@ export class MenuScene extends ex.Scene {
       height: 44,
       color: ex.Color.fromHex(NEEDLE),
     });
-    this.needle = addCenteredGraphic(this, needleGraphic, centerX, at(0.43), 10);
+    this.needle = addCenteredGraphic(this, needleGraphic, centerX, at(0.39), 10);
     this.needleCenterX = centerX;
 
-    this.resultText = new UiText(this, { x: centerX, y: at(0.5), size: 32, color: TEXT });
+    this.resultText = new UiText(this, { x: centerX, y: at(0.45), size: 32, color: TEXT });
     this.warningText = new UiText(this, {
       x: centerX,
-      y: at(0.57),
+      y: at(0.51),
       size: 24,
       color: WARN,
       weight: 500,
       maxWidth: BUTTON_WIDTH + 100,
     });
 
+    // Sensibilita': due pulsanti e un valore, niente slider — su schermo piccolo un
+    // trascinamento preciso e' piu' facile sbagliarlo che centrarlo.
+    this.sensitivityCaption = new UiText(this, {
+      x: centerX,
+      y: at(0.565),
+      size: 22,
+      color: MUTED,
+      weight: 500,
+    });
+
+    this.decreaseButton = new Button({
+      x: centerX - 118,
+      y: at(0.63),
+      width: 84,
+      height: 76,
+      label: '−',
+      fontSize: 44,
+      onPress: () => {
+        this.changeSensitivity(-1);
+      },
+    });
+    this.add(this.decreaseButton);
+
+    this.sensitivityValue = new UiText(this, { x: centerX, y: at(0.63), size: 34, color: TEXT });
+
+    this.increaseButton = new Button({
+      x: centerX + 118,
+      y: at(0.63),
+      width: 84,
+      height: 76,
+      label: '+',
+      fontSize: 44,
+      onPress: () => {
+        this.changeSensitivity(1);
+      },
+    });
+    this.add(this.increaseButton);
+
     this.calibrateButton = new Button({
       x: centerX,
-      y: at(0.67),
+      y: at(0.72),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Calibra',
@@ -125,7 +168,7 @@ export class MenuScene extends ex.Scene {
 
     const startButton = new Button({
       x: centerX,
-      y: at(0.78),
+      y: at(0.81),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'Inizia gioco',
@@ -137,7 +180,7 @@ export class MenuScene extends ex.Scene {
 
     const creditsButton = new Button({
       x: centerX,
-      y: at(0.89),
+      y: at(0.9),
       width: BUTTON_WIDTH,
       height: BUTTON_HEIGHT,
       label: 'CREDITI',
@@ -147,7 +190,7 @@ export class MenuScene extends ex.Scene {
     });
     this.add(creditsButton);
 
-    this.confirmText = new UiText(this, { x: centerX, y: at(0.96), size: 28, color: OK });
+    this.confirmText = new UiText(this, { x: centerX, y: at(0.955), size: 28, color: OK });
 
     // Full-screen black cover, faded out on activation so the menu does not pop in.
     this.curtain = new ex.ScreenElement({
@@ -173,6 +216,7 @@ export class MenuScene extends ex.Scene {
     audio.syncMusic('menu');
     this.refreshResult();
     this.refreshWarning();
+    this.refreshSensitivity();
     this.confirmText.setText('');
   }
 
@@ -227,6 +271,21 @@ export class MenuScene extends ex.Scene {
         ? 'Sensore non disponibile: si gioca con il trascinamento o con le frecce.'
         : 'Tocca lo schermo per attivare i sensori.',
     );
+  }
+
+  private refreshSensitivity(): void {
+    this.sensitivityCaption.setText(`SENSIBILITÀ · ${tiltSettings.rangeDeg}°`);
+    this.sensitivityValue.setText(tiltSettings.label);
+    this.decreaseButton.setEnabled(!tiltSettings.isSoft);
+    this.increaseButton.setEnabled(!tiltSettings.isNervous);
+  }
+
+  private changeSensitivity(step: number): void {
+    tiltSettings.setLevel(tiltSettings.tiltLevel + step);
+    // Applied to the live source too, so the needle in the menu reacts immediately. The
+    // calibrated zero is untouched: sensitivity is a scale, the calibration is an offset.
+    session.tilt.setSensitivityDeg(tiltSettings.rangeDeg);
+    this.refreshSensitivity();
   }
 
   private refreshResult(): void {

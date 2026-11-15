@@ -70,6 +70,9 @@ fallback tastiera/drag.
 - **Menu**: all'apertura vedi l'inclinazione rilevata (valore e barra). Il primo tocco chiede
   il permesso dei sensori.
 - **Calibra** fissa come zero l'assetto che tieni in quel momento e mostra `Calibrato ✓`.
+- **Sensibilità**: riga `−` / valore / `+` nel menu, cinque livelli da 22° (morbido) a 8°
+  (nervoso), default **13°**. Si salva sul dispositivo e vale dalla partita dopo, senza dover
+  ricalibrare: la sensibilità è un fattore di scala, la calibrazione è un offset.
 - **Inizia gioco** parte con lo zero dell'ultima calibrazione; se non hai calibrato vale
   l'assetto con cui hai aperto il menu.
 - **In partita**: inclina a sinistra/destra. Da desktop frecce ← → o A/D; il trascinamento
@@ -79,6 +82,19 @@ fallback tastiera/drag.
 - **CREDITI**: terzo pulsante del menu. Racconta la storia dell'eroe (salto andato storto,
   squadra dispersa, salita come unica rotta), elenca gli asset con licenza e l'autore.
   `INDIETRO` riporta al menu senza toccare la calibrazione.
+
+## Difficoltà
+
+- **La salita accelera**: da 190 px/s a 320 px/s, crescendo di `0.0135` px/s per ogni pixel
+  scalato. Il tetto arriva intorno ai 9.600 px, cioè poco meno di un minuto di salita piena.
+- **Legata all'altezza, non al tempo**: «6.000 px» vuol dire sempre la stessa velocità, quindi
+  due partite con lo stesso percorso hanno la stessa difficoltà.
+- **Tutto scorre insieme**: il campo stellato e i nemici usano la velocità corrente, non una
+  costante. Un nemico mantiene la sua discesa relativa all'archetipo anche quando il gioco
+  accelera.
+- **Gli ostacoli non si stringono**: sono posizionati a passi di 260 px di salita, quindi
+  accelerando diventano più distanti nel tempo, non più vicini nello spazio. Il gioco diventa
+  più veloce, non più ingiusto.
 
 ## Combattimento
 

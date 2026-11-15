@@ -6,8 +6,8 @@ Il gioco è leggibile ma troppo lento e troppo "duro": con 22° di inclinazione 
 
 ## What Changes
 
-- **Sensibilità più alta di default**: il fondo scala scende da 22° a 16° di inclinazione, quindi la stessa inclinazione sposta la nave di più. Con la stessa dead zone di 3°, per non rendere nervoso il centro.
-- **Sensibilità configurabile dalla home**: cinque livelli (da 22° a 10°, quindi da "morbido" a "nervoso"), selezionabili con `−` e `+` nel menu, mostrati come livello e come gradi. La scelta resta memorizzata sul dispositivo.
+- **Sensibilità più alta di default**: il fondo scala scende da 22° a 13° di inclinazione, quindi la stessa inclinazione sposta la nave di molto di più. Con la stessa dead zone di 3°, per non rendere nervoso il centro.
+- **Sensibilità configurabile dalla home**: cinque livelli (22°, 17°, 13°, 10°, 8°, quindi da "morbido" a "nervoso"), selezionabili con `−` e `+` nel menu, mostrati come livello e come gradi. La scelta resta memorizzata sul dispositivo.
 - **Cambio senza ricalibrare**: la sensibilità scala solo l'ampiezza, non lo zero, quindi cambiarla non richiede di rifare la calibrazione.
 - **Velocità di salita progressiva**: la salita parte da 190 px/s e cresce con l'altezza conquistata, fino a un tetto di 320 px/s. La crescita è legata ai pixel scalati, non al tempo: due partite con lo stesso percorso hanno la stessa difficoltà.
 - **Scorrimento coerente**: parallasse, nemici e ostacoli seguono la velocità corrente invece della costante, così il mondo non si sfasa quando il gioco accelera.

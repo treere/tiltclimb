@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
-import { CLIMB_SPEED, WORLD_WIDTH } from './constants';
+import { WORLD_WIDTH } from './constants';
 import { ARCHETYPES, type Archetype, type EnemyKind } from './enemy-archetypes';
+import { CLIMB_SPEED_START } from './speed';
 import { archetypeImages } from './sprites';
 
 const EDGE_MARGIN = 12;
@@ -8,6 +9,8 @@ const EDGE_MARGIN = 12;
 /** What a moving enemy needs to know about the world around it. */
 export type EnemyContext = {
   heroX: number;
+  /** Current climb speed, so the descent stays relative to the world and not to the screen. */
+  speed: number;
   /** World y of the top edge of the view. */
   topEdge: number;
   viewHeight: number;
@@ -66,9 +69,9 @@ export class Enemy extends ex.Actor {
     this.driftDirection = x < WORLD_WIDTH / 2 ? 1 : -1;
     this.volleysLeft = 0;
 
-    // The camera rises at CLIMB_SPEED, so subtracting it turns world velocity into a slow
-    // screen descent.
-    this.vel = ex.vec(0, -(CLIMB_SPEED - archetype.descent));
+    // Placeholder: `behave` recomputes it every frame from the current speed, because the game
+    // accelerates as the player climbs and a frozen value would make old ships fall behind.
+    this.vel = ex.vec(0, -(CLIMB_SPEED_START - archetype.descent));
 
     // Stagger the first shot so two ships never fire on the same beat.
     this.stepIn = archetype.fire.intervalMs * (0.6 + Math.random() * 0.8);
@@ -94,6 +97,10 @@ export class Enemy extends ex.Actor {
   }
 
   private applyMovement(archetype: Archetype, dt: number, context: EnemyContext): void {
+    // The screen rises with the camera at the current speed, so subtracting it turns world
+    // velocity into a slow screen descent — recomputed every frame because the game accelerates.
+    this.vel.y = -(context.speed - archetype.descent);
+
     if (archetype.weave) {
       const offset =
         Math.sin(this.phase + (this.age / 1000) * archetype.weave.omega) *

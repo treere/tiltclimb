@@ -8,8 +8,7 @@
 export const WORLD_WIDTH = 720;
 export const WORLD_HEIGHT = 1280;
 
-/** How fast the player climbs, in logical pixels per second. */
-export const CLIMB_SPEED = 190;
+/* La velocita' di salita non e' piu' una costante: vedi `speed.ts` (cresce con l'altezza). */
 
 /** Horizontal speed at full tilt, in logical pixels per second. */
 export const MAX_HORIZONTAL_SPEED = 300;
@@ -17,8 +16,8 @@ export const MAX_HORIZONTAL_SPEED = 300;
 /** Tilt below this many degrees is treated as zero, so a still hand does not drift. */
 export const TILT_DEAD_ZONE_DEG = 3;
 
-/** Tilt at which the horizontal speed saturates. */
-export const TILT_RANGE_DEG = 22;
+/** Fallback saturation angle. The live value comes from `input/tilt-settings.ts`. */
+export const TILT_RANGE_DEG = 13;
 
 /** Time constant of the exponential smoothing applied to the tilt axis (ms). */
 export const TILT_SMOOTH_TAU_MS = 90;
@@ -79,7 +78,7 @@ export const FIRE_BUTTON_HEIGHT = 84;
 
 export const BACKGROUND_COLOR = '#0e1116';
 
-/** Parallax speed factors, relative to CLIMB_SPEED. */
+/** Parallax speed factors, relative to the current climb speed. */
 export const STARFIELD_TILE_FACTOR = 0.25;
 export const STARFIELD_NEAR_FACTOR = 1;
 export const STARFIELD_FAR_FACTOR = 0.6;
