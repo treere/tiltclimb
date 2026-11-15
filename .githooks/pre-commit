@@ -1,11 +1,11 @@
 #!/bin/sh
-# Gate pre-commit: typecheck di tutto il progetto + Biome sui soli file in stage.
-# Attivato da `npm install` (script "prepare": git config core.hooksPath .githooks).
-# Bypass consapevole: git commit --no-verify
+# Pre-commit gate: typecheck the whole project, then Biome on the staged files only.
+# Installed by `npm install` (the "prepare" script sets git config core.hooksPath .githooks).
+# Deliberate bypass: git commit --no-verify
 set -e
 
 if [ ! -x ./node_modules/.bin/biome ]; then
-  echo "pre-commit: dipendenze mancanti, esegui 'npm install'." >&2
+  echo "pre-commit: dependencies missing, run 'npm install'." >&2
   exit 1
 fi
 
@@ -13,8 +13,8 @@ echo "pre-commit: typecheck…"
 npm run --silent typecheck
 
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(ts|tsx|js|jsx|mjs|cjs|json|jsonc|css|html|md)$'; then
-  echo "pre-commit: biome sui file in stage…"
+  echo "pre-commit: biome on staged files…"
   ./node_modules/.bin/biome check --staged --no-errors-on-unmatched
 else
-  echo "pre-commit: nessun file formattabile in stage."
+  echo "pre-commit: nothing to format in stage."
 fi
