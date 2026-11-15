@@ -55,10 +55,13 @@ export class Button extends ex.ScreenElement {
       }),
     });
 
+    // Both graphics default to a centred origin, so zero offsets stack them on the same
+    // point: adding half-width offsets here is what used to push the label off-centre.
     this.group = new ex.GraphicsGroup({
+      useAnchor: false,
       members: [
         { graphic: this.plate, offset: ex.vec(0, 0) },
-        { graphic: this.caption, offset: this.captionOffset() },
+        { graphic: this.caption, offset: ex.vec(0, 0) },
       ],
     });
     this.graphics.use(this.group);
@@ -102,24 +105,12 @@ export class Button extends ex.ScreenElement {
 
   setLabel(label: string): void {
     this.caption.text = label;
-    this.relayout();
   }
 
   /** Brief visual feedback, used by the calibration confirmation. */
   flash(): void {
     this.plate.color = COLOR_HOVER;
     setTimeout(() => this.refresh(), 140);
-  }
-
-  private relayout(): void {
-    const member = this.group.members[1];
-    if (member && 'offset' in member) {
-      member.offset = this.captionOffset();
-    }
-  }
-
-  private captionOffset(): ex.Vector {
-    return ex.vec(-this.caption.width / 2, -this.caption.height / 2);
   }
 
   private refresh(): void {
