@@ -79,6 +79,9 @@ export const HERO_HIT_RADIUS = 20;
 export const FIRE_BUTTON_WIDTH = 200;
 export const FIRE_BUTTON_HEIGHT = 84;
 
+/** Round pause control, same size as the audio toggle in the menu. */
+export const PAUSE_TOGGLE_MARGIN = 56;
+
 export const BACKGROUND_COLOR = '#0e1116';
 
 /** Parallax speed factors, relative to the current climb speed. */

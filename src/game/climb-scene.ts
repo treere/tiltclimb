@@ -3,6 +3,7 @@ import { audio } from '../audio/audio';
 import { KILL_BY_KIND, SHOT_BY_KIND } from '../audio/sounds';
 import { InputRouter } from '../input/input-router';
 import { Button } from '../ui/button';
+import { PauseToggle } from '../ui/pause-toggle';
 import { UiText } from '../ui/ui-text';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
@@ -16,6 +17,7 @@ import {
   MAX_HORIZONTAL_SPEED,
   OBSTACLE_POOL_SIZE,
   OBSTACLE_RADIUS,
+  PAUSE_TOGGLE_MARGIN,
   PLAYER_HITBOX_WIDTH,
   PLAYER_SCREEN_FRACTION,
   PLAYER_VISUAL_HEIGHT,
@@ -75,6 +77,35 @@ export class ClimbScene extends ex.Scene {
   private speed = CLIMB_SPEED_START;
   private lastShotAt = 0;
   private exitTimer: ReturnType<typeof setTimeout> | null = null;
+  private paused = false;
+  /** Velocities stored on pause and restored on resume: Excalibur integrates them every frame. */
+  private frozenMotion: { actor: ex.Actor; vel: ex.Vector }[] = [];
+  private pauseToggle!: PauseToggle;
+  private pauseOverlay!: ex.ScreenElement;
+  private pauseText!: UiText;
+  private resumeHint!: UiText;
+
+  private canvasElement: HTMLCanvasElement | null = null;
+
+  private readonly onCanvasPointerUp = (event: PointerEvent): void => {
+    const canvas = this.canvasElement;
+    if (!canvas) {
+      return;
+    }
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) {
+      return;
+    }
+    const scale = this.engine.screen.resolution.width / rect.width;
+    this.handlePauseTap((event.clientX - rect.left) * scale, (event.clientY - rect.top) * scale);
+  };
+
+  /** Leaving the page mid-run pauses it: a notification must not cost the run. */
+  private readonly onVisibilityChange = (): void => {
+    if (document.hidden && this.running && !this.leaving) {
+      this.setPaused(true);
+    }
+  };
 
   override onInitialize(engine: ex.Engine): void {
     this.starfield = new Starfield(this, 1);
@@ -100,17 +131,30 @@ export class ClimbScene extends ex.Scene {
     });
 
     this.createHud();
+    this.createPauseUi(engine);
     this.explosions = new ExplosionPool(this);
   }
 
   override onActivate(_context: SceneContext): void {
     audio.syncMusic('game');
     this.startRun();
+    // A run always opens running: the state is set first, then the UI is forced in line with it.
+    this.paused = false;
+    this.setPaused(false);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    // onActivate can run again after a scene switch: attach once, not once per run.
+    this.canvasElement?.removeEventListener('pointerup', this.onCanvasPointerUp);
+    if (this.canvasElement) {
+      this.canvasElement.addEventListener('pointerup', this.onCanvasPointerUp);
+    }
   }
 
   override onDeactivate(_context: SceneContext): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.canvasElement?.removeEventListener('pointerup', this.onCanvasPointerUp);
     this.running = false;
     this.leaving = false;
+    this.paused = false;
     this.player.stopExhaust();
     if (this.exitTimer !== null) {
       clearTimeout(this.exitTimer);
@@ -123,7 +167,9 @@ export class ClimbScene extends ex.Scene {
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
-    if (!this.running) {
+    // Paused means paused: no scroll, no spawning, no score, and no collision evaluation — a ship
+    // overlapping an asteroid while paused does not die.
+    if (!this.running || this.paused) {
       return;
     }
 
@@ -312,7 +358,7 @@ export class ClimbScene extends ex.Scene {
   }
 
   private fireHero(): void {
-    if (!this.running) {
+    if (!this.running || this.paused || this.leaving) {
       return;
     }
 
@@ -326,6 +372,139 @@ export class ClimbScene extends ex.Scene {
     this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT, {
       speed: HERO_SHOT_SPEED,
     });
+  }
+
+  /** Round control in the corner plus the cover that says how to get back. */
+  private createPauseUi(engine: ex.Engine): void {
+    this.pauseOverlay = new ex.ScreenElement({
+      x: 0,
+      y: 0,
+      width: WORLD_WIDTH,
+      height: WORLD_HEIGHT,
+      z: 150,
+    });
+    this.pauseOverlay.graphics.use(
+      new ex.Rectangle({
+        width: WORLD_WIDTH,
+        height: WORLD_HEIGHT,
+        color: ex.Color.fromHex('#0e1116'),
+      }),
+    );
+    this.pauseOverlay.graphics.opacity = 0.82;
+    this.add(this.pauseOverlay);
+
+    this.pauseText = new UiText(this, {
+      x: WORLD_WIDTH / 2,
+      y: WORLD_HEIGHT * 0.42,
+      size: 64,
+      color: '#e6edf3',
+      z: 151,
+    });
+    this.pauseText.setText('PAUSED');
+
+    this.resumeHint = new UiText(this, {
+      x: WORLD_WIDTH / 2,
+      y: WORLD_HEIGHT * 0.56,
+      size: 34,
+      color: '#8b98a8',
+      z: 151,
+    });
+    this.resumeHint.setText('tap anywhere to resume');
+
+    // Plain DOM listener on the canvas, not a per-actor handler: Excalibur dispatches the same
+    // pointerup to several actors at once (so the cover unpaused what the control had just
+    // paused), and its `screenPos` drifts with the camera, which made the control unusable once
+    // the world had scrolled. clientX/clientY against the canvas rect is boring and exact.
+    this.canvasElement = engine.canvas;
+    this.canvasElement.addEventListener('pointerup', this.onCanvasPointerUp);
+    this.pauseToggle = new PauseToggle(WORLD_WIDTH - PAUSE_TOGGLE_MARGIN, PAUSE_TOGGLE_MARGIN);
+    this.pauseToggle.z = 160;
+    this.add(this.pauseToggle);
+
+    // Graphics components start visible: without this the very first run opens with the cover
+    // already drawn over a world that is running fine underneath.
+    this.applyPauseVisibility(false);
+  }
+
+  /** The only place that decides whether the cover is on screen. */
+  private applyPauseVisibility(visible: boolean): void {
+    this.pauseOverlay.graphics.isVisible = visible;
+    this.pauseText.actor.graphics.isVisible = visible;
+    this.resumeHint.actor.graphics.isVisible = visible;
+  }
+
+  /** Position test against the round control, in screen coordinates. */
+  private isOnPauseControl(x: number, y: number): boolean {
+    const half = this.pauseToggle.width / 2;
+    const centerX = this.pauseToggle.pos.x + half;
+    const centerY = this.pauseToggle.pos.y + half;
+    return Math.hypot(x - centerX, y - centerY) <= half;
+  }
+
+  private handlePauseTap(x: number, y: number): void {
+    if (!this.running || this.leaving) {
+      return;
+    }
+    if (this.paused) {
+      this.setPaused(false);
+      return;
+    }
+    if (this.isOnPauseControl(x, y)) {
+      this.setPaused(true);
+    }
+  }
+
+  private setPaused(paused: boolean): void {
+    if (this.leaving) {
+      return;
+    }
+
+    const next = paused && this.running;
+    const changed = next !== this.paused;
+    this.paused = next;
+
+    if (changed) {
+      if (this.paused) {
+        this.freezeMotion();
+      } else {
+        this.thawMotion();
+      }
+    }
+
+    // Applied even when the state did not change: the UI must never depend on how it got here.
+    this.applyPauseVisibility(this.paused);
+    this.pauseToggle.setPaused(this.paused);
+    this.setFireEnabled(this.running && !this.paused);
+  }
+
+  /**
+   * Freezing by hand instead of stopping the engine clock: the clock also drives rendering, and a
+   * stopped loop would never draw the pause cover. Zeroing velocities keeps the picture live while
+   * nothing moves.
+   */
+  private freezeMotion(): void {
+    this.frozenMotion = [];
+    const freeze = (actor: ex.Actor): void => {
+      this.frozenMotion.push({ actor, vel: actor.vel.clone() });
+      actor.vel = ex.Vector.Zero;
+    };
+
+    freeze(this.player);
+    for (const projectile of this.projectiles.active) {
+      freeze(projectile);
+    }
+    for (const enemy of this.enemies.active) {
+      freeze(enemy);
+    }
+  }
+
+  private thawMotion(): void {
+    for (const entry of this.frozenMotion) {
+      entry.actor.vel = entry.vel;
+    }
+    this.frozenMotion = [];
+    // The climb speed may have changed while paused; this is the authoritative value.
+    this.player.vel.y = -this.speed;
   }
 
   private setFireEnabled(enabled: boolean): void {
