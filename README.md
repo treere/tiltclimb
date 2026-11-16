@@ -206,6 +206,13 @@ FFMPEG=/path/ffmpeg python3 scripts/prepare-audio.py      # effects + music (mon
 python3 scripts/prepare-explosions.py                      # explosion frames (Pillow)
 ```
 
+## Licences
+
+- **Code**: MIT — see `LICENSE`.
+- **Assets**: CC0 1.0, with the source page next to each pack (`LICENSE.md` in
+  `public/assets/audio` and `public/assets/effects/explosion`), because CC0 does not require
+  attribution but keeping the trail is the cheapest way not to lose it.
+
 ## Credits
 
 Graphic assets: **Kenney — "Space Shooter Redux"**, **CC0 1.0** license (public domain).
