@@ -110,6 +110,18 @@ keyboard/drag fallback.
 - **Background**: the near layer travels at 0.55× the climb speed, i.e. ~105 px/s at the start and
   ~176 px/s at the cap, so the world visibly moves.
 
+## Records
+
+- The best score and the best kill count are stored in the browser
+  (`tiltclimb.bestScore`, `tiltclimb.bestKills`) and read back at startup, so they survive a reload,
+  a closed tab and a phone reboot.
+- The rule is simply "beat the best that exists": with nothing stored the bar is zero, so the first
+  run of a fresh install is a record as soon as it scores.
+- The menu separates the two ideas: `Last: 120   Best: 340   Kills: 5` after a run, and
+  `Best: 340   Best kills: 12` when you open the game with a record and no run played yet.
+- If the storage is denied or the stored value is garbage, the game keeps working with a best that
+  lasts the session: `src/game/records.ts` validates every read and wraps every write.
+
 ## Pause
 
 - **Round control in the top right** of the run, same size and style as the audio toggle in the menu.

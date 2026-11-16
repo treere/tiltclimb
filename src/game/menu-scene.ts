@@ -289,10 +289,17 @@ export class MenuScene extends ex.Scene {
   }
 
   private refreshResult(): void {
+    if (session.hasPlayed) {
+      this.resultText.setText(
+        `Last: ${session.lastScore}   Best: ${session.bestScore}   Kills: ${session.lastKills}`,
+      );
+      return;
+    }
+
+    // No run yet this session: the stored record is still worth showing, labelled so the two
+    // numbers cannot be confused with the last run's.
     this.resultText.setText(
-      session.hasPlayed
-        ? `Last: ${session.lastScore}   Best: ${session.bestScore}   Kills: ${session.lastKills}`
-        : '',
+      session.bestScore > 0 ? `Best: ${session.bestScore}   Best kills: ${session.bestKills}` : '',
     );
   }
 

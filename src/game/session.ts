@@ -1,4 +1,5 @@
 import { TiltSource } from '../input/tilt-source';
+import { readBestKills, readBestScore, writeBestKills, writeBestScore } from './records';
 
 /**
  * State that outlives a single run: the calibrated sensor and the numbers shown by the menu.
@@ -13,20 +14,33 @@ class Session {
 
   hasPlayed = false;
   lastScore = 0;
-  bestScore = 0;
   lastKills = 0;
 
-  /** Stores the run result and reports whether it beat the previous session best. */
+  /** Read from the device once at startup, written whenever they are beaten. */
+  bestScore = readBestScore();
+  bestKills = readBestKills();
+
+  /**
+   * Stores the run result and reports whether it beat the best on record.
+   *
+   * The rule is simply "beat the best that exists": with nothing stored the bar is zero, so a first
+   * run that scores anything is a record — the old "first run of the session never counts" rule
+   * only existed because there was nothing to beat.
+   */
   recordScore(points: number, kills: number): boolean {
-    const previousBest = this.bestScore;
-    // The first run of a session is not a record: there was no best to beat yet.
-    const isRecord = this.hasPlayed && points > previousBest;
+    const isRecord = points > this.bestScore;
 
     this.lastScore = points;
     this.lastKills = kills;
     this.hasPlayed = true;
+
     if (isRecord) {
       this.bestScore = points;
+      writeBestScore(points);
+    }
+    if (kills > this.bestKills) {
+      this.bestKills = kills;
+      writeBestKills(kills);
     }
 
     return isRecord;
