@@ -110,6 +110,18 @@ keyboard/drag fallback.
 - **Background**: the near layer travels at 0.55× the climb speed, i.e. ~105 px/s at the start and
   ~176 px/s at the cap, so the world visibly moves.
 
+## Pause
+
+- **Round control in the top right** of the run, same size and style as the audio toggle in the menu.
+  Tapping it freezes the run: no scrolling, no spawning, no score, no collision evaluation, and the
+  fire button is disabled. The icon turns into a play triangle.
+- **Resume by tapping anywhere** on the screen — the cover says `tap anywhere to resume`. The control
+  is drawn only: the tap is resolved from the pointer position on the canvas, because Excalibur sends
+  the same `pointerup` to several actors at once and its `screenPos` drifts with the camera.
+- **Auto-pause when the page is hidden**, never auto-resume: a phone call or a tab switch does not
+  cost the run, and coming back leaves you in control.
+- A run always **starts unpaused**: the cover is hidden explicitly at creation, not left to a default.
+
 ## Combat
 
 - **FIRE**: button at the bottom; one tap = one shot, no bursts (a 150 ms guard
