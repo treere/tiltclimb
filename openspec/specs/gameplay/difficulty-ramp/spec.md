@@ -7,7 +7,7 @@ Makes the run tenser as the climb goes on, without the world falling out of sync
 
 ### Requirement: Progressive climb speed
 
-The climb speed SHALL start from the initial value and grow as a function of the pixels scrolled, up to a maximum cap. The growth MUST be deterministic with respect to height and MUST NOT depend on elapsed time or frame rate.
+The climb speed SHALL start from the initial value and grow in steps, one per level, up to a maximum cap. The growth MUST be deterministic with respect to the level, which depends only on the distance climbed, and MUST NOT depend on elapsed time or frame rate.
 
 #### Scenario: Start of the run
 
@@ -16,24 +16,29 @@ The climb speed SHALL start from the initial value and grow as a function of the
 
 #### Scenario: Extended climb
 
-- **WHEN** the player goes past several thousand pixels of height
-- **THEN** the climb accelerates continuously, without visible stutter
+- **WHEN** the player goes past several levels
+- **THEN** the climb speeds up once per level boundary, without stutter and without growing inside a level
 
 #### Scenario: Cap reached
 
-- **WHEN** the height exceeds the cap threshold
+- **WHEN** the level reaches the one where the cap is defined
 - **THEN** the speed stays constant at that value and does not grow any further
 
 ### Requirement: Scrolling consistent with the current speed
 
-Parallax, obstacles and enemy ships SHALL use the current climb speed, so that the relative movement of the world stays consistent when the game accelerates. The distance between one obstacle and the next MUST stay the expected one, expressed in climb pixels.
+Parallax, obstacles and enemy ships SHALL use the current climb speed, so that the relative movement of the world stays consistent when the game accelerates. The distance between one obstacle and the next MUST stay the expected one for the current level, expressed in climb pixels.
 
 #### Scenario: Acceleration
 
-- **WHEN** the climb speed increases during the run
-- **THEN** background, obstacles and enemies accelerate together, without the obstacles moving closer to or further from each other
+- **WHEN** the climb speed increases at a level boundary
+- **THEN** background, obstacles and enemies accelerate together, without the obstacles moving closer to or further from each other inside the level
 
 #### Scenario: Enemy descending
 
 - **WHEN** an enemy ship descends while the game is faster
 - **THEN** its relative descent stays that of the archetype, without becoming slower or faster in proportion
+
+#### Scenario: Density follows the level
+
+- **WHEN** a new level starts and the obstacle gap for that level is tighter
+- **THEN** the new rows adopt it, while the rows already on screen keep their spacing

@@ -83,6 +83,20 @@ keyboard/drag fallback.
   squad scattered, the climb as the only route), lists the assets with license and the author.
   `BACK` returns to the menu without touching the calibration.
 
+## Levels
+
+- **Endless levels of 1,500 px**: `level = floor(height / 1500) + 1`, triggered only by distance
+  climbed. The level never goes down and never ends.
+- **Each level is one step harder**, and inside a level difficulty is flat: climb speed +13 px/s per
+  level from 190 up to 320 (level 11), a third ship alive from level 4 and a fourth from level 9, and
+  the obstacle gap shrinking 5 px per level down to a floor of 210.
+- **Ceilings**: past the levels that max out speed, gap and ships, difficulty stops growing; the
+  counter does not.
+- **Archetypes unlock on boundaries**: diver at level 3, hunter at 6, UFO at 9.
+- **On screen**: `LV n` under the score at all times, and a `LEVEL n` banner for 1.2 s at each
+  change. The score stays the bigger element.
+- **The score does not read the level**: same formula, and the record is still the score.
+
 ## Difficulty
 
 - **The climb accelerates**: from 190 px/s to 320 px/s, growing by `0.0135` px/s for every pixel

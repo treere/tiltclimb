@@ -1,4 +1,4 @@
-import { ENEMY_MAX_ALIVE_EARLY, ENEMY_MAX_ALIVE_LATE } from './constants';
+import { DIVER_LEVEL, HUNTER_LEVEL, specForLevel, UFO_LEVEL } from './levels';
 
 export type EnemyKind = 'patrol' | 'diver' | 'hunter' | 'ufo';
 
@@ -29,7 +29,8 @@ export type Archetype = {
   spriteFile: string;
   points: number;
   /** Climb height, in world px, from which this kind may appear. */
-  unlockHeight: number;
+  /** Level that introduces this archetype, so the unlock lands on a boundary the player sees. */
+  unlockLevel: number;
   visualWidth: number;
   hitRadius: number;
   /** Descent speed on screen, px/s. The camera rising is accounted for by the actor. */
@@ -53,7 +54,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
     label: 'patrol',
     spriteFile: 'enemyRed1.png',
     points: 25,
-    unlockHeight: 0,
+    unlockLevel: 1,
     visualWidth: 72,
     hitRadius: 26,
     descent: 120,
@@ -65,7 +66,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
     label: 'diver',
     spriteFile: 'enemyBlue4.png',
     points: 35,
-    unlockHeight: 2500,
+    unlockLevel: DIVER_LEVEL,
     visualWidth: 66,
     hitRadius: 24,
     descent: 260,
@@ -77,7 +78,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
     label: 'hunter',
     spriteFile: 'enemyGreen2.png',
     points: 45,
-    unlockHeight: 6000,
+    unlockLevel: HUNTER_LEVEL,
     visualWidth: 76,
     hitRadius: 26,
     descent: 100,
@@ -89,7 +90,7 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
     label: 'turret',
     spriteFile: 'ufoYellow.png',
     points: 60,
-    unlockHeight: 10000,
+    unlockLevel: UFO_LEVEL,
     visualWidth: 76,
     hitRadius: 28,
     descent: 150,
@@ -102,11 +103,11 @@ export const ARCHETYPES: Record<EnemyKind, Archetype> = {
 export const ARCHETYPE_ORDER: EnemyKind[] = ['patrol', 'diver', 'hunter', 'ufo'];
 
 /** Kinds unlocked at a given climb height. Patrol is always there, so this never returns empty. */
-export function kindsAvailableAt(heightPx: number): EnemyKind[] {
-  return ARCHETYPE_ORDER.filter((kind) => heightPx >= ARCHETYPES[kind].unlockHeight);
+export function kindsAvailableAt(level: number): EnemyKind[] {
+  return ARCHETYPE_ORDER.filter((kind) => level >= ARCHETYPES[kind].unlockLevel);
 }
 
 /** How many enemies may be alive at once: more pressure once the hunter shows up. */
-export function maxAliveAt(heightPx: number): number {
-  return heightPx >= ARCHETYPES.hunter.unlockHeight ? ENEMY_MAX_ALIVE_LATE : ENEMY_MAX_ALIVE_EARLY;
+export function maxAliveAt(level: number): number {
+  return specForLevel(level).maxAlive;
 }

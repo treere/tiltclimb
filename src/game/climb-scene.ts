@@ -24,18 +24,18 @@ import {
   PROJECTILE_HIT_RADIUS,
   PROJECTILE_POOL_SIZE,
   SHOT_MIN_INTERVAL_MS,
-  SPAWN_GAP_PX,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants';
 import { EnemyPool } from './enemy';
 import { ARCHETYPES, kindsAvailableAt, maxAliveAt } from './enemy-archetypes';
 import { ExplosionPool } from './explosion';
+import { levelAt, specForLevel } from './levels';
 import { ObstaclePool } from './obstacle-pool';
 import { PlayerShip } from './player';
 import { ProjectilePool } from './projectile';
 import { session } from './session';
-import { CLIMB_SPEED_START, climbSpeedAt } from './speed';
+import { CLIMB_SPEED_START } from './speed';
 import { Starfield } from './starfield';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
@@ -43,6 +43,8 @@ type SceneContext = ex.SceneActivationContext<unknown>;
 const MARGIN_X = 24;
 const OBSTACLE_EDGE_MARGIN = 48;
 const EXIT_DELAY_MS = 500;
+/** How long the level announcement stays on screen. */
+const LEVEL_BANNER_MS = 1200;
 const FIRE_BUTTON_Y = WORLD_HEIGHT - 96;
 const ENEMY_EDGE_MARGIN = 24;
 
@@ -75,6 +77,12 @@ export class ClimbScene extends ex.Scene {
   private enemySpawnAccumulator = 0;
   /** Current climb speed: grows with the height climbed, and everything that scrolls uses it. */
   private speed = CLIMB_SPEED_START;
+  private level = 1;
+  private levelSpec = specForLevel(1);
+  private levelText!: UiText;
+  private levelBanner!: UiText;
+  /** Wall clock: the banner must fade after a second of real time, not of game clock. */
+  private levelBannerUntil = 0;
   private lastShotAt = 0;
   private exitTimer: ReturnType<typeof setTimeout> | null = null;
   private paused = false;
@@ -173,7 +181,16 @@ export class ClimbScene extends ex.Scene {
       return;
     }
 
-    this.speed = climbSpeedAt(this.climbedHeight());
+    const level = levelAt(this.climbedHeight());
+    if (level !== this.level) {
+      this.enterLevel(level);
+    }
+    if (this.levelBannerUntil > 0 && performance.now() > this.levelBannerUntil) {
+      this.levelBannerUntil = 0;
+      this.levelBanner.setText('');
+    }
+
+    this.speed = this.levelSpec.climbSpeed;
     this.player.vel.y = -this.speed;
 
     this.starfield.update(elapsed, this.speed);
@@ -215,8 +232,13 @@ export class ClimbScene extends ex.Scene {
     this.player.pos.x = WORLD_WIDTH / 2;
     this.player.pos.y = 0;
     this.player.vel.x = 0;
-    this.speed = climbSpeedAt(0);
+    this.level = 1;
+    this.levelSpec = specForLevel(1);
+    this.speed = this.levelSpec.climbSpeed;
     this.player.vel.y = -this.speed;
+    this.levelText.setText(`LV ${this.level}`);
+    this.levelBanner.setText('');
+    this.levelBannerUntil = 0;
     this.player.startExhaust();
 
     this.score = 0;
@@ -224,7 +246,7 @@ export class ClimbScene extends ex.Scene {
     this.killPoints = 0;
     this.scoreText.setText('0');
     this.bannerText.setText('');
-    this.nextSpawnY = -WORLD_HEIGHT * PLAYER_SCREEN_FRACTION - SPAWN_GAP_PX * 0.5;
+    this.nextSpawnY = -WORLD_HEIGHT * PLAYER_SCREEN_FRACTION - this.levelSpec.obstacleGap * 0.5;
     this.enemySpawnAccumulator = 0;
     this.lastShotAt = 0;
 
@@ -295,17 +317,16 @@ export class ClimbScene extends ex.Scene {
 
     this.enemies.recycleBelow(this.cameraBottom());
 
-    const height = this.climbedHeight();
     this.enemySpawnAccumulator += elapsed;
     if (this.enemySpawnAccumulator < ENEMY_SPAWN_INTERVAL_MS) {
       return;
     }
-    if (this.enemies.aliveCount >= maxAliveAt(height)) {
+    if (this.enemies.aliveCount >= maxAliveAt(this.level)) {
       return;
     }
 
     this.enemySpawnAccumulator = 0;
-    const kinds = kindsAvailableAt(height);
+    const kinds = kindsAvailableAt(this.level);
     const kind = kinds[Math.floor(Math.random() * kinds.length)] ?? 'patrol';
     const margin = ENEMY_SPAWN_MARGIN + ENEMY_EDGE_MARGIN;
     const x = margin + Math.random() * (WORLD_WIDTH - margin * 2);
@@ -511,13 +532,26 @@ export class ClimbScene extends ex.Scene {
     this.fireButton.setEnabled(enabled);
   }
 
-  /** Keeps asteroids waiting above the viewport, one SPAWN_GAP apart. */
+  /**
+   * Keeps asteroids waiting above the viewport, one gap apart, where the gap belongs to the current
+   * level: rows already on screen keep their spacing, new ones adopt the tighter one.
+   */
   private spawnAhead(): void {
     const topEdge = this.topEdge();
-    while (this.nextSpawnY > topEdge - SPAWN_GAP_PX) {
+    const gap = this.levelSpec.obstacleGap;
+    while (this.nextSpawnY > topEdge - gap) {
       this.obstacles.acquire(this.randomObstacleX(), this.nextSpawnY);
-      this.nextSpawnY -= SPAWN_GAP_PX;
+      this.nextSpawnY -= gap;
     }
+  }
+
+  /** Applies what a new level changes: read by the rest of the scene, and announced on screen. */
+  private enterLevel(level: number): void {
+    this.level = level;
+    this.levelSpec = specForLevel(level);
+    this.levelText.setText(`LV ${level}`);
+    this.levelBanner.setText(`LEVEL ${level}`);
+    this.levelBannerUntil = performance.now() + LEVEL_BANNER_MS;
   }
 
   private randomObstacleX(): number {
@@ -538,7 +572,9 @@ export class ClimbScene extends ex.Scene {
   }
 
   private cameraBottom(): number {
-    return this.player.pos.y + WORLD_HEIGHT * (1 - PLAYER_SCREEN_FRACTION) + SPAWN_GAP_PX;
+    return (
+      this.player.pos.y + WORLD_HEIGHT * (1 - PLAYER_SCREEN_FRACTION) + this.levelSpec.obstacleGap
+    );
   }
 
   private clampX(x: number): number {
@@ -557,6 +593,27 @@ export class ClimbScene extends ex.Scene {
       z: 100,
     });
     this.scoreText.setText('0');
+
+    this.levelText = new UiText(this, {
+      x: MARGIN_X,
+      y: MARGIN_X + 54,
+      size: 26,
+      color: '#8b98a8',
+      weight: 500,
+      align: 'left',
+      valign: 'top',
+      z: 100,
+    });
+    this.levelText.setText('LV 1');
+
+    this.levelBanner = new UiText(this, {
+      x: WORLD_WIDTH / 2,
+      y: WORLD_HEIGHT * 0.3,
+      size: 56,
+      color: '#7fd4ff',
+      z: 100,
+    });
+    this.levelBanner.setText('');
 
     this.bannerText = new UiText(this, {
       x: WORLD_WIDTH / 2,
