@@ -80,5 +80,27 @@ await engine.start(loader);
 await loader.show();
 await engine.goToScene('menu');
 
+/**
+ * Offline support: the worker is generated at build time and precaches the build. Registration is
+ * silent and optional — if the browser refuses, the game is the same web page it was before.
+ */
+if ('serviceWorker' in navigator) {
+  const registerOffline = (): void => {
+    void navigator.serviceWorker
+      .register('./sw.js')
+      // Ask for an update on every load: browsers check on navigation too, but not predictably
+      // enough to promise "a new deploy is picked up the next time you open the game".
+      .then((registration) => registration.update())
+      .catch(() => undefined);
+  };
+  // The module boots with a top-level await, so `load` may already have fired by the time this
+  // line runs: registering on a load that will never come again silently disabled offline support.
+  if (document.readyState === 'complete') {
+    registerOffline();
+  } else {
+    window.addEventListener('load', registerOffline, { once: true });
+  }
+}
+
 // Handle for the visual smoke test (and for debugging on a phone): harmless in production.
 (window as unknown as { __game?: typeof engine }).__game = engine;
