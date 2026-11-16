@@ -3,6 +3,7 @@ import { audio } from '../audio/audio';
 import { KILL_BY_KIND, SHOT_BY_KIND } from '../audio/sounds';
 import { InputRouter } from '../input/input-router';
 import { Button } from '../ui/button';
+import { HeatBar } from '../ui/heat-bar';
 import { PauseToggle } from '../ui/pause-toggle';
 import { UiText } from '../ui/ui-text';
 import { circlesOverlap, climbScore } from './combat-math';
@@ -37,6 +38,14 @@ import { ProjectilePool } from './projectile';
 import { session } from './session';
 import { CLIMB_SPEED_START } from './speed';
 import { Starfield } from './starfield';
+import {
+  COLD,
+  canFire,
+  HEAT_MAX,
+  type HeatState,
+  heatAfterCooling,
+  heatAfterShot,
+} from './weapon-heat';
 
 type SceneContext = ex.SceneActivationContext<unknown>;
 
@@ -77,6 +86,8 @@ export class ClimbScene extends ex.Scene {
   private enemySpawnAccumulator = 0;
   /** Current climb speed: grows with the height climbed, and everything that scrolls uses it. */
   private speed = CLIMB_SPEED_START;
+  private heat: HeatState = { ...COLD };
+  private heatBar!: HeatBar;
   private level = 1;
   private levelSpec = specForLevel(1);
   private levelText!: UiText;
@@ -193,6 +204,9 @@ export class ClimbScene extends ex.Scene {
     this.speed = this.levelSpec.climbSpeed;
     this.player.vel.y = -this.speed;
 
+    this.heat = heatAfterCooling(this.heat, elapsed);
+    this.refreshFireState();
+
     this.starfield.update(elapsed, this.speed);
     this.explosions.tick(elapsed);
 
@@ -232,10 +246,13 @@ export class ClimbScene extends ex.Scene {
     this.player.pos.x = WORLD_WIDTH / 2;
     this.player.pos.y = 0;
     this.player.vel.x = 0;
+    this.heat = { ...COLD };
     this.level = 1;
     this.levelSpec = specForLevel(1);
     this.speed = this.levelSpec.climbSpeed;
     this.player.vel.y = -this.speed;
+
+    this.refreshFireState();
     this.levelText.setText(`LV ${this.level}`);
     this.levelBanner.setText('');
     this.levelBannerUntil = 0;
@@ -252,7 +269,7 @@ export class ClimbScene extends ex.Scene {
 
     this.leaving = false;
     this.running = true;
-    this.setFireEnabled(true);
+    this.refreshFireState();
   }
 
   private endRun(): void {
@@ -279,7 +296,7 @@ export class ClimbScene extends ex.Scene {
       this.stingTimer = null;
       audio.playSfx(isRecord ? 'record' : 'lose');
     }, 420);
-    this.setFireEnabled(false);
+    this.refreshFireState();
 
     // Short pause so the collision is readable before the scene changes.
     this.exitTimer = setTimeout(() => {
@@ -379,7 +396,7 @@ export class ClimbScene extends ex.Scene {
   }
 
   private fireHero(): void {
-    if (!this.running || this.paused || this.leaving) {
+    if (!this.running || this.paused || this.leaving || !canFire(this.heat)) {
       return;
     }
 
@@ -393,6 +410,11 @@ export class ClimbScene extends ex.Scene {
     this.projectiles.spawn('hero', this.player.pos.x, this.player.pos.y - PLAYER_VISUAL_HEIGHT, {
       speed: HERO_SHOT_SPEED,
     });
+
+    // Heat is added only on a shot that actually happened, so tapping while jammed cannot slow the
+    // cooldown down.
+    this.heat = heatAfterShot(this.heat);
+    this.refreshFireState();
   }
 
   /** Round control in the corner plus the cover that says how to get back. */
@@ -495,7 +517,7 @@ export class ClimbScene extends ex.Scene {
     // Applied even when the state did not change: the UI must never depend on how it got here.
     this.applyPauseVisibility(this.paused);
     this.pauseToggle.setPaused(this.paused);
-    this.setFireEnabled(this.running && !this.paused);
+    this.refreshFireState();
   }
 
   /**
@@ -528,8 +550,16 @@ export class ClimbScene extends ex.Scene {
     this.player.vel.y = -this.speed;
   }
 
-  private setFireEnabled(enabled: boolean): void {
-    this.fireButton.setEnabled(enabled);
+  /**
+   * The single place that decides how the fire control looks: three reasons can disable it — paused,
+   * run over, cannon jammed — and three call sites writing the button separately is how they end up
+   * disagreeing.
+   */
+  private refreshFireState(): void {
+    const available = this.running && !this.paused && canFire(this.heat);
+    this.fireButton.setEnabled(available);
+    this.fireButton.setLabel(this.heat.jammed ? 'COOLING' : 'FIRE');
+    this.heatBar?.setValue(this.heat.heat / HEAT_MAX, this.heat.jammed);
   }
 
   /**
@@ -636,5 +666,10 @@ export class ClimbScene extends ex.Scene {
     });
     this.fireButton.z = 100;
     this.add(this.fireButton);
+
+    this.heatBar = new HeatBar(WORLD_WIDTH / 2, FIRE_BUTTON_Y - FIRE_BUTTON_HEIGHT / 2 - 24);
+    this.heatBar.z = 100;
+    this.add(this.heatBar);
+    this.heatBar.setValue(0, false);
   }
 }

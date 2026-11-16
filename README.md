@@ -148,6 +148,17 @@ keyboard/drag fallback.
   cost the run, and coming back leaves you in control.
 - A run always **starts unpaused**: the cover is hidden explicitly at creation, not left to a default.
 
+## Cannon heat
+
+- **Every shot heats the cannon**: 30 per shot against a maximum of 100, so four quick shots reach the
+  limit. The cannon cools at 30 per second while it is not firing.
+- **Overheating jams it**: at 100 the cannon refuses to fire — and taps add no heat, so hammering the
+  button cannot delay the recovery. It fires again once the heat is back to 35, about 2.2 s.
+- **The state is on screen**: a 140 × 12 bar 24 px above the fire button, cyan when cool, amber when
+  hot, red when jammed, and the button reads `COOLING` and dims while jammed.
+- **It cools on the game clock**: pausing freezes the heat, and every run starts cold. Score, levels
+  and the record never read it.
+
 ## Combat
 
 - **FIRE**: button at the bottom; one tap = one shot, no bursts (a 150 ms guard
