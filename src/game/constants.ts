@@ -79,6 +79,16 @@ export const HERO_HIT_RADIUS = 20;
 export const FIRE_BUTTON_WIDTH = 200;
 export const FIRE_BUTTON_HEIGHT = 84;
 
+/**
+ * Bottom strip, in logical pixels, where a tap fires. A logical height rather than a fraction of the
+ * screen: the band has to be the same on every phone, because that is what the thumb learns.
+ */
+export const FIRE_BAND_HEIGHT = 220;
+
+/** Tap versus drag: under this travel and this duration the gesture is a tap. */
+export const TAP_SLOP_PX = 12;
+export const TAP_MAX_MS = 300;
+
 /** Round pause control, same size as the audio toggle in the menu. */
 export const PAUSE_TOGGLE_MARGIN = 56;
 

@@ -11,6 +11,7 @@ import {
   ENEMY_POOL_SIZE,
   ENEMY_SPAWN_INTERVAL_MS,
   ENEMY_SPAWN_MARGIN,
+  FIRE_BAND_HEIGHT,
   FIRE_BUTTON_HEIGHT,
   FIRE_BUTTON_WIDTH,
   HERO_HIT_RADIUS,
@@ -159,6 +160,18 @@ export class ClimbScene extends ex.Scene {
     this.inputRouter = new InputRouter(engine, session.tilt);
     // Dragging must not start on the fire button, or steering would fight the thumb.
     this.inputRouter.setDragStartLimit(FIRE_BUTTON_Y - FIRE_BUTTON_HEIGHT / 2 - 12);
+    // The whole bottom strip fires on a tap; the button keeps its own handler and is excluded here,
+    // so one tap cannot fire twice.
+    this.inputRouter.setFireBandHeight(FIRE_BAND_HEIGHT);
+    this.inputRouter.setFireButtonRect({
+      left: WORLD_WIDTH / 2 - FIRE_BUTTON_WIDTH / 2,
+      top: FIRE_BUTTON_Y - FIRE_BUTTON_HEIGHT / 2,
+      width: FIRE_BUTTON_WIDTH,
+      height: FIRE_BUTTON_HEIGHT,
+    });
+    this.inputRouter.onFireTap(() => {
+      this.fireHero();
+    });
 
     this.player.on('collisionstart', () => {
       // Powered means invincible: asteroids pass through, everything else still applies.
@@ -546,7 +559,7 @@ export class ClimbScene extends ex.Scene {
       color: '#8b98a8',
       z: 151,
     });
-    this.resumeHint.setText('tap anywhere to resume');
+    this.resumeHint.setText('tap here to resume');
 
     // Plain DOM listener on the canvas, not a per-actor handler: Excalibur dispatches the same
     // pointerup to several actors at once (so the cover unpaused what the control had just
@@ -570,6 +583,21 @@ export class ClimbScene extends ex.Scene {
     this.resumeHint.actor.graphics.isVisible = visible;
   }
 
+  /**
+   * Where a tap resumes the run.
+   *
+   * Deliberately not the whole cover: a tap anywhere also reaches the fire band, and resuming on the
+   * same gesture fired a shot the instant the pause lifted. The resume target and the pause control
+   * are the only two places that change the paused state.
+   */
+  private isOnResumeArea(x: number, y: number): boolean {
+    const halfWidth = 260;
+    const halfHeight = 70;
+    const centerX = WORLD_WIDTH / 2;
+    const centerY = WORLD_HEIGHT * 0.56;
+    return Math.abs(x - centerX) <= halfWidth && Math.abs(y - centerY) <= halfHeight;
+  }
+
   /** Position test against the round control, in screen coordinates. */
   private isOnPauseControl(x: number, y: number): boolean {
     const half = this.pauseToggle.width / 2;
@@ -583,7 +611,10 @@ export class ClimbScene extends ex.Scene {
       return;
     }
     if (this.paused) {
-      this.setPaused(false);
+      if (this.isOnResumeArea(x, y) || this.isOnPauseControl(x, y)) {
+        this.setPaused(false);
+      }
+      // A tap elsewhere while paused does nothing at all: not resume, not fire.
       return;
     }
     if (this.isOnPauseControl(x, y)) {

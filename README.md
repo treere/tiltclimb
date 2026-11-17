@@ -161,6 +161,18 @@ keyboard/drag fallback.
 - **Nothing else changes**: score, levels and the record never read the power-up, and the timer freezes
   while paused and resets at every run.
 
+## Firing
+
+- **The whole bottom band fires**: a tap anywhere in the bottom 220 logical pixels produces one shot,
+  exactly like the `FIRE` button, which stays as the visual cue.
+- **Tap and drag are told apart on release**: under 12 px of travel and under 300 ms is a tap and
+  fires; anything else is a steering drag, which never fires. Dragging inside the band does not
+  steer either — that strip belongs to the controls.
+- **One tap, one shot**: the band ignores taps that land on the button, so the button's own handler
+  and the band cannot both fire.
+- Coordinates come from the pointer page position against the canvas rectangle: Excalibur's
+  `screenPos` drifts with the camera, which broke any fixed target deeper into a run.
+
 ## Cannon heat
 
 - **Every shot heats the cannon**: 30 per shot against a maximum of 100, so four quick shots reach the
