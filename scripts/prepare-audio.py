@@ -52,6 +52,7 @@ SOUNDS = {
     'death-impact': 'sfx_damage_hit1.wav',
     'lose': 'sfx_exp_long6.wav',
     'record': 'sfx_sounds_powerup1.wav',
+    'pickup': 'sfx_sounds_powerup2.wav',
 }
 
 LICENSE = """# Audio licences

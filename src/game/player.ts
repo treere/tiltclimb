@@ -5,7 +5,7 @@ import {
   PLAYER_VISUAL_HEIGHT,
   PLAYER_VISUAL_WIDTH,
 } from './constants';
-import { createFlameAnimation, shipImage } from './sprites';
+import { createFlameAnimation, shipImage, shipPoweredImage } from './sprites';
 
 /** The ship sprite scaled to the size the game expects. */
 export function createShipSprite(): ex.Sprite {
@@ -15,10 +15,20 @@ export function createShipSprite(): ex.Sprite {
   return sprite;
 }
 
+/** The same ship with the powered colour, so `setPowered` is a texture swap. */
+export function createPoweredShipSprite(): ex.Sprite {
+  const sprite = shipPoweredImage.toSprite();
+  const scale = PLAYER_VISUAL_WIDTH / sprite.width;
+  sprite.scale = ex.vec(scale, scale);
+  return sprite;
+}
+
 /** The player: the ship sprite with the exhaust plume as a child actor, so it follows. */
 export class PlayerShip extends ex.Actor {
   private readonly exhaust: ex.Animation;
   private readonly plume: ex.Actor;
+  private readonly normalSprite = createShipSprite();
+  private readonly poweredSprite = createPoweredShipSprite();
 
   constructor() {
     super({
@@ -28,7 +38,7 @@ export class PlayerShip extends ex.Actor {
       collisionType: ex.CollisionType.Active,
     });
 
-    this.graphics.use(createShipSprite());
+    this.graphics.use(this.normalSprite);
 
     this.exhaust = createFlameAnimation();
     this.plume = new ex.Actor({
@@ -39,6 +49,11 @@ export class PlayerShip extends ex.Actor {
     this.addChild(this.plume);
 
     this.exhaust.play();
+  }
+
+  /** Amber while the power-up runs, blue otherwise: two textures, no runtime tint. */
+  setPowered(powered: boolean): void {
+    this.graphics.use(powered ? this.poweredSprite : this.normalSprite);
   }
 
   startExhaust(): void {

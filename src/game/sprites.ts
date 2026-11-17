@@ -12,6 +12,10 @@ const BASE = `${import.meta.env.BASE_URL}assets/kenney/`;
 const image = (file: string): ex.ImageSource => new ex.ImageSource(`${BASE}${file}`);
 
 export const shipImage = image('playerShip2_blue.png');
+/** Same hull, amber: the powered state. Derived by scripts/make-ship-variant.py. */
+export const shipPoweredImage = image('playerShip2_amber.png');
+/** The pickup: an existing star sprite, no new art. */
+export const pickupImage = image('star3.png');
 export const backgroundImage = image('darkPurple.png');
 
 export const flameImages: ex.ImageSource[] = Array.from({ length: 10 }, (_, index) =>
@@ -43,6 +47,8 @@ export const enemyLaserImage = image('laserRed01.png');
 
 const allImages = [
   shipImage,
+  shipPoweredImage,
+  pickupImage,
   backgroundImage,
   ...flameImages,
   ...meteorImages,

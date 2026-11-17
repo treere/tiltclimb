@@ -29,6 +29,7 @@ export const effectSounds = {
   'death-impact': sound('death-impact.ogg'),
   lose: sound('lose.ogg'),
   record: sound('record.ogg'),
+  pickup: sound('pickup.ogg'),
 } as const;
 
 export type SfxKey = keyof typeof effectSounds;

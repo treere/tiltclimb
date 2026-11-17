@@ -28,12 +28,23 @@ import {
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants';
-import { EnemyPool } from './enemy';
+import { type Enemy, EnemyPool } from './enemy';
 import { ARCHETYPES, kindsAvailableAt, maxAliveAt } from './enemy-archetypes';
 import { ExplosionPool } from './explosion';
 import { levelAt, specForLevel } from './levels';
 import { ObstaclePool } from './obstacle-pool';
+import { Pickup } from './pickup';
 import { PlayerShip } from './player';
+import {
+  afterPickup,
+  afterTime,
+  BLINK_MS,
+  IDLE,
+  isActive,
+  isWarning,
+  type PowerUpState,
+  shouldDrop,
+} from './powerups';
 import { ProjectilePool } from './projectile';
 import { session } from './session';
 import { CLIMB_SPEED_START } from './speed';
@@ -87,6 +98,10 @@ export class ClimbScene extends ex.Scene {
   /** Current climb speed: grows with the height climbed, and everything that scrolls uses it. */
   private speed = CLIMB_SPEED_START;
   private heat: HeatState = { ...COLD };
+  private powerUp: PowerUpState = { ...IDLE };
+  private pickup!: Pickup;
+  private blinkOn = false;
+  private nextBlinkAt = 0;
   private heatBar!: HeatBar;
   private level = 1;
   private levelSpec = specForLevel(1);
@@ -146,8 +161,15 @@ export class ClimbScene extends ex.Scene {
     this.inputRouter.setDragStartLimit(FIRE_BUTTON_Y - FIRE_BUTTON_HEIGHT / 2 - 12);
 
     this.player.on('collisionstart', () => {
+      // Powered means invincible: asteroids pass through, everything else still applies.
+      if (isActive(this.powerUp)) {
+        return;
+      }
       this.endRun();
     });
+
+    this.pickup = new Pickup();
+    this.add(this.pickup);
 
     this.createHud();
     this.createPauseUi(engine);
@@ -206,6 +228,7 @@ export class ClimbScene extends ex.Scene {
 
     this.heat = heatAfterCooling(this.heat, elapsed);
     this.refreshFireState();
+    this.updatePowerUp(elapsed);
 
     this.starfield.update(elapsed, this.speed);
     this.explosions.tick(elapsed);
@@ -247,6 +270,11 @@ export class ClimbScene extends ex.Scene {
     this.player.pos.y = 0;
     this.player.vel.x = 0;
     this.heat = { ...COLD };
+    this.powerUp = { ...IDLE };
+    this.blinkOn = false;
+    this.nextBlinkAt = 0;
+    this.pickup?.hide();
+    this.player.setPowered(false);
     this.level = 1;
     this.levelSpec = specForLevel(1);
     this.speed = this.levelSpec.climbSpeed;
@@ -366,18 +394,17 @@ export class ClimbScene extends ex.Scene {
         );
         if (target) {
           this.projectiles.release(projectile);
-          this.enemies.release(target);
-          audio.playSfx(KILL_BY_KIND[target.kind]);
-          this.explosions.burst(target.pos.x, target.pos.y, BLAST_BY_KIND[target.kind]);
-          this.kills += 1;
-          this.killPoints += target.points;
-          this.updateScore();
+          this.destroyShip(target);
         }
         continue;
       }
 
       if (circlesOverlap(bullet, hero)) {
         this.projectiles.release(projectile);
+        // Powered means invincible: the projectile is consumed and nothing else happens.
+        if (isActive(this.powerUp)) {
+          continue;
+        }
         this.endRun();
         return;
       }
@@ -387,11 +414,78 @@ export class ClimbScene extends ex.Scene {
       return;
     }
 
+    if (this.pickup.isShown) {
+      const reached = circlesOverlap(
+        { x: this.pickup.pos.x, y: this.pickup.pos.y, r: this.pickup.width / 2 },
+        hero,
+      );
+      if (reached) {
+        this.collectPickup();
+      }
+    }
+
     const rammed = [...this.enemies.active].find((enemy) =>
       circlesOverlap({ x: enemy.pos.x, y: enemy.pos.y, r: enemy.hitRadius }, hero),
     );
     if (rammed) {
-      this.endRun();
+      if (isActive(this.powerUp)) {
+        this.destroyShip(rammed);
+      } else {
+        this.endRun();
+      }
+    }
+  }
+
+  /** One ship destroyed, by a shot or by a powered hero: same explosion, same points, same drop. */
+  private destroyShip(enemy: Enemy): void {
+    this.enemies.release(enemy);
+    audio.playSfx(KILL_BY_KIND[enemy.kind]);
+    this.explosions.burst(enemy.pos.x, enemy.pos.y, BLAST_BY_KIND[enemy.kind]);
+    this.kills += 1;
+    this.killPoints += enemy.points;
+    this.updateScore();
+
+    if (shouldDrop(Math.random())) {
+      this.pickup.show(enemy.pos.x, enemy.pos.y);
+    }
+  }
+
+  private collectPickup(): void {
+    this.pickup.hide();
+    this.powerUp = afterPickup();
+    this.blinkOn = false;
+    this.nextBlinkAt = 0;
+    this.player.setPowered(true);
+    audio.playSfx('pickup');
+  }
+
+  /** Timer, warning blink and the return to normal colour, all on the game clock. */
+  private updatePowerUp(elapsed: number): void {
+    if (!isActive(this.powerUp)) {
+      return;
+    }
+
+    this.powerUp = afterTime(this.powerUp, elapsed);
+
+    if (!isActive(this.powerUp)) {
+      this.blinkOn = false;
+      this.player.setPowered(false);
+      return;
+    }
+
+    if (!isWarning(this.powerUp)) {
+      if (this.blinkOn) {
+        this.blinkOn = false;
+        this.player.setPowered(true);
+      }
+      return;
+    }
+
+    const now = performance.now();
+    if (now >= this.nextBlinkAt) {
+      this.nextBlinkAt = now + BLINK_MS;
+      this.blinkOn = !this.blinkOn;
+      this.player.setPowered(!this.blinkOn);
     }
   }
 
