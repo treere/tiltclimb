@@ -161,6 +161,15 @@ keyboard/drag fallback.
 - **Nothing else changes**: score, levels and the record never read the power-up, and the timer freezes
   while paused and resets at every run.
 
+## Death
+
+- **The world slows down**: on the fatal impact time drops to a quarter speed for 400 ms. The starfield
+  and the ship's drift crawl, while the explosion plays at full speed so the blast is actually visible.
+- **Nothing pays during the beat**: no spawns, no collisions, no score — the slowdown is a beat, not an
+  extra life.
+- **Time is always restored**: on the exit timer, on a scene change and when the page is hidden, so no
+  run ever starts at a quarter speed.
+
 ## Firing
 
 - **The whole bottom band fires**: a tap anywhere in the bottom 220 logical pixels produces one shot,

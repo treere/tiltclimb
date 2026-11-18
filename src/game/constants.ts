@@ -85,6 +85,10 @@ export const FIRE_BUTTON_HEIGHT = 84;
  */
 export const FIRE_BAND_HEIGHT = 220;
 
+/** Slow motion on death: the world runs at a quarter speed for this much wall-clock time. */
+export const DEATH_TIMESCALE = 0.25;
+export const DEATH_SLOWMO_MS = 400;
+
 /** Tap versus drag: under this travel and this duration the gesture is a tap. */
 export const TAP_SLOP_PX = 12;
 export const TAP_MAX_MS = 300;

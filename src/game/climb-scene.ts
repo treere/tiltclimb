@@ -8,6 +8,8 @@ import { PauseToggle } from '../ui/pause-toggle';
 import { UiText } from '../ui/ui-text';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
+  DEATH_SLOWMO_MS,
+  DEATH_TIMESCALE,
   ENEMY_POOL_SIZE,
   ENEMY_SPAWN_INTERVAL_MS,
   ENEMY_SPAWN_MARGIN,
@@ -89,6 +91,7 @@ export class ClimbScene extends ex.Scene {
   private fireButton!: Button;
   private explosions!: ExplosionPool;
   private stingTimer: ReturnType<typeof setTimeout> | null = null;
+  private slowMotionTimer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
   private leaving = false;
   private score = 0;
@@ -113,6 +116,11 @@ export class ClimbScene extends ex.Scene {
   private lastShotAt = 0;
   private exitTimer: ReturnType<typeof setTimeout> | null = null;
   private paused = false;
+  /**
+   * Between the fatal collision and the menu. The world crawls: the blast and the starfield keep
+   * moving, nothing is spawned, nothing is scored, nothing collides.
+   */
+  private dying = false;
   /** Velocities stored on pause and restored on resume: Excalibur integrates them every frame. */
   private frozenMotion: { actor: ex.Actor; vel: ex.Vector }[] = [];
   private pauseToggle!: PauseToggle;
@@ -137,7 +145,16 @@ export class ClimbScene extends ex.Scene {
 
   /** Leaving the page mid-run pauses it: a notification must not cost the run. */
   private readonly onVisibilityChange = (): void => {
-    if (document.hidden && this.running && !this.leaving) {
+    if (!document.hidden) {
+      return;
+    }
+    // Timers are throttled in a hidden tab, so the slow-motion timer may be late: restore here as
+    // well, or the player comes back to a world stuck at a quarter speed.
+    if (this.dying) {
+      this.restoreTime();
+      return;
+    }
+    if (this.running && !this.leaving) {
       this.setPaused(true);
     }
   };
@@ -203,12 +220,22 @@ export class ClimbScene extends ex.Scene {
     }
   }
 
+  /**
+   * Puts time back where it belongs. Every way out of the dying phase goes through here: a timescale
+   * left at a quarter would make the next run crawl.
+   */
+  private restoreTime(): void {
+    this.engine.timescale = 1;
+  }
+
   override onDeactivate(_context: SceneContext): void {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.canvasElement?.removeEventListener('pointerup', this.onCanvasPointerUp);
     this.running = false;
     this.leaving = false;
     this.paused = false;
+    this.dying = false;
+    this.restoreTime();
     this.player.stopExhaust();
     if (this.exitTimer !== null) {
       clearTimeout(this.exitTimer);
@@ -218,9 +245,23 @@ export class ClimbScene extends ex.Scene {
       clearTimeout(this.stingTimer);
       this.stingTimer = null;
     }
+    if (this.slowMotionTimer !== null) {
+      clearTimeout(this.slowMotionTimer);
+      this.slowMotionTimer = null;
+    }
   }
 
   override onPreUpdate(_engine: ex.Engine, elapsed: number): void {
+    // The dying phase: only the world's crawl and the blast. No spawning, no collisions, no score, so
+    // the extra time can never pay. The blast is ticked with the real elapsed time, otherwise a
+    // quarter-speed clock would show it one frame at a time and the explosion would look frozen.
+    if (this.dying) {
+      this.player.vel.y = -this.speed;
+      this.starfield.update(elapsed, this.speed);
+      this.explosions.tick(elapsed / DEATH_TIMESCALE);
+      return;
+    }
+
     // Paused means paused: no scroll, no spawning, no score, and no collision evaluation — a ship
     // overlapping an asteroid while paused does not die.
     if (!this.running || this.paused) {
@@ -275,6 +316,8 @@ export class ClimbScene extends ex.Scene {
   }
 
   private startRun(): void {
+    this.dying = false;
+    this.restoreTime();
     this.obstacles.releaseAll();
     this.projectiles.releaseAll();
     this.enemies.releaseAll();
@@ -320,6 +363,7 @@ export class ClimbScene extends ex.Scene {
 
     this.leaving = true;
     this.running = false;
+    this.dying = true;
     this.player.vel = ex.Vector.Zero;
     this.player.stopExhaust();
     this.projectiles.freezeAll();
@@ -339,9 +383,18 @@ export class ClimbScene extends ex.Scene {
     }, 420);
     this.refreshFireState();
 
-    // Short pause so the collision is readable before the scene changes.
+    // The world decelerates so the blast is readable, then time is restored with a little margin
+    // before the scene changes: a run must never start slowed.
+    this.engine.timescale = DEATH_TIMESCALE;
+    this.slowMotionTimer = setTimeout(() => {
+      this.slowMotionTimer = null;
+      this.player.vel.y = 0;
+      this.restoreTime();
+    }, DEATH_SLOWMO_MS);
+
     this.exitTimer = setTimeout(() => {
       this.exitTimer = null;
+      this.restoreTime();
       void this.engine.goToScene('menu');
     }, EXIT_DELAY_MS);
   }
