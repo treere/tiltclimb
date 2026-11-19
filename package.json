@@ -20,7 +20,7 @@
     "@biomejs/biome": "^2.6.8",
     "@types/node": "^26.6.6",
     "typescript": "~7.0.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.8"
   },
   "dependencies": {
     "excalibur": "^1.0.1"
