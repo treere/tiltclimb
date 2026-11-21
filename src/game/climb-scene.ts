@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { HeatBar } from '../ui/heat-bar';
 import { PauseToggle } from '../ui/pause-toggle';
 import { UiText } from '../ui/ui-text';
+import { biomeAt, isBiomeBoundary, sectorNumber } from './biomes';
 import { circlesOverlap, climbScore } from './combat-math';
 import {
   DEATH_SLOWMO_MS,
@@ -51,6 +52,7 @@ import {
 import { ProjectilePool } from './projectile';
 import { session } from './session';
 import { CLIMB_SPEED_START } from './speed';
+import { backgroundFor } from './sprites';
 import { Starfield } from './starfield';
 import {
   COLD,
@@ -333,6 +335,9 @@ export class ClimbScene extends ex.Scene {
     this.player.setPowered(false);
     this.level = 1;
     this.levelSpec = specForLevel(1);
+    // A new run starts in the first sector, instantly: the player must not begin inside a half-faded
+    // palette left over from the previous run's biome.
+    this.starfield.setBackground(backgroundFor(biomeAt(1).id), 0);
     this.speed = this.levelSpec.climbSpeed;
     this.player.vel.y = -this.speed;
 
@@ -758,7 +763,17 @@ export class ClimbScene extends ex.Scene {
     this.level = level;
     this.levelSpec = specForLevel(level);
     this.levelText.setText(`LV ${level}`);
-    this.levelBanner.setText(`LEVEL ${level}`);
+
+    if (isBiomeBoundary(level)) {
+      // A new sector: the sky changes and the banner names the place instead of the number. The
+      // banner already exists for archetype announcements, so nothing new appears on screen.
+      const biome = biomeAt(level);
+      this.levelBanner.setText(`SECTOR ${sectorNumber(level)} · ${biome.name}`);
+      this.starfield.setBackground(backgroundFor(biome.id));
+    } else {
+      this.levelBanner.setText(`LEVEL ${level}`);
+    }
+
     this.levelBannerUntil = performance.now() + LEVEL_BANNER_MS;
   }
 

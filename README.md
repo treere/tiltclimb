@@ -161,6 +161,21 @@ keyboard/drag fallback.
 - **Nothing else changes**: score, levels and the record never read the power-up, and the timer freezes
   while paused and resets at every run.
 
+## Biomes
+
+- **A biome every five levels**: levels 1–5 are low orbit, 6–10 the asteroid belt, 11–15 a frozen drift,
+  16–20 a rust cloud, then the cycle starts again. A biome depends only on the level, so nothing is
+  stored and the same level always shows the same sky.
+- **The sky cross-fades**: 600 ms, driven by game time so it pauses with the game. Two tile sets, six
+  tiles in total, allocated once.
+- **The sector is announced**: crossing a boundary the banner reads `SECTOR 2 · ASTEROID BELT`, and
+  inside a biome it keeps showing `LEVEL n`.
+- **Palettes are derived, not drawn**: `scripts/make-biome-backgrounds.py` rotates the hue of the CC0
+  texture to 230°, 175° and 18° from its own 282°. The script measures the source hue instead of
+  trusting a hand-written shift — the first attempt produced a "rust" that was green.
+- **Nothing gameplay reads a biome**: speed, spawn, points and archetypes are the level's business, so a
+  record stays comparable across skies.
+
 ## Death
 
 - **The world slows down**: on the fatal impact time drops to a quarter speed for 400 ms. The starfield
@@ -290,6 +305,10 @@ python3 scripts/prepare-explosions.py                      # explosion frames (P
 Graphic assets: **Kenney — "Space Shooter Redux"**, **CC0 1.0** license (public domain).
 Author: Kenney Vleugels, <https://kenney.nl>. The original license text is in
 `public/assets/kenney/license.txt`, next to the files used.
+
+Biome backgrounds (`bgCobalt.png`, `bgTeal.png`, `bgRust.png`) are derivatives of the same CC0 texture,
+produced by `scripts/make-biome-backgrounds.py`; the amber ship copy by `scripts/make-ship-variant.py`.
+Derivatives of CC0 material stay CC0.
 
 Audio assets: **Juhani Junkala**, "The Essential Retro Video Game Sound Effects Collection",
 **CC0 1.0** — <https://opengameart.org/content/512-sound-effects-8-bit-style>.

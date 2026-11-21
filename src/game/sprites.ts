@@ -1,4 +1,5 @@
 import * as ex from 'excalibur';
+import { BIOMES } from './biomes';
 import { ARCHETYPE_ORDER, ARCHETYPES, type EnemyKind } from './enemy-archetypes';
 
 /**
@@ -17,6 +18,20 @@ export const shipPoweredImage = image('playerShip2_amber.png');
 /** The pickup: an existing star sprite, no new art. */
 export const pickupImage = image('star3.png');
 export const backgroundImage = image('darkPurple.png');
+
+/** One background per biome, derived from the same CC0 texture by scripts/make-biome-backgrounds.py. */
+export const biomeBackgrounds: Record<string, ex.ImageSource> = Object.fromEntries(
+  // The first biome is the texture we already ship: reuse the source rather than loading it twice.
+  BIOMES.map((biome) => [
+    biome.id,
+    biome.background === 'darkPurple.png' ? backgroundImage : image(biome.background),
+  ]),
+) as Record<string, ex.ImageSource>;
+
+/** The background of a biome id, falling back to the base texture. */
+export function backgroundFor(biomeId: string): ex.ImageSource {
+  return biomeBackgrounds[biomeId] ?? backgroundImage;
+}
 
 export const flameImages: ex.ImageSource[] = Array.from({ length: 10 }, (_, index) =>
   image(`fire${String(index).padStart(2, '0')}.png`),
@@ -50,6 +65,7 @@ const allImages = [
   shipPoweredImage,
   pickupImage,
   backgroundImage,
+  ...Object.values(biomeBackgrounds),
   ...flameImages,
   ...meteorImages,
   ...starImages,
